@@ -1,0 +1,6406 @@
+{
+  "kind": "deterministic-identical-source-live-study",
+  "baseline_commit": "4eb2412682f8b3c6321ce5c8887314850ac9a697",
+  "checkout_commit": "4eb2412682f8b3c6321ce5c8887314850ac9a697",
+  "production_source_sha256": {
+    "isla/streaming.py": "983d888d0543a9c8fa2461b7c19787db5eca18ccc07a3616b33371cc516215a8",
+    "isla/harmonics.py": "9b25c6d9126766a69d482fb7e637a95de86d79884cb55ccec74b8a7cc58045e5",
+    "phased_music_notes/harmonics.py": "5d918b578fad901f630436f751359503946a37faf8725e10245f46a02e7c6551"
+  },
+  "platform": "macOS-26.7.2-arm64-arm-64bit-Mach-O",
+  "python": "3.14.6",
+  "numpy": "2.5.4",
+  "soundfile": "0.14.0",
+  "bands_hz": [
+    "0-200",
+    "200-2000",
+    "2000-6000",
+    "6000-Nyquist"
+  ],
+  "alignment": "1536 frames removed; full raw output separately inspected for cold-start probes",
+  "fixture_provenance": "Original deterministic synthesis and/or explicitly supplied licensed recordings; see source_metadata and recording provenance",
+  "measurements": [
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.12181554302859707,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.5925445556640625,
+      "raw_peak": 0.5925445556640625,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.740366132150898,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.032470703125,
+      "all_max_step": 0.0827484130859375,
+      "seam_rms_step": 0.008075996725861283,
+      "all_rms_step": 0.008115116795162651,
+      "centroid_hz": 731.5544868447857,
+      "band_energy_fraction": [
+        0.251939438301355,
+        0.7445201695255746,
+        0.0035192276414706992,
+        2.1164531599721633e-05
+      ]
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "velvet",
+      "relative_rms": 0.054819065463986405,
+      "rms": 0.1158128984749551,
+      "rms_gain_db": -0.4389154922450384,
+      "rms_match_gain": 1.0518305355680226,
+      "matched_relative_rms": 0.02463452137544989,
+      "optimal_gain_residual": 0.024632652592459496,
+      "peak": 0.5696371793746948,
+      "raw_peak": 0.5696371793746948,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.836827927559892,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.052030099914858255,
+      "matched_envelope_relative_rms": 0.017129377485219335,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.03088366985321045,
+      "all_max_step": 0.08247592847328633,
+      "seam_rms_step": 0.007680586250665587,
+      "all_rms_step": 0.007724041132485485,
+      "centroid_hz": 734.0135631555879,
+      "band_energy_fraction": [
+        0.2509885721286539,
+        0.7454235725547935,
+        0.003566288590191118,
+        2.1566726361382483e-05
+      ],
+      "independent_wola_max_error": 2.9317720584565166e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "legato",
+      "relative_rms": 0.08614424570292173,
+      "rms": 0.11241701449375983,
+      "rms_gain_db": -0.6974131635565108,
+      "rms_match_gain": 1.0836041463755377,
+      "matched_relative_rms": 0.03988568833702568,
+      "optimal_gain_residual": 0.03987775593941199,
+      "peak": 0.5567793846130371,
+      "raw_peak": 0.5567793846130371,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.897021985754474,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.08162458160986674,
+      "matched_envelope_relative_rms": 0.02773474020597736,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        -0.022675736961451247,
+        0.0,
+        -0.022675736961451247,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.022675736961451247,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.02997678518295288,
+      "all_max_step": 0.0823202293831855,
+      "seam_rms_step": 0.007457025985642323,
+      "all_rms_step": 0.007503088014314282,
+      "centroid_hz": 735.4985723836871,
+      "band_energy_fraction": [
+        0.25036229925428377,
+        0.7460195663452626,
+        0.0035963133556376416,
+        2.182104481596384e-05
+      ],
+      "independent_wola_max_error": 2.9040804983004875e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "melt",
+      "relative_rms": 0.11746942586750238,
+      "rms": 0.10904891074456372,
+      "rms_gain_db": -0.9616274728151896,
+      "rms_match_gain": 1.1170725337544904,
+      "matched_relative_rms": 0.0560803608364708,
+      "optimal_gain_residual": 0.056058309861190474,
+      "peak": 0.544067919254303,
+      "raw_peak": 0.544067919254303,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.960635735138654,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.11110647843920866,
+      "matched_envelope_relative_rms": 0.038991257849342216,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        -0.022675736961451247,
+        0.0,
+        -0.022675736961451247,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.09070294784580499,
+        17.006802721088437,
+        0.0
+      ],
+      "seam_max_step": 0.029069900512695312,
+      "all_max_step": 0.08216452272608876,
+      "seam_rms_step": 0.007235404576851579,
+      "all_rms_step": 0.007284175370715335,
+      "centroid_hz": 737.0387279666066,
+      "band_energy_fraction": [
+        0.24966652621385968,
+        0.7466824730653647,
+        0.0036289054636028588,
+        2.209525717290013e-05
+      ],
+      "independent_wola_max_error": 2.8763889825533795e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.1361765731436049,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.74420166015625,
+      "raw_peak": 0.74420166015625,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.751764669201206,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.180633544921875,
+      "all_max_step": 0.32275390625,
+      "seam_rms_step": 0.04875292492338668,
+      "all_rms_step": 0.04833634370000653,
+      "centroid_hz": 3793.30556844208,
+      "band_energy_fraction": [
+        0.24506173619358135,
+        0.5442625253187761,
+        0.1536687797584929,
+        0.05700695872914952
+      ]
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "velvet",
+      "relative_rms": 0.04503935754948737,
+      "rms": 0.13150156693457135,
+      "rms_gain_db": -0.30342946523393755,
+      "rms_match_gain": 1.0355509543955441,
+      "matched_relative_rms": 0.02966781594956992,
+      "optimal_gain_residual": 0.02966455164529041,
+      "peak": 0.7204132676124573,
+      "raw_peak": 0.7204132676124573,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.773015493898027,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.03828010064533236,
+      "matched_envelope_relative_rms": 0.017233112840400855,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        24.12698412698413,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.17385325208306313,
+      "all_max_step": 0.31174731109058484,
+      "seam_rms_step": 0.04706364716825761,
+      "all_rms_step": 0.04685839014887761,
+      "centroid_hz": 3794.806486067932,
+      "band_energy_fraction": [
+        0.24587701290075883,
+        0.5416212703937118,
+        0.1550305712158603,
+        0.05747114548966922
+      ],
+      "independent_wola_max_error": 2.9790617639413597e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "legato",
+      "relative_rms": 0.07077613325791866,
+      "rms": 0.12888505362488878,
+      "rms_gain_db": -0.47799688945109325,
+      "rms_match_gain": 1.0565738176277413,
+      "matched_relative_rms": 0.047575538688286775,
+      "optimal_gain_residual": 0.04756207628468447,
+      "peak": 0.7140381336212158,
+      "raw_peak": 0.7140381336212158,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.870376991431925,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.059897383786440994,
+      "matched_envelope_relative_rms": 0.027594276558812803,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        24.12698412698413,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.1699788048863411,
+      "all_max_step": 0.30545784952118993,
+      "seam_rms_step": 0.04611304583978784,
+      "all_rms_step": 0.046030042192095486,
+      "centroid_hz": 3795.6635582867893,
+      "band_energy_fraction": [
+        0.24635691907785565,
+        0.5400571432528443,
+        0.155844657853633,
+        0.05774127981566705
+      ],
+      "independent_wola_max_error": 2.9795629519213662e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "melt",
+      "relative_rms": 0.09651290899864497,
+      "rms": 0.12631159280643087,
+      "rms_gain_db": -0.6531837871886261,
+      "rms_match_gain": 1.0781003557788384,
+      "matched_relative_rms": 0.06621507447240826,
+      "optimal_gain_residual": 0.06617877505239485,
+      "peak": 0.7084795236587524,
+      "raw_peak": 0.7084795236587524,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.977681823635251,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.08131051383991474,
+      "matched_envelope_relative_rms": 0.038340085777395845,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        24.12698412698413,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.16636937856674194,
+      "all_max_step": 0.29916835809126496,
+      "seam_rms_step": 0.04517398091480606,
+      "all_rms_step": 0.0452142852663932,
+      "centroid_hz": 3796.522125034492,
+      "band_energy_fraction": [
+        0.2468459163407935,
+        0.538455694404128,
+        0.15668440614270923,
+        0.058013983112369445
+      ],
+      "independent_wola_max_error": 2.977558422045945e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.15859685691728798,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.7611236572265625,
+      "raw_peak": 0.7611236572265625,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.623212893811248,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.1973114013671875,
+      "all_max_step": 0.3289794921875,
+      "seam_rms_step": 0.0508731874117748,
+      "all_rms_step": 0.05068627361528522,
+      "centroid_hz": 3574.24381895538,
+      "band_energy_fraction": [
+        0.2720645534596813,
+        0.5513550215810562,
+        0.1315867147144426,
+        0.044993710244819754
+      ]
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "velvet",
+      "relative_rms": 0.04506120532293962,
+      "rms": 0.15307380118939734,
+      "rms_gain_db": -0.3078741856857144,
+      "rms_match_gain": 1.0360809993935995,
+      "matched_relative_rms": 0.029107945470081935,
+      "optimal_gain_residual": 0.029104862511638872,
+      "peak": 0.7448984384536743,
+      "raw_peak": 0.7448984384536743,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.743923938957645,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.03874631716869906,
+      "matched_envelope_relative_rms": 0.017289940023875364,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.18863194913137704,
+      "all_max_step": 0.31797051429748535,
+      "seam_rms_step": 0.049266567560034565,
+      "all_rms_step": 0.049137794830980804,
+      "centroid_hz": 3576.167135575371,
+      "band_energy_fraction": [
+        0.2735623666057927,
+        0.5480638772282387,
+        0.1329966567068312,
+        0.04537709945913757
+      ],
+      "independent_wola_max_error": 2.9800731105034117e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "legato",
+      "relative_rms": 0.07081046535001684,
+      "rms": 0.1499793583195753,
+      "rms_gain_db": -0.48526170067417324,
+      "rms_match_gain": 1.0574578975018052,
+      "matched_relative_rms": 0.04669258953981911,
+      "optimal_gain_residual": 0.04667986291961111,
+      "peak": 0.7356268763542175,
+      "raw_peak": 0.7356268763542175,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.812521935624204,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.06064358033656999,
+      "matched_envelope_relative_rms": 0.027693474418181405,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.1844484657049179,
+      "all_max_step": 0.3116796761751175,
+      "seam_rms_step": 0.048367516666208914,
+      "all_rms_step": 0.04827018013963402,
+      "centroid_hz": 3577.29460568976,
+      "band_energy_fraction": [
+        0.2744529792369552,
+        0.5460958281070459,
+        0.13384832719123424,
+        0.04560286546476468
+      ],
+      "independent_wola_max_error": 2.9768917886308088e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "melt",
+      "relative_rms": 0.09655972557172507,
+      "rms": 0.146933254519808,
+      "rms_gain_db": -0.6634895603594216,
+      "rms_match_gain": 1.0793802766813936,
+      "matched_relative_rms": 0.06500834075990004,
+      "optimal_gain_residual": 0.06497399034293005,
+      "peak": 0.7263553142547607,
+      "raw_peak": 0.7263553142547607,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.880580402927656,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.08234710462911356,
+      "matched_envelope_relative_rms": 0.03849034167009042,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.18240109458565712,
+      "all_max_step": 0.30538882315158844,
+      "seam_rms_step": 0.047483282159435564,
+      "all_rms_step": 0.04741595875657728,
+      "centroid_hz": 3578.444960264868,
+      "band_energy_fraction": [
+        0.27536784904389566,
+        0.5440651329215176,
+        0.13473402939626583,
+        0.04583298863832103
+      ],
+      "independent_wola_max_error": 2.978670488040791e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.13842768897427474,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.699951171875,
+      "raw_peak": 0.699951171875,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.07689552981972,
+      "stereo_correlation": 0.5498168860073619,
+      "stereo_correlation_delta": 0.0,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.047027587890625,
+      "all_max_step": 0.16839599609375,
+      "seam_rms_step": 0.009449738161784014,
+      "all_rms_step": 0.009539484438370794,
+      "centroid_hz": 760.4488346694387,
+      "band_energy_fraction": [
+        0.277362368629212,
+        0.7184232180548582,
+        0.0041891149822038684,
+        2.5298333726132443e-05
+      ]
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "velvet",
+      "relative_rms": 0.05462250719516734,
+      "rms": 0.13160044094650408,
+      "rms_gain_db": -0.4393124808047597,
+      "rms_match_gain": 1.0518786105781055,
+      "matched_relative_rms": 0.02407806649120264,
+      "optimal_gain_residual": 0.024076321510700747,
+      "peak": 0.6747894287109375,
+      "raw_peak": 0.6747894287109375,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.198218516823324,
+      "stereo_correlation": 0.5496817536043223,
+      "stereo_correlation_delta": -0.00013513240303963947,
+      "envelope_relative_rms": 0.05101802215154035,
+      "matched_envelope_relative_rms": 0.013387279624133585,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.022675736961451247,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.044593364000320435,
+      "all_max_step": 0.16798419365659356,
+      "seam_rms_step": 0.008983352259575096,
+      "all_rms_step": 0.009083131586885573,
+      "centroid_hz": 763.1619686766261,
+      "band_energy_fraction": [
+        0.27596176381029425,
+        0.7197733091510664,
+        0.004239136075670814,
+        2.5790962968387947e-05
+      ],
+      "independent_wola_max_error": 2.973090418301183e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "legato",
+      "relative_rms": 0.08583536847918734,
+      "rms": 0.12773628413439206,
+      "rms_gain_db": -0.6981738033325907,
+      "rms_match_gain": 1.0836990437942768,
+      "matched_relative_rms": 0.03898615209906379,
+      "optimal_gain_residual": 0.03897874441599632,
+      "peak": 0.6609282493591309,
+      "raw_peak": 0.6609282493591309,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.27680073074139,
+      "stereo_correlation": 0.5494256103350599,
+      "stereo_correlation_delta": -0.0003912756723020161,
+      "envelope_relative_rms": 0.0799944916237826,
+      "matched_envelope_relative_rms": 0.021685434210072255,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.022675736961451247,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -17.188208616780045,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.04320238530635834,
+      "all_max_step": 0.16774887579958886,
+      "seam_rms_step": 0.008719776652993016,
+      "all_rms_step": 0.008825305212101446,
+      "centroid_hz": 764.8009571707371,
+      "band_energy_fraction": [
+        0.2750408102381183,
+        0.7206617099964818,
+        0.004271377586843909,
+        2.6102178555853935e-05
+      ],
+      "independent_wola_max_error": 2.97977051921805e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "melt",
+      "relative_rms": 0.11704822969373128,
+      "rms": 0.1239022914647606,
+      "rms_gain_db": -0.9628726027984215,
+      "rms_match_gain": 1.117232678571125,
+      "matched_relative_rms": 0.05481817263538559,
+      "optimal_gain_residual": 0.05479757747086935,
+      "peak": 0.6473262906074524,
+      "raw_peak": 0.6473262906074524,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.3608781505963,
+      "stereo_correlation": 0.5490094720485905,
+      "stereo_correlation_delta": -0.0008074139587713747,
+      "envelope_relative_rms": 0.10882718358714086,
+      "matched_envelope_relative_rms": 0.0305025692353497,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.022675736961451247,
+        0.0,
+        0.0,
+        -0.022675736961451247,
+        0.0,
+        0.0,
+        -17.188208616780045,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.04181139916181564,
+      "all_max_step": 0.16751355794258416,
+      "seam_rms_step": 0.008458582605345294,
+      "all_rms_step": 0.008569864036193765,
+      "centroid_hz": 766.4986539969871,
+      "band_energy_fraction": [
+        0.2740187716933071,
+        0.7216481450860734,
+        0.004306645694543762,
+        2.643752607600324e-05
+      ],
+      "independent_wola_max_error": 2.9781679122820037e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.1644719966615854,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.90771484375,
+      "raw_peak": 0.90771484375,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.837149455086273,
+      "stereo_correlation": 0.3711844467370575,
+      "stereo_correlation_delta": 0.0,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.2154541015625,
+      "all_max_step": 0.329833984375,
+      "seam_rms_step": 0.05099729661890897,
+      "all_rms_step": 0.050256659220997646,
+      "centroid_hz": 3454.78958561736,
+      "band_energy_fraction": [
+        0.1774565588428069,
+        0.6553791672008452,
+        0.12799074280213096,
+        0.03917353115421701
+      ]
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "velvet",
+      "relative_rms": 0.04728636385142501,
+      "rms": 0.1583794068082343,
+      "rms_gain_db": -0.32786505362057844,
+      "rms_match_gain": 1.0384683209524077,
+      "matched_relative_rms": 0.029950305697820267,
+      "optimal_gain_residual": 0.02994694725358275,
+      "peak": 0.8797329664230347,
+      "raw_peak": 0.8797329664230347,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.893043093073315,
+      "stereo_correlation": 0.37830187354398515,
+      "stereo_correlation_delta": 0.007117426806927618,
+      "envelope_relative_rms": 0.03967698911475892,
+      "matched_envelope_relative_rms": 0.014485446799270383,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.20729680359363556,
+      "all_max_step": 0.3199736010283232,
+      "seam_rms_step": 0.04919771818728267,
+      "all_rms_step": 0.048679880435113364,
+      "centroid_hz": 3459.5387922161754,
+      "band_energy_fraction": [
+        0.1790230828823358,
+        0.6518944573948775,
+        0.1293666972607032,
+        0.039715762462083325
+      ],
+      "independent_wola_max_error": 2.980137137065242e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "legato",
+      "relative_rms": 0.0743071431429943,
+      "rms": 0.15496564101791305,
+      "rms_gain_db": -0.5171309528629822,
+      "rms_match_gain": 1.061344925115197,
+      "matched_relative_rms": 0.048110091689782426,
+      "optimal_gain_residual": 0.04809617033806006,
+      "peak": 0.8637433052062988,
+      "raw_peak": 0.8637433052062988,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.922985542973668,
+      "stereo_correlation": 0.38259565136973306,
+      "stereo_correlation_delta": 0.011411204632675531,
+      "envelope_relative_rms": 0.06204503327499273,
+      "matched_envelope_relative_rms": 0.023238953593631043,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.2026355043053627,
+      "all_max_step": 0.3149669021368027,
+      "seam_rms_step": 0.04818482446610677,
+      "all_rms_step": 0.047796169138385323,
+      "centroid_hz": 3462.294072855532,
+      "band_energy_fraction": [
+        0.1799721884282609,
+        0.6497914378076561,
+        0.1301983932513127,
+        0.04003798051277016
+      ],
+      "independent_wola_max_error": 2.9800828027504167e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "melt",
+      "relative_rms": 0.10132792254069686,
+      "rms": 0.15160529156810962,
+      "rms_gain_db": -0.7075520943809693,
+      "rms_match_gain": 1.0848697625286736,
+      "matched_relative_rms": 0.06707713746025949,
+      "optimal_gain_residual": 0.0670394014697494,
+      "peak": 0.8494873642921448,
+      "raw_peak": 0.8494873642921448,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.968851266819511,
+      "stereo_correlation": 0.38705579683108376,
+      "stereo_correlation_delta": 0.015871350094026238,
+      "envelope_relative_rms": 0.08417115644697573,
+      "matched_envelope_relative_rms": 0.03235235051663047,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.1979741882532835,
+      "all_max_step": 0.30996017530560493,
+      "seam_rms_step": 0.047184063039649164,
+      "all_rms_step": 0.04692593458031677,
+      "centroid_hz": 3465.0908914005618,
+      "band_energy_fraction": [
+        0.18096135395715532,
+        0.6476063151977781,
+        0.13106361974531353,
+        0.040368711099752985
+      ],
+      "independent_wola_max_error": 2.9799144929398835e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.19223074961861747,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 1.0,
+      "raw_peak": 1.0,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.323542809776974,
+      "stereo_correlation": 0.3625120417529066,
+      "stereo_correlation_delta": 0.0,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.22119140625,
+      "all_max_step": 0.36260986328125,
+      "seam_rms_step": 0.05358592566873825,
+      "all_rms_step": 0.05305158203987436,
+      "centroid_hz": 3224.849538205395,
+      "band_energy_fraction": [
+        0.19780366943478905,
+        0.6597651400757297,
+        0.11172408768216807,
+        0.03070710280731309
+      ]
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "velvet",
+      "relative_rms": 0.0466412683318053,
+      "rms": 0.18524886249230435,
+      "rms_gain_db": -0.3213461921303471,
+      "rms_match_gain": 1.0376892307589913,
+      "matched_relative_rms": 0.02980791006152011,
+      "optimal_gain_residual": 0.02980459929378804,
+      "peak": 0.9744406342506409,
+      "raw_peak": 0.9744406342506409,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.41999671751253,
+      "stereo_correlation": 0.3659700613080765,
+      "stereo_correlation_delta": 0.0034580195551699444,
+      "envelope_relative_rms": 0.038880502718947996,
+      "matched_envelope_relative_rms": 0.014134433005389541,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.21073082089424133,
+      "all_max_step": 0.35153658455237746,
+      "seam_rms_step": 0.05186004978096081,
+      "all_rms_step": 0.05139039976313846,
+      "centroid_hz": 3228.901900687899,
+      "band_energy_fraction": [
+        0.1994340021736616,
+        0.6566186349379642,
+        0.11288209471699269,
+        0.031065268171381694
+      ],
+      "independent_wola_max_error": 2.9801423107045366e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "legato",
+      "relative_rms": 0.07329342167690635,
+      "rms": 0.18133756903695508,
+      "rms_gain_db": -0.5067014022822046,
+      "rms_match_gain": 1.0600712838465505,
+      "matched_relative_rms": 0.04785971138830702,
+      "optimal_gain_residual": 0.04784600628145935,
+      "peak": 0.9611257314682007,
+      "raw_peak": 0.9611257314682007,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.485848300728554,
+      "stereo_correlation": 0.3680223141652871,
+      "stereo_correlation_delta": 0.005510272412380501,
+      "envelope_relative_rms": 0.06079042537299898,
+      "matched_envelope_relative_rms": 0.02265823549297784,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.204753328114748,
+      "all_max_step": 0.34520899690687656,
+      "seam_rms_step": 0.05089295245121699,
+      "all_rms_step": 0.05045960586828655,
+      "centroid_hz": 3231.280007794401,
+      "band_energy_fraction": [
+        0.20040983355597355,
+        0.654732410964452,
+        0.11358041675585269,
+        0.03127733872372173
+      ],
+      "independent_wola_max_error": 2.9797887490801145e-08
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "melt",
+      "relative_rms": 0.09994557500671367,
+      "rms": 0.17748798421684137,
+      "rms_gain_db": -0.6930780497199514,
+      "rms_match_gain": 1.083063456192981,
+      "matched_relative_rms": 0.0666967583132547,
+      "optimal_gain_residual": 0.06665966078378892,
+      "peak": 0.9478108882904053,
+      "raw_peak": 0.9478108882904053,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.551054729361718,
+      "stereo_correlation": 0.370126760681865,
+      "stereo_correlation_delta": 0.0076147189289584305,
+      "envelope_relative_rms": 0.08245650336977425,
+      "matched_envelope_relative_rms": 0.031518860318480155,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        -0.022675736961451247,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.19877585023641586,
+      "all_max_step": 0.3388814087957144,
+      "seam_rms_step": 0.04994077073398011,
+      "all_rms_step": 0.04954318051984614,
+      "centroid_hz": 3233.708396467856,
+      "band_energy_fraction": [
+        0.20141728357838726,
+        0.652782714900034,
+        0.11430560081602077,
+        0.03149440070555811
+      ],
+      "independent_wola_max_error": 2.9799366418892248e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.12183060993249518,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.5925615429878235,
+      "raw_peak": 0.5925615429878235,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.73954088101337,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.031415075063705444,
+      "all_max_step": 0.07721514999866486,
+      "seam_rms_step": 0.007334517161531517,
+      "all_rms_step": 0.00746149520188554,
+      "centroid_hz": 729.0038590006444,
+      "band_energy_fraction": [
+        0.25051766514454443,
+        0.7459663298071785,
+        0.0034947698639498344,
+        2.1235184327017146e-05
+      ]
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "velvet",
+      "relative_rms": 0.0541799161943383,
+      "rms": 0.1161261577805486,
+      "rms_gain_db": -0.41652723032998873,
+      "rms_match_gain": 1.0491228872200067,
+      "matched_relative_rms": 0.027921136706382844,
+      "optimal_gain_residual": 0.027918415694362528,
+      "peak": 0.5688401460647583,
+      "raw_peak": 0.5688401460647583,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.801203646354569,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.050598734735340496,
+      "matched_envelope_relative_rms": 0.01964500102038718,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.03000660240650177,
+      "all_max_step": 0.07696951035177335,
+      "seam_rms_step": 0.0069919171625840645,
+      "all_rms_step": 0.007111489530179124,
+      "centroid_hz": 729.9967226460245,
+      "band_energy_fraction": [
+        0.24990636654898565,
+        0.746550379400827,
+        0.0035217418272682622,
+        2.1512222919479957e-05
+      ],
+      "independent_wola_max_error": 2.860471504106954e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "legato",
+      "relative_rms": 0.08513986844249671,
+      "rms": 0.11291033701555764,
+      "rms_gain_db": -0.6604542955147077,
+      "rms_match_gain": 1.0790031555366666,
+      "matched_relative_rms": 0.04513281038375139,
+      "optimal_gain_residual": 0.04512131714452385,
+      "peak": 0.5552850365638733,
+      "raw_peak": 0.5552850365638733,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.835645337467087,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.07933636902810617,
+      "matched_envelope_relative_rms": 0.03173359940403054,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.020833333333333332,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.02920176088809967,
+      "all_max_step": 0.07682914158795029,
+      "seam_rms_step": 0.006799177555834584,
+      "all_rms_step": 0.006914250749918972,
+      "centroid_hz": 730.5693577759108,
+      "band_energy_fraction": [
+        0.24951271750700835,
+        0.7469271068777619,
+        0.0035384902522546486,
+        2.1685362975210083e-05
+      ],
+      "independent_wola_max_error": 2.7086751397398245e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "mode": "melt",
+      "relative_rms": 0.11609982058442454,
+      "rms": 0.1097299316305061,
+      "rms_gain_db": -0.9086261972477173,
+      "rms_match_gain": 1.1102769146228555,
+      "matched_relative_rms": 0.06334420239572112,
+      "optimal_gain_residual": 0.063312423442863,
+      "peak": 0.541875422000885,
+      "raw_peak": 0.541875422000885,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.871486888718023,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.10792973752291524,
+      "matched_envelope_relative_rms": 0.044500602473059134,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.020833333333333332,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.10416666666666667,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.02839691936969757,
+      "all_max_step": 0.07668877288233489,
+      "seam_rms_step": 0.006608884704940792,
+      "all_rms_step": 0.006719244228802334,
+      "centroid_hz": 731.1543072566598,
+      "band_energy_fraction": [
+        0.24908281061807072,
+        0.7473390312795695,
+        0.003556287837784687,
+        2.1870264574845257e-05
+      ],
+      "independent_wola_max_error": 2.5370853973250007e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.13620877504434678,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.7375609278678894,
+      "raw_peak": 0.7375609278678894,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.671856295090919,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.20229385048151016,
+      "all_max_step": 0.29192277789115906,
+      "seam_rms_step": 0.04602226981316611,
+      "all_rms_step": 0.04479036321439566,
+      "centroid_hz": 3788.192144565594,
+      "band_energy_fraction": [
+        0.23479399585726587,
+        0.5553421389401328,
+        0.1525213907149409,
+        0.05734247448766027
+      ]
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "velvet",
+      "relative_rms": 0.044351459757546924,
+      "rms": 0.13162167724862703,
+      "rms_gain_db": -0.2975533310117806,
+      "rms_match_gain": 1.0348506256082344,
+      "matched_relative_rms": 0.029358844776291942,
+      "optimal_gain_residual": 0.029355681404051127,
+      "peak": 0.7258543968200684,
+      "raw_peak": 0.7258543968200684,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.830441823854423,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.03757355599197725,
+      "matched_envelope_relative_rms": 0.01695022250304089,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        24.125,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.1958194151520729,
+      "all_max_step": 0.28116530179977417,
+      "seam_rms_step": 0.0445446757696607,
+      "all_rms_step": 0.0434200247030384,
+      "centroid_hz": 3789.1966094082777,
+      "band_energy_fraction": [
+        0.23504930510120334,
+        0.5534617660025057,
+        0.15379117030947295,
+        0.057697758586817936
+      ],
+      "independent_wola_max_error": 2.979901891908554e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "legato",
+      "relative_rms": 0.069695151051607,
+      "rms": 0.12905425039171753,
+      "rms_gain_db": -0.4686554934558652,
+      "rms_match_gain": 1.0554381171554843,
+      "matched_relative_rms": 0.047061111944480365,
+      "optimal_gain_residual": 0.047048081576084935,
+      "peak": 0.7191649079322815,
+      "raw_peak": 0.7191649079322815,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.921123500424445,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.058788912230625386,
+      "matched_envelope_relative_rms": 0.027125378732653853,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        24.125,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.19211973994970322,
+      "all_max_step": 0.27501818537712097,
+      "seam_rms_step": 0.04371556933609199,
+      "all_rms_step": 0.04265212114030661,
+      "centroid_hz": 3789.778920690669,
+      "band_energy_fraction": [
+        0.23518477622930573,
+        0.5523609565159394,
+        0.1545509240601364,
+        0.05790334319461846
+      ],
+      "independent_wola_max_error": 2.9797131317899073e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "mode": "melt",
+      "relative_rms": 0.09503884242728206,
+      "rms": 0.12652891459223398,
+      "rms_gain_db": -0.6403060942460743,
+      "rms_match_gain": 1.0765031493655675,
+      "matched_relative_rms": 0.06547203703295629,
+      "optimal_gain_residual": 0.06543694617615058,
+      "peak": 0.7124754786491394,
+      "raw_peak": 0.7124754786491394,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 15.011602784868689,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.079801633734612,
+      "matched_envelope_relative_rms": 0.03766558425009034,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        24.125,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.18842005729675293,
+      "all_max_step": 0.2688710242509842,
+      "seam_rms_step": 0.04289834581371459,
+      "all_rms_step": 0.04189599278371394,
+      "centroid_hz": 3790.3681384072834,
+      "band_energy_fraction": [
+        0.23531070905319532,
+        0.5512441207157738,
+        0.15533522879040676,
+        0.05810994144062438
+      ],
+      "independent_wola_max_error": 2.9795243716712605e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.15863057724139826,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.7627579569816589,
+      "raw_peak": 0.7627579569816589,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.63999684489562,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.1716166641563177,
+      "all_max_step": 0.29237625375390053,
+      "seam_rms_step": 0.04645009574978887,
+      "all_rms_step": 0.04695867180154402,
+      "centroid_hz": 3569.6553278538004,
+      "band_energy_fraction": [
+        0.26036163614152746,
+        0.5637737527985118,
+        0.13059774317494016,
+        0.04526686788502036
+      ]
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "velvet",
+      "relative_rms": 0.045245656229287556,
+      "rms": 0.15316957397735104,
+      "rms_gain_db": -0.3042880033928024,
+      "rms_match_gain": 1.0356533162705979,
+      "matched_relative_rms": 0.029879083640463464,
+      "optimal_gain_residual": 0.029875749099402816,
+      "peak": 0.7430725693702698,
+      "raw_peak": 0.7430725693702698,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.717174502746428,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.038521025659090824,
+      "matched_envelope_relative_rms": 0.017589091412351304,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.16515053994953632,
+      "all_max_step": 0.2847531447187066,
+      "seam_rms_step": 0.044980732874362835,
+      "all_rms_step": 0.04552629794729284,
+      "centroid_hz": 3570.8093752423038,
+      "band_energy_fraction": [
+        0.26096352743681067,
+        0.5614450358661967,
+        0.13199269319522838,
+        0.04559874350176456
+      ],
+      "independent_wola_max_error": 2.9782881383333404e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "legato",
+      "relative_rms": 0.0711003169349618,
+      "rms": 0.1501138930360204,
+      "rms_gain_db": -0.4793203309447941,
+      "rms_match_gain": 1.0567348166990396,
+      "matched_relative_rms": 0.04791701383935245,
+      "optimal_gain_residual": 0.04790325944143204,
+      "peak": 0.7318238019943237,
+      "raw_peak": 0.7318238019943237,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.759712848467194,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.06027059166734276,
+      "matched_envelope_relative_rms": 0.028153367964864368,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.16333265230059624,
+      "all_max_step": 0.2844476969912648,
+      "seam_rms_step": 0.04415682777322102,
+      "all_rms_step": 0.04472389414741161,
+      "centroid_hz": 3571.4883398467573,
+      "band_energy_fraction": [
+        0.2613048706273848,
+        0.560074526053584,
+        0.13282935472468688,
+        0.045791248594344476
+      ],
+      "independent_wola_max_error": 2.9794185008036322e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "mode": "melt",
+      "relative_rms": 0.09695497761962464,
+      "rms": 0.14710909335214423,
+      "rms_gain_db": -0.6549477140078845,
+      "rms_match_gain": 1.078319318178886,
+      "matched_relative_rms": 0.06669397679238123,
+      "optimal_gain_residual": 0.06665688390492763,
+      "peak": 0.7205749750137329,
+      "raw_peak": 0.7205749750137329,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 13.800793129231238,
+      "stereo_correlation": null,
+      "stereo_correlation_delta": null,
+      "envelope_relative_rms": 0.08181098902919746,
+      "matched_envelope_relative_rms": 0.03910023519360636,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.16151476558297873,
+      "all_max_step": 0.28414221946150064,
+      "seam_rms_step": 0.04334518011324139,
+      "all_rms_step": 0.04393400011473098,
+      "centroid_hz": 3572.187569681295,
+      "band_energy_fraction": [
+        0.26164202861963776,
+        0.558678343012854,
+        0.1336945775320091,
+        0.04598505083549873
+      ],
+      "independent_wola_max_error": 2.9789937183721804e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.13844577289891785,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.6998227834701538,
+      "raw_peak": 0.6998227834701538,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.074167542446997,
+      "stereo_correlation": 0.5497930092093499,
+      "stereo_correlation_delta": 0.0,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.04328812658786774,
+      "all_max_step": 0.15780146420001984,
+      "seam_rms_step": 0.008553096693649209,
+      "all_rms_step": 0.008771477530297148,
+      "centroid_hz": 757.9099089201837,
+      "band_energy_fraction": [
+        0.27602356679492474,
+        0.7197908232575599,
+        0.004160235591836274,
+        2.537435567882822e-05
+      ]
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "velvet",
+      "relative_rms": 0.05431126306296088,
+      "rms": 0.13191698005525113,
+      "rms_gain_db": -0.41957999245511135,
+      "rms_match_gain": 1.0494916790918976,
+      "matched_relative_rms": 0.027600411646916952,
+      "optimal_gain_residual": 0.027597783332180385,
+      "peak": 0.676790714263916,
+      "raw_peak": 0.676790714263916,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.203073817927995,
+      "stereo_correlation": 0.550352972366631,
+      "stereo_correlation_delta": 0.0005599631572811292,
+      "envelope_relative_rms": 0.04966731140412795,
+      "matched_envelope_relative_rms": 0.015969130524127406,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.04128391854465008,
+      "all_max_step": 0.1575590071734041,
+      "seam_rms_step": 0.008147654322991063,
+      "all_rms_step": 0.008362628815285178,
+      "centroid_hz": 759.2303898147038,
+      "band_energy_fraction": [
+        0.27472925198542464,
+        0.7210559762279843,
+        0.00418904823306407,
+        2.5723553526932122e-05
+      ],
+      "independent_wola_max_error": 2.9703708270822915e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "legato",
+      "relative_rms": 0.0853462703970206,
+      "rms": 0.12823496207731366,
+      "rms_gain_db": -0.6654650493317,
+      "rms_match_gain": 1.07962579515131,
+      "matched_relative_rms": 0.04462428059325282,
+      "optimal_gain_residual": 0.0446131715218627,
+      "peak": 0.6636295914649963,
+      "raw_peak": 0.6636295914649963,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.278385908323038,
+      "stereo_correlation": 0.5505072040102502,
+      "stereo_correlation_delta": 0.0007141948009002919,
+      "envelope_relative_rms": 0.07782291505656225,
+      "matched_envelope_relative_rms": 0.025806968844904226,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        -0.020833333333333332,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -2.875,
+        -17.1875,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.04013865441083908,
+      "all_max_step": 0.15742045594379306,
+      "seam_rms_step": 0.007919469714120816,
+      "all_rms_step": 0.008132262597913371,
+      "centroid_hz": 760.0034794316307,
+      "band_energy_fraction": [
+        0.27389944561402935,
+        0.7218675403640011,
+        0.004207071849304536,
+        2.5942172664818075e-05
+      ],
+      "independent_wola_max_error": 2.978800373032442e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "mode": "melt",
+      "relative_rms": 0.11638127778219753,
+      "rms": 0.12459231131525601,
+      "rms_gain_db": -0.9157691531553047,
+      "rms_match_gain": 1.1111903410203894,
+      "matched_relative_rms": 0.06264552133722992,
+      "optimal_gain_residual": 0.06261478255495222,
+      "peak": 0.6504684090614319,
+      "raw_peak": 0.6504684090614319,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.354699335155978,
+      "stereo_correlation": 0.5505113504309544,
+      "stereo_correlation_delta": 0.0007183412216045237,
+      "envelope_relative_rms": 0.10579494853363078,
+      "matched_envelope_relative_rms": 0.03620645753037073,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        -0.020833333333333332,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -2.875,
+        -17.1875,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.038993390277028084,
+      "all_max_step": 0.15728190471418202,
+      "seam_rms_step": 0.007694111946449288,
+      "all_rms_step": 0.007904528213540239,
+      "centroid_hz": 760.7943344517299,
+      "band_energy_fraction": [
+        0.27299604575366954,
+        0.7227514434117058,
+        0.004226334863716984,
+        2.6175970907516422e-05
+      ],
+      "independent_wola_max_error": 2.9727761918785234e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.1645156787054084,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 0.9128842949867249,
+      "raw_peak": 0.9128842949867249,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.884168843636218,
+      "stereo_correlation": 0.37110497865260067,
+      "stereo_correlation_delta": 0.0,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.2238139882683754,
+      "all_max_step": 0.31936436891555786,
+      "seam_rms_step": 0.0476122699619828,
+      "all_rms_step": 0.046546317990544754,
+      "centroid_hz": 3446.268164391463,
+      "band_energy_fraction": [
+        0.16934513435659931,
+        0.6646554574888063,
+        0.1265966124414851,
+        0.03940279571310947
+      ]
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "velvet",
+      "relative_rms": 0.04662489134558134,
+      "rms": 0.15853684368034576,
+      "rms_gain_db": -0.32154171855694635,
+      "rms_match_gain": 1.0377125902488487,
+      "matched_relative_rms": 0.029754172386753774,
+      "optimal_gain_residual": 0.02975087949336682,
+      "peak": 0.883653461933136,
+      "raw_peak": 0.883653461933136,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.923035514077762,
+      "stereo_correlation": 0.37772176930404766,
+      "stereo_correlation_delta": 0.006616790651446991,
+      "envelope_relative_rms": 0.038907274846962416,
+      "matched_envelope_relative_rms": 0.014153164612315994,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.21801987290382385,
+      "all_max_step": 0.3075381889939308,
+      "seam_rms_step": 0.04605184473092002,
+      "all_rms_step": 0.04508756031345463,
+      "centroid_hz": 3450.6412961701762,
+      "band_energy_fraction": [
+        0.1706105010061729,
+        0.6616386076477478,
+        0.12788404275227713,
+        0.03986684859380197
+      ],
+      "independent_wola_max_error": 2.9801680123675567e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "legato",
+      "relative_rms": 0.07326768642274877,
+      "rms": 0.1551871851470682,
+      "rms_gain_db": -0.5070287539768654,
+      "rms_match_gain": 1.0601112363079448,
+      "matched_relative_rms": 0.047774125286221034,
+      "optimal_gain_residual": 0.04776049358025305,
+      "peak": 0.8669501543045044,
+      "raw_peak": 0.8669501543045044,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.942765449139788,
+      "stereo_correlation": 0.3816874071957426,
+      "stereo_correlation_delta": 0.010582428543141953,
+      "envelope_relative_rms": 0.06083595648811062,
+      "matched_envelope_relative_rms": 0.02269389592160799,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.21470893919467926,
+      "all_max_step": 0.30078036338090897,
+      "seam_rms_step": 0.04517621997194902,
+      "all_rms_step": 0.044270063934049406,
+      "centroid_hz": 3453.195417713987,
+      "band_energy_fraction": [
+        0.17136917750392586,
+        0.6598272945910459,
+        0.12866168775419032,
+        0.04014184015083785
+      ],
+      "independent_wola_max_error": 2.979592650387275e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "mode": "melt",
+      "relative_rms": 0.0999104815117491,
+      "rms": 0.15189015175912335,
+      "rms_gain_db": -0.6935535489902169,
+      "rms_match_gain": 1.0831227489080884,
+      "matched_relative_rms": 0.06657855895497229,
+      "optimal_gain_residual": 0.06654165834420488,
+      "peak": 0.8540596961975098,
+      "raw_peak": 0.8540596961975098,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.999172231962847,
+      "stereo_correlation": 0.385785778672372,
+      "stereo_correlation_delta": 0.014680800019771345,
+      "envelope_relative_rms": 0.0825234890320088,
+      "matched_envelope_relative_rms": 0.031576302849590045,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.21139800548553467,
+      "all_max_step": 0.2940225452184677,
+      "seam_rms_step": 0.04431313382706218,
+      "all_rms_step": 0.043465088718483334,
+      "centroid_hz": 3455.795125851688,
+      "band_energy_fraction": [
+        0.17215349627695475,
+        0.65795272944857,
+        0.1294702833875127,
+        0.04042349088696263
+      ],
+      "independent_wola_max_error": 2.9800314771399883e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "bypass",
+      "relative_rms": 0.0,
+      "rms": 0.1922777640954308,
+      "rms_gain_db": 0.0,
+      "rms_match_gain": 1.0,
+      "matched_relative_rms": 0.0,
+      "optimal_gain_residual": 0.0,
+      "peak": 1.0132375955581665,
+      "raw_peak": 1.0132375955581665,
+      "samples_over_fullscale": 2,
+      "raw_samples_over_fullscale": 2,
+      "crest_factor_db": 14.435644647210605,
+      "stereo_correlation": 0.3624256037456661,
+      "stereo_correlation_delta": 0.0,
+      "envelope_relative_rms": 0.0,
+      "matched_envelope_relative_rms": 0.0,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.18196897208690643,
+      "all_max_step": 0.3257526010274887,
+      "seam_rms_step": 0.048496763666910025,
+      "all_rms_step": 0.04912194249859241,
+      "centroid_hz": 3217.2469073177504,
+      "band_energy_fraction": [
+        0.18816106094728385,
+        0.6702565627611419,
+        0.11068931826658679,
+        0.0308930580249874
+      ]
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "velvet",
+      "relative_rms": 0.046074981161877526,
+      "rms": 0.18545005698672273,
+      "rms_gain_db": -0.3140418433653494,
+      "rms_match_gain": 1.0368169588063103,
+      "matched_relative_rms": 0.02989493528294777,
+      "optimal_gain_residual": 0.029891595431687065,
+      "peak": 0.9808355569839478,
+      "raw_peak": 0.9808355569839478,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.467384605334603,
+      "stereo_correlation": 0.3645381954055938,
+      "stereo_correlation_delta": 0.002112591659927665,
+      "envelope_relative_rms": 0.03806690605986455,
+      "matched_envelope_relative_rms": 0.013967276071846583,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.1759384423494339,
+      "all_max_step": 0.3160533830523491,
+      "seam_rms_step": 0.04692954594603216,
+      "all_rms_step": 0.047590748674828376,
+      "centroid_hz": 3220.4258496150787,
+      "band_energy_fraction": [
+        0.18910209974804565,
+        0.6679532213908779,
+        0.11175478976443726,
+        0.0311898890966393
+      ],
+      "independent_wola_max_error": 2.9801977996513074e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "legato",
+      "relative_rms": 0.07240354179309544,
+      "rms": 0.1816273036695812,
+      "rms_gain_db": -0.49495855144890655,
+      "rms_match_gain": 1.0586390934108951,
+      "matched_relative_rms": 0.04797495301598152,
+      "optimal_gain_residual": 0.04796114865924626,
+      "peak": 0.9623201489448547,
+      "raw_peak": 0.9623201489448547,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.48276886762481,
+      "stereo_correlation": 0.3657663627581648,
+      "stereo_correlation_delta": 0.0033407590124986952,
+      "envelope_relative_rms": 0.05950517026052483,
+      "matched_envelope_relative_rms": 0.02237005906629845,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.17249242961406708,
+      "all_max_step": 0.3105109706521034,
+      "seam_rms_step": 0.04605052332876968,
+      "all_rms_step": 0.04673297626228158,
+      "centroid_hz": 3222.3116544284053,
+      "band_energy_fraction": [
+        0.1896595217722767,
+        0.6665787906540784,
+        0.1123974256445386,
+        0.031364261929106484
+      ],
+      "independent_wola_max_error": 2.9800232281829153e-08
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "mode": "melt",
+      "relative_rms": 0.09873210249540519,
+      "rms": 0.1778664863285977,
+      "rms_gain_db": -0.6766987485400631,
+      "rms_match_gain": 1.0810230081242462,
+      "matched_relative_rms": 0.06682172665299992,
+      "optimal_gain_residual": 0.0667844201670142,
+      "peak": 0.9438046813011169,
+      "raw_peak": 0.9438046813011169,
+      "samples_over_fullscale": 0,
+      "raw_samples_over_fullscale": 0,
+      "crest_factor_db": 14.495760025338459,
+      "stereo_correlation": 0.36700485985960013,
+      "stereo_correlation_delta": 0.004579256113934005,
+      "envelope_relative_rms": 0.08069446284525733,
+      "matched_envelope_relative_rms": 0.031088357777707604,
+      "waveform_correlation_lag_samples": 0,
+      "onset_offsets_ms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seam_max_step": 0.169321421533823,
+      "all_max_step": 0.30914570204913616,
+      "seam_rms_step": 0.0451844014681474,
+      "all_rms_step": 0.045888588691944725,
+      "centroid_hz": 3224.251531924421,
+      "band_energy_fraction": [
+        0.19023028599048714,
+        0.6651632207324145,
+        0.11306487713674837,
+        0.03154161614034994
+      ],
+      "independent_wola_max_error": 2.980189761636609e-08
+    }
+  ],
+  "pairwise": [
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.05766036698632332,
+      "rms_matched_relative_rms": 0.024634521375449893
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.09334626183007907,
+      "rms_matched_relative_rms": 0.03988568833702568
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.13122186919249615,
+      "rms_matched_relative_rms": 0.05608036083647079
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.033944095192892924,
+      "rms_matched_relative_rms": 0.015253040491591674
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.06998499683660074,
+      "rms_matched_relative_rms": 0.031451271557942126
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.0349924983767839,
+      "rms_matched_relative_rms": 0.01619920251187466
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.0466405496957338,
+      "rms_matched_relative_rms": 0.02966781594956992
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.07478020931324887,
+      "rms_matched_relative_rms": 0.04757553868828677
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.1040506015286898,
+      "rms_matched_relative_rms": 0.06621507447240828
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.027192803363712784,
+      "rms_matched_relative_rms": 0.017910883148045884
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.05549365413055309,
+      "rms_matched_relative_rms": 0.036556237018161235
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.027746827082701934,
+      "rms_matched_relative_rms": 0.01864688010685385
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.04668705864487147,
+      "rms_matched_relative_rms": 0.02910794547008194
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.07487908581015325,
+      "rms_matched_relative_rms": 0.04669258953981912
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.10422466330388803,
+      "rms_matched_relative_rms": 0.06500834075990004
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.02722875837048674,
+      "rms_matched_relative_rms": 0.017587632356035904
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.05558648703483239,
+      "rms_matched_relative_rms": 0.03590889059560886
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.02779324362247337,
+      "rms_matched_relative_rms": 0.018322704795525724
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.0574562469747452,
+      "rms_matched_relative_rms": 0.02407806649120264
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.09301970674462473,
+      "rms_matched_relative_rms": 0.03898615209906379
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.1307701071827357,
+      "rms_matched_relative_rms": 0.05481817263538559
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.03382534792759762,
+      "rms_matched_relative_rms": 0.014909835238470639
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.06974405715882163,
+      "rms_matched_relative_rms": 0.030745179492793418
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.03487202854061382,
+      "rms_matched_relative_rms": 0.01583625172284039
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.04910539087273395,
+      "rms_matched_relative_rms": 0.02995030569782027
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.0788655092746255,
+      "rms_matched_relative_rms": 0.048110091689782426
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.10992759926424965,
+      "rms_matched_relative_rms": 0.06707713746025949
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.028678366973790042,
+      "rms_matched_relative_rms": 0.018163057775017262
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.058628052941924955,
+      "rms_matched_relative_rms": 0.03713615946665431
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.029314026528548608,
+      "rms_matched_relative_rms": 0.01897470161440026
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.04839914185685474,
+      "rms_matched_relative_rms": 0.02980791006152011
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.07769625161454471,
+      "rms_matched_relative_rms": 0.047859711388307025
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.10824739989796613,
+      "rms_matched_relative_rms": 0.0666967583132547
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.028253182413841893,
+      "rms_matched_relative_rms": 0.018055021336665367
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.057731946617312284,
+      "rms_matched_relative_rms": 0.036898019749492035
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.0288659733003901,
+      "rms_matched_relative_rms": 0.018844567781563706
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.05684139010714218,
+      "rms_matched_relative_rms": 0.027921136706382844
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.09186618671143061,
+      "rms_matched_relative_rms": 0.04513281038375138
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.12890295058674198,
+      "rms_matched_relative_rms": 0.06334420239572112
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.03340588617104926,
+      "rms_matched_relative_rms": 0.01721438554989418
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.06874824039998045,
+      "rms_matched_relative_rms": 0.03543090024311261
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.034374120141031105,
+      "rms_matched_relative_rms": 0.01821790371069667
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.045897135876735856,
+      "rms_matched_relative_rms": 0.02935884477629194
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.07355891900077516,
+      "rms_matched_relative_rms": 0.047061111944480365
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.10230961318502704,
+      "rms_matched_relative_rms": 0.06547203703295629
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.026748697821199405,
+      "rms_matched_relative_rms": 0.01770532533446394
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.054565127077083775,
+      "rms_matched_relative_rms": 0.03612187311566263
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.027282563582488432,
+      "rms_matched_relative_rms": 0.018418020275824207
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.04685881392070109,
+      "rms_matched_relative_rms": 0.02987908364046346
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.07513418038351047,
+      "rms_matched_relative_rms": 0.04791701383935246
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.1045484253608428,
+      "rms_matched_relative_rms": 0.06669397679238123
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.02732152014165291,
+      "rms_matched_relative_rms": 0.018041159281686685
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.055759160185137116,
+      "rms_matched_relative_rms": 0.036824067740100073
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.02787958008125668,
+      "rms_matched_relative_rms": 0.018784468487703095
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.05699921866554856,
+      "rms_matched_relative_rms": 0.027600411646916952
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.09214203504058208,
+      "rms_matched_relative_rms": 0.044624280593252824
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.12932175174718874,
+      "rms_matched_relative_rms": 0.06264552133722992
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.03350619447058281,
+      "rms_matched_relative_rms": 0.01702649052716735
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.06897160082302248,
+      "rms_matched_relative_rms": 0.035052687037993725
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.03448580043992528,
+      "rms_matched_relative_rms": 0.018027541497600618
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.04838323676829434,
+      "rms_matched_relative_rms": 0.029754172386753774
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.07767189763504302,
+      "rms_matched_relative_rms": 0.04777412528622104
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.10821531537973643,
+      "rms_matched_relative_rms": 0.0665785589549723
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.028244326427980675,
+      "rms_matched_relative_rms": 0.018023155692527125
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.057714834897984846,
+      "rms_matched_relative_rms": 0.03683350932284699
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.02885741745541669,
+      "rms_matched_relative_rms": 0.01881191478016258
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "velvet",
+      "relative_rms": 0.04777132184531589,
+      "rms_matched_relative_rms": 0.029894935282947767
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "legato",
+      "relative_rms": 0.0766492198435804,
+      "rms_matched_relative_rms": 0.04797495301598153
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "bypass",
+      "b": "melt",
+      "relative_rms": 0.10673167443801432,
+      "rms_matched_relative_rms": 0.06682172665299993
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "legato",
+      "relative_rms": 0.027872443557472093,
+      "rms_matched_relative_rms": 0.018083259984771814
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "velvet",
+      "b": "melt",
+      "relative_rms": 0.05692355970314906,
+      "rms_matched_relative_rms": 0.03693601637594392
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "a": "legato",
+      "b": "melt",
+      "relative_rms": 0.02846177989001678,
+      "rms_matched_relative_rms": 0.01885433064844095
+    }
+  ],
+  "invariants": [
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "midpoint_max_error": 2.9802322387695312e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "midpoint_max_error": 2.9802322387695312e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "midpoint_max_error": 4.470348358154297e-08,
+      "baseline_zero_error": 0.0
+    }
+  ],
+  "fixtures": [
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "frames": 540224,
+      "sha256": "b28acb92f33906503225068c9ebf64bd4277deef2838ae6e0258e868f95b7e4f",
+      "peak": 0.5925445556640625
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "frames": 540224,
+      "sha256": "3af909d9e8734d7bf6a4fbc0df318c6cbdf31b7acca19352e9ff9d87f6c78b20",
+      "peak": 0.74420166015625
+    },
+    {
+      "rate": 44100,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "frames": 540224,
+      "sha256": "0e1cc50825aa87e255e5151afb4ab96fd376d3e3e533414d470f9ab5e05d5f80",
+      "peak": 0.7611236572265625
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "frames": 540224,
+      "sha256": "153d2c9bd8bfd4be0fe36e6a867ee4df3c8995257e4a8dc417d8fa00d478aef1",
+      "peak": 0.699951171875
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "frames": 540224,
+      "sha256": "4ffd5717587f3bc64866a5dbaa996680d021a4ef46272b6b593b7576ec7d7395",
+      "peak": 0.90771484375
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "frames": 540224,
+      "sha256": "bef83ce7db8af651e702419784f011a91edf467c0e9a68267404b97a1a39511c",
+      "peak": 1.0
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "emotional_piano_00s",
+      "frames": 588000,
+      "sha256": "14233e0ced7eec4c8b4e8319037d1d34da65016c4c4d25ccf7073719613cb806",
+      "peak": 0.5925615429878235
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_00s",
+      "frames": 588000,
+      "sha256": "15fa1f7a0a366e4223b93d45c7bee25228848abdaa70493a2f58d357e2df6c9f",
+      "peak": 0.7375609278678894
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "fixture": "katanga_24s",
+      "frames": 588000,
+      "sha256": "0b9fb1db29c37f20a644d406775ad35e79433131f925d13736ede8add2982954",
+      "peak": 0.7627579569816589
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "emotional_piano_00s",
+      "frames": 588000,
+      "sha256": "2750af33f886378a3f0ba1e5a8248d1ac6090262ced92e97b5538bbe302c7d77",
+      "peak": 0.6998227834701538
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_00s",
+      "frames": 588000,
+      "sha256": "4bd8b2cbdf12de97d54422068753e9dfc3508f3f90e1cb921d28e34de17d7f6e",
+      "peak": 0.9128842949867249
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "fixture": "katanga_24s",
+      "frames": 588000,
+      "sha256": "02c5c34d1adbb27637bb686ab9ee28d3268952a3e7d1674fc560f125490a037b",
+      "peak": 1.0132375955581665
+    }
+  ],
+  "source_metadata": [
+    {
+      "schema_version": 1,
+      "provenance": {
+        "kind": "original deterministic mathematical synthesis",
+        "external_audio": false,
+        "recording": false,
+        "seed": 20261024,
+        "notes": "Generated from oscillators, analytic envelopes, and seeded bounded noise. No external recordings, samples, or music streams are used. Piano-like and percussion labels describe synthesis test roles."
+      },
+      "samplerate": 44100,
+      "channels": 1,
+      "duration_seconds": 6.0,
+      "silence_guard_frames": 5512,
+      "source_peak_limit": 0.85,
+      "normalization": "fixed synthesis gains; no per-render normalization",
+      "fixtures": {
+        "solo_piano": {
+          "events": [
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.4049886621315193,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 2.644988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 3.804988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648
+            }
+          ],
+          "description": "Piano-like additive attacks/decays; mild fixed partial inharmonicity.",
+          "source_peak": 0.4579193890094757,
+          "frames": 264600,
+          "channels": 1
+        },
+        "connected_melody": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0
+            },
+            {
+              "time_seconds": 0.7949886621315192,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.3649886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 1.9349886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417
+            },
+            {
+              "time_seconds": 2.5049886621315194,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 3.074988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 3.644988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 4.214988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            }
+          ],
+          "description": "Original eight-note sequence; 110 ms overlap of shaped harmonic voices.",
+          "source_peak": 0.2596464157104492,
+          "frames": 264600,
+          "channels": 1
+        },
+        "harmonic_sustain": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32
+            }
+          ],
+          "description": "32 exact harmonics at 110 Hz, 1/k partial amplitudes, gentle amplitude modulation.",
+          "source_peak": 0.2132626473903656,
+          "frames": 264600,
+          "channels": 1
+        },
+        "percussion": {
+          "events": [
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 0.47498866213151925,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 0.7349886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 0.9649886621315192,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.2249886621315194,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 1.4549886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.7149886621315191,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 1.944988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.2049886621315196,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 2.434988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.6949886621315198,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 2.9249886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.184988662131519,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 3.4149886621315195,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.6749886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 3.904988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.1649886621315195,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 4.39498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.65498866213152,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 4.88498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            }
+          ],
+          "description": "Original kick sweeps and seeded noise/tone snare/hat events; no sampled percussion.",
+          "source_peak": 0.46849438548088074,
+          "frames": 264600,
+          "channels": 1
+        },
+        "dense_mix": {
+          "events": [
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 1.4049886621315193,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 2.644988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 3.804988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.7949886621315192,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.3649886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.9349886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 2.5049886621315194,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.074988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.644988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 4.214988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32,
+              "source_fixture": "harmonic_sustain"
+            },
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.47498866213151925,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.7349886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.9649886621315192,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.2249886621315194,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.4549886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.7149886621315191,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.944988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.2049886621315196,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.434988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.6949886621315198,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.9249886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.184988662131519,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.4149886621315195,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.6749886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.904988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.1649886621315195,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.39498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.65498866213152,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.88498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            }
+          ],
+          "description": "Fixed-gain mixture of the four musical synthetic fixtures.",
+          "components": {
+            "solo_piano": 0.43,
+            "connected_melody": 0.42,
+            "harmonic_sustain": 0.4,
+            "percussion": 0.48
+          },
+          "source_peak": 0.34494465589523315,
+          "frames": 264600,
+          "channels": 1
+        },
+        "quiet_dynamic": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 220.0,
+              "fixed_gain": 0.006
+            },
+            {
+              "time_seconds": 1.1649886621315193,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 277.1826,
+              "fixed_gain": 0.018
+            },
+            {
+              "time_seconds": 2.104988662131519,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "fixed_gain": 0.06
+            },
+            {
+              "time_seconds": 3.0449886621315194,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 246.9417,
+              "fixed_gain": 0.2
+            },
+            {
+              "time_seconds": 3.984988662131519,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "fixed_gain": 0.46
+            }
+          ],
+          "description": "Identically shaped piano-like events with fixed gains from 0.006 to 0.46.",
+          "source_peak": 0.41770705580711365,
+          "frames": 264600,
+          "channels": 1
+        },
+        "silence": {
+          "events": [],
+          "description": "Exact digital zero throughout.",
+          "source_peak": 0.0,
+          "frames": 264600,
+          "channels": 1
+        },
+        "impulse": {
+          "events": [
+            {
+              "time_seconds": 0.9249886621315193,
+              "duration_seconds": 2.2675736961451248e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.5
+            },
+            {
+              "time_seconds": 2.8249886621315197,
+              "duration_seconds": 2.2675736961451248e-05,
+              "kind": "unit_sample",
+              "amplitude": -0.5
+            },
+            {
+              "time_seconds": 4.6249886621315195,
+              "duration_seconds": 2.2675736961451248e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.25
+            }
+          ],
+          "description": "Separated positive/negative unit samples, identical in both stereo channels.",
+          "source_peak": 0.5,
+          "frames": 264600,
+          "channels": 1
+        },
+        "sweep": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "linear_frequency_sweep",
+              "frequency_start_hz": 20.0,
+              "frequency_end_hz": 20286.0
+            }
+          ],
+          "description": "Linear 20 Hz to 0.46*sample-rate sweep with 25 ms cosine ramps; no pitch stationarity expectation.",
+          "source_peak": 0.30000001192092896,
+          "frames": 264600,
+          "channels": 1
+        },
+        "simple_tone": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "sine",
+              "fundamental_hz": 440.0
+            }
+          ],
+          "description": "440 Hz sinusoid, identical in both stereo channels, 25 ms cosine ramps.",
+          "source_peak": 0.34999990463256836,
+          "frames": 264600,
+          "channels": 1
+        },
+        "stereo_probe": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "stereo_partial_probe",
+              "component_hz": [
+                220.0,
+                659.2551,
+                880.0,
+                1100.0
+              ]
+            }
+          ],
+          "description": "Shared 220 Hz, antiphase 659.2551 Hz, channel-specific upper tones; mono is exact stereo fold-down.",
+          "source_peak": 0.23859010636806488,
+          "frames": 264600,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "fixture": "emotional_piano_00s",
+      "original_filename": "Emotional_piano.wav",
+      "original_sha256": "9661f81d37c59f230b324b830ab68c0482336af3ec117c92e73108ffb4095f15",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 44100,
+      "channels": 1,
+      "channel_conversion": "arithmetic mean of original L/R",
+      "resampler": "none",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 5512
+    },
+    {
+      "fixture": "katanga_00s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 44100,
+      "channels": 1,
+      "channel_conversion": "arithmetic mean of original L/R",
+      "resampler": "none",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 5512
+    },
+    {
+      "fixture": "katanga_24s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 24.0,
+      "source_end_s": 36.0,
+      "target_rate": 44100,
+      "channels": 1,
+      "channel_conversion": "arithmetic mean of original L/R",
+      "resampler": "none",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 5512
+    },
+    {
+      "schema_version": 1,
+      "provenance": {
+        "kind": "original deterministic mathematical synthesis",
+        "external_audio": false,
+        "recording": false,
+        "seed": 20261024,
+        "notes": "Generated from oscillators, analytic envelopes, and seeded bounded noise. No external recordings, samples, or music streams are used. Piano-like and percussion labels describe synthesis test roles."
+      },
+      "samplerate": 44100,
+      "channels": 2,
+      "duration_seconds": 6.0,
+      "silence_guard_frames": 5512,
+      "source_peak_limit": 0.85,
+      "normalization": "fixed synthesis gains; no per-render normalization",
+      "fixtures": {
+        "solo_piano": {
+          "events": [
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.4049886621315193,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 2.644988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 3.804988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648
+            }
+          ],
+          "description": "Piano-like additive attacks/decays; mild fixed partial inharmonicity.",
+          "source_peak": 0.3746621608734131,
+          "frames": 264600,
+          "channels": 2
+        },
+        "connected_melody": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0
+            },
+            {
+              "time_seconds": 0.7949886621315192,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.3649886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 1.9349886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417
+            },
+            {
+              "time_seconds": 2.5049886621315194,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 3.074988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 3.644988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 4.214988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            }
+          ],
+          "description": "Original eight-note sequence; 110 ms overlap of shaped harmonic voices.",
+          "source_peak": 0.20373889803886414,
+          "frames": 264600,
+          "channels": 2
+        },
+        "harmonic_sustain": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32
+            }
+          ],
+          "description": "32 exact harmonics at 110 Hz, 1/k partial amplitudes, gentle amplitude modulation.",
+          "source_peak": 0.1507994681596756,
+          "frames": 264600,
+          "channels": 2
+        },
+        "percussion": {
+          "events": [
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 0.47498866213151925,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 0.7349886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 0.9649886621315192,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.2249886621315194,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 1.4549886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.7149886621315191,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 1.944988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.2049886621315196,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 2.434988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.6949886621315198,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 2.9249886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.184988662131519,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 3.4149886621315195,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.6749886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 3.904988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.1649886621315195,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 4.39498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.65498866213152,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 4.88498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            }
+          ],
+          "description": "Original kick sweeps and seeded noise/tone snare/hat events; no sampled percussion.",
+          "source_peak": 0.3739696741104126,
+          "frames": 264600,
+          "channels": 2
+        },
+        "dense_mix": {
+          "events": [
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 1.4049886621315193,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 2.644988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 3.804988662131519,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.7949886621315192,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.3649886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.9349886621315193,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 2.5049886621315194,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.074988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.644988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 4.214988662131519,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32,
+              "source_fixture": "harmonic_sustain"
+            },
+            {
+              "time_seconds": 0.24498866213151926,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.47498866213151925,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.7349886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.9649886621315192,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.2249886621315194,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.4549886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.7149886621315191,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.944988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.2049886621315196,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.434988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.6949886621315198,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.9249886621315193,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.184988662131519,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.4149886621315195,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.6749886621315193,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.904988662131519,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.1649886621315195,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.39498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.65498866213152,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.88498866213152,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            }
+          ],
+          "description": "Fixed-gain mixture of the four musical synthetic fixtures.",
+          "components": {
+            "solo_piano": 0.43,
+            "connected_melody": 0.42,
+            "harmonic_sustain": 0.4,
+            "percussion": 0.48
+          },
+          "source_peak": 0.24887597560882568,
+          "frames": 264600,
+          "channels": 2
+        },
+        "quiet_dynamic": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 220.0,
+              "fixed_gain": 0.006
+            },
+            {
+              "time_seconds": 1.1649886621315193,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 277.1826,
+              "fixed_gain": 0.018
+            },
+            {
+              "time_seconds": 2.104988662131519,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "fixed_gain": 0.06
+            },
+            {
+              "time_seconds": 3.0449886621315194,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 246.9417,
+              "fixed_gain": 0.2
+            },
+            {
+              "time_seconds": 3.984988662131519,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "fixed_gain": 0.46
+            }
+          ],
+          "description": "Identically shaped piano-like events with fixed gains from 0.006 to 0.46.",
+          "source_peak": 0.35615381598472595,
+          "frames": 264600,
+          "channels": 2
+        },
+        "silence": {
+          "events": [],
+          "description": "Exact digital zero throughout.",
+          "source_peak": 0.0,
+          "frames": 264600,
+          "channels": 2
+        },
+        "impulse": {
+          "events": [
+            {
+              "time_seconds": 0.9249886621315193,
+              "duration_seconds": 2.2675736961451248e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.5
+            },
+            {
+              "time_seconds": 2.8249886621315197,
+              "duration_seconds": 2.2675736961451248e-05,
+              "kind": "unit_sample",
+              "amplitude": -0.5
+            },
+            {
+              "time_seconds": 4.6249886621315195,
+              "duration_seconds": 2.2675736961451248e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.25
+            }
+          ],
+          "description": "Separated positive/negative unit samples, identical in both stereo channels.",
+          "source_peak": 0.5,
+          "frames": 264600,
+          "channels": 2
+        },
+        "sweep": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "linear_frequency_sweep",
+              "frequency_start_hz": 20.0,
+              "frequency_end_hz": 20286.0
+            }
+          ],
+          "description": "Linear 20 Hz to 0.46*sample-rate sweep with 25 ms cosine ramps; no pitch stationarity expectation.",
+          "source_peak": 0.30000001192092896,
+          "frames": 264600,
+          "channels": 2
+        },
+        "simple_tone": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "sine",
+              "fundamental_hz": 440.0
+            }
+          ],
+          "description": "440 Hz sinusoid, identical in both stereo channels, 25 ms cosine ramps.",
+          "source_peak": 0.34999990463256836,
+          "frames": 264600,
+          "channels": 2
+        },
+        "stereo_probe": {
+          "events": [
+            {
+              "time_seconds": 0.22498866213151927,
+              "duration_seconds": 4.9,
+              "kind": "stereo_partial_probe",
+              "component_hz": [
+                220.0,
+                659.2551,
+                880.0,
+                1100.0
+              ]
+            }
+          ],
+          "description": "Shared 220 Hz, antiphase 659.2551 Hz, channel-specific upper tones; mono is exact stereo fold-down.",
+          "source_peak": 0.3594687581062317,
+          "frames": 264600,
+          "channels": 2
+        }
+      }
+    },
+    {
+      "fixture": "emotional_piano_00s",
+      "original_filename": "Emotional_piano.wav",
+      "original_sha256": "9661f81d37c59f230b324b830ab68c0482336af3ec117c92e73108ffb4095f15",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 44100,
+      "channels": 2,
+      "channel_conversion": "native channels",
+      "resampler": "none",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 5512
+    },
+    {
+      "fixture": "katanga_00s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 44100,
+      "channels": 2,
+      "channel_conversion": "native channels",
+      "resampler": "none",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 5512
+    },
+    {
+      "fixture": "katanga_24s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 24.0,
+      "source_end_s": 36.0,
+      "target_rate": 44100,
+      "channels": 2,
+      "channel_conversion": "native channels",
+      "resampler": "none",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 5512
+    },
+    {
+      "schema_version": 1,
+      "provenance": {
+        "kind": "original deterministic mathematical synthesis",
+        "external_audio": false,
+        "recording": false,
+        "seed": 20261024,
+        "notes": "Generated from oscillators, analytic envelopes, and seeded bounded noise. No external recordings, samples, or music streams are used. Piano-like and percussion labels describe synthesis test roles."
+      },
+      "samplerate": 48000,
+      "channels": 1,
+      "duration_seconds": 6.0,
+      "silence_guard_frames": 6000,
+      "source_peak_limit": 0.85,
+      "normalization": "fixed synthesis gains; no per-render normalization",
+      "fixtures": {
+        "solo_piano": {
+          "events": [
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.405,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 2.645,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 3.805,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648
+            }
+          ],
+          "description": "Piano-like additive attacks/decays; mild fixed partial inharmonicity.",
+          "source_peak": 0.4579193890094757,
+          "frames": 288000,
+          "channels": 1
+        },
+        "connected_melody": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0
+            },
+            {
+              "time_seconds": 0.7949999999999999,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.365,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 1.935,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417
+            },
+            {
+              "time_seconds": 2.505,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 3.0749999999999997,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 3.645,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 4.215,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            }
+          ],
+          "description": "Original eight-note sequence; 110 ms overlap of shaped harmonic voices.",
+          "source_peak": 0.2594771385192871,
+          "frames": 288000,
+          "channels": 1
+        },
+        "harmonic_sustain": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32
+            }
+          ],
+          "description": "32 exact harmonics at 110 Hz, 1/k partial amplitudes, gentle amplitude modulation.",
+          "source_peak": 0.2133503556251526,
+          "frames": 288000,
+          "channels": 1
+        },
+        "percussion": {
+          "events": [
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 0.475,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 0.735,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 0.965,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.225,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 1.455,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.7149999999999999,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 1.9449999999999998,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.205,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 2.435,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.6950000000000003,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 2.9250000000000003,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.185,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 3.415,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.675,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 3.905,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.165,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 4.3950000000000005,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.655,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 4.885000000000001,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            }
+          ],
+          "description": "Original kick sweeps and seeded noise/tone snare/hat events; no sampled percussion.",
+          "source_peak": 0.4684962332248688,
+          "frames": 288000,
+          "channels": 1
+        },
+        "dense_mix": {
+          "events": [
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 1.405,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 2.645,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 3.805,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.7949999999999999,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.365,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.935,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 2.505,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.0749999999999997,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.645,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 4.215,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32,
+              "source_fixture": "harmonic_sustain"
+            },
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.475,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.735,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.965,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.225,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.455,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.7149999999999999,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.9449999999999998,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.205,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.435,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.6950000000000003,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.9250000000000003,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.185,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.415,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.675,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.905,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.165,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.3950000000000005,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.655,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.885000000000001,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            }
+          ],
+          "description": "Fixed-gain mixture of the four musical synthetic fixtures.",
+          "components": {
+            "solo_piano": 0.43,
+            "connected_melody": 0.42,
+            "harmonic_sustain": 0.4,
+            "percussion": 0.48
+          },
+          "source_peak": 0.3449121415615082,
+          "frames": 288000,
+          "channels": 1
+        },
+        "quiet_dynamic": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 220.0,
+              "fixed_gain": 0.006
+            },
+            {
+              "time_seconds": 1.165,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 277.1826,
+              "fixed_gain": 0.018
+            },
+            {
+              "time_seconds": 2.105,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "fixed_gain": 0.06
+            },
+            {
+              "time_seconds": 3.045,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 246.9417,
+              "fixed_gain": 0.2
+            },
+            {
+              "time_seconds": 3.985,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "fixed_gain": 0.46
+            }
+          ],
+          "description": "Identically shaped piano-like events with fixed gains from 0.006 to 0.46.",
+          "source_peak": 0.4180716276168823,
+          "frames": 288000,
+          "channels": 1
+        },
+        "silence": {
+          "events": [],
+          "description": "Exact digital zero throughout.",
+          "source_peak": 0.0,
+          "frames": 288000,
+          "channels": 1
+        },
+        "impulse": {
+          "events": [
+            {
+              "time_seconds": 0.925,
+              "duration_seconds": 2.0833333333333333e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.5
+            },
+            {
+              "time_seconds": 2.825,
+              "duration_seconds": 2.0833333333333333e-05,
+              "kind": "unit_sample",
+              "amplitude": -0.5
+            },
+            {
+              "time_seconds": 4.625,
+              "duration_seconds": 2.0833333333333333e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.25
+            }
+          ],
+          "description": "Separated positive/negative unit samples, identical in both stereo channels.",
+          "source_peak": 0.5,
+          "frames": 288000,
+          "channels": 1
+        },
+        "sweep": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "linear_frequency_sweep",
+              "frequency_start_hz": 20.0,
+              "frequency_end_hz": 22080.0
+            }
+          ],
+          "description": "Linear 20 Hz to 0.46*sample-rate sweep with 25 ms cosine ramps; no pitch stationarity expectation.",
+          "source_peak": 0.30000001192092896,
+          "frames": 288000,
+          "channels": 1
+        },
+        "simple_tone": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "sine",
+              "fundamental_hz": 440.0
+            }
+          ],
+          "description": "440 Hz sinusoid, identical in both stereo channels, 25 ms cosine ramps.",
+          "source_peak": 0.3499999940395355,
+          "frames": 288000,
+          "channels": 1
+        },
+        "stereo_probe": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "stereo_partial_probe",
+              "component_hz": [
+                220.0,
+                659.2551,
+                880.0,
+                1100.0
+              ]
+            }
+          ],
+          "description": "Shared 220 Hz, antiphase 659.2551 Hz, channel-specific upper tones; mono is exact stereo fold-down.",
+          "source_peak": 0.23859089612960815,
+          "frames": 288000,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "fixture": "emotional_piano_00s",
+      "original_filename": "Emotional_piano.wav",
+      "original_sha256": "9661f81d37c59f230b324b830ab68c0482336af3ec117c92e73108ffb4095f15",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 48000,
+      "channels": 1,
+      "channel_conversion": "arithmetic mean of original L/R",
+      "resampler": "scipy.signal.resample_poly default Kaiser window (5.0)",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 6000
+    },
+    {
+      "fixture": "katanga_00s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 48000,
+      "channels": 1,
+      "channel_conversion": "arithmetic mean of original L/R",
+      "resampler": "scipy.signal.resample_poly default Kaiser window (5.0)",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 6000
+    },
+    {
+      "fixture": "katanga_24s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 24.0,
+      "source_end_s": 36.0,
+      "target_rate": 48000,
+      "channels": 1,
+      "channel_conversion": "arithmetic mean of original L/R",
+      "resampler": "scipy.signal.resample_poly default Kaiser window (5.0)",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 6000
+    },
+    {
+      "schema_version": 1,
+      "provenance": {
+        "kind": "original deterministic mathematical synthesis",
+        "external_audio": false,
+        "recording": false,
+        "seed": 20261024,
+        "notes": "Generated from oscillators, analytic envelopes, and seeded bounded noise. No external recordings, samples, or music streams are used. Piano-like and percussion labels describe synthesis test roles."
+      },
+      "samplerate": 48000,
+      "channels": 2,
+      "duration_seconds": 6.0,
+      "silence_guard_frames": 6000,
+      "source_peak_limit": 0.85,
+      "normalization": "fixed synthesis gains; no per-render normalization",
+      "fixtures": {
+        "solo_piano": {
+          "events": [
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.405,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 2.645,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 3.805,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648
+            }
+          ],
+          "description": "Piano-like additive attacks/decays; mild fixed partial inharmonicity.",
+          "source_peak": 0.3746621608734131,
+          "frames": 288000,
+          "channels": 2
+        },
+        "connected_melody": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0
+            },
+            {
+              "time_seconds": 0.7949999999999999,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256
+            },
+            {
+              "time_seconds": 1.365,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 1.935,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417
+            },
+            {
+              "time_seconds": 2.505,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            },
+            {
+              "time_seconds": 3.0749999999999997,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648
+            },
+            {
+              "time_seconds": 3.645,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954
+            },
+            {
+              "time_seconds": 4.215,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276
+            }
+          ],
+          "description": "Original eight-note sequence; 110 ms overlap of shaped harmonic voices.",
+          "source_peak": 0.20370198786258698,
+          "frames": 288000,
+          "channels": 2
+        },
+        "harmonic_sustain": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32
+            }
+          ],
+          "description": "32 exact harmonics at 110 Hz, 1/k partial amplitudes, gentle amplitude modulation.",
+          "source_peak": 0.1508614867925644,
+          "frames": 288000,
+          "channels": 2
+        },
+        "percussion": {
+          "events": [
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 0.475,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 0.735,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 0.965,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.225,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 1.455,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 1.7149999999999999,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 1.9449999999999998,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.205,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 2.435,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 2.6950000000000003,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 2.9250000000000003,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.185,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 3.415,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 3.675,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 3.905,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.165,
+              "duration_seconds": 0.34,
+              "kind": "kick"
+            },
+            {
+              "time_seconds": 4.3950000000000005,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            },
+            {
+              "time_seconds": 4.655,
+              "duration_seconds": 0.22,
+              "kind": "snare"
+            },
+            {
+              "time_seconds": 4.885000000000001,
+              "duration_seconds": 0.09,
+              "kind": "hat"
+            }
+          ],
+          "description": "Original kick sweeps and seeded noise/tone snare/hat events; no sampled percussion.",
+          "source_peak": 0.3327431082725525,
+          "frames": 288000,
+          "channels": 2
+        },
+        "dense_mix": {
+          "events": [
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 1.405,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 2.645,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 3.805,
+              "duration_seconds": 1.5,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "solo_piano"
+            },
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 220.0,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.7949999999999999,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 261.6256,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.365,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 1.935,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 246.9417,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 2.505,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.0749999999999997,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 293.6648,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 3.645,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 391.9954,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 4.215,
+              "duration_seconds": 0.68,
+              "kind": "overlapping_tone",
+              "fundamental_hz": 329.6276,
+              "source_fixture": "connected_melody"
+            },
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "harmonic_sustain",
+              "fundamental_hz": 110.0,
+              "partials": 32,
+              "source_fixture": "harmonic_sustain"
+            },
+            {
+              "time_seconds": 0.245,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.475,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.735,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 0.965,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.225,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.455,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.7149999999999999,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 1.9449999999999998,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.205,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.435,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.6950000000000003,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 2.9250000000000003,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.185,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.415,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.675,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 3.905,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.165,
+              "duration_seconds": 0.34,
+              "kind": "kick",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.3950000000000005,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.655,
+              "duration_seconds": 0.22,
+              "kind": "snare",
+              "source_fixture": "percussion"
+            },
+            {
+              "time_seconds": 4.885000000000001,
+              "duration_seconds": 0.09,
+              "kind": "hat",
+              "source_fixture": "percussion"
+            }
+          ],
+          "description": "Fixed-gain mixture of the four musical synthetic fixtures.",
+          "components": {
+            "solo_piano": 0.43,
+            "connected_melody": 0.42,
+            "harmonic_sustain": 0.4,
+            "percussion": 0.48
+          },
+          "source_peak": 0.24887292087078094,
+          "frames": 288000,
+          "channels": 2
+        },
+        "quiet_dynamic": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 220.0,
+              "fixed_gain": 0.006
+            },
+            {
+              "time_seconds": 1.165,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 277.1826,
+              "fixed_gain": 0.018
+            },
+            {
+              "time_seconds": 2.105,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 329.6276,
+              "fixed_gain": 0.06
+            },
+            {
+              "time_seconds": 3.045,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 246.9417,
+              "fixed_gain": 0.2
+            },
+            {
+              "time_seconds": 3.985,
+              "duration_seconds": 0.85,
+              "kind": "piano_like",
+              "fundamental_hz": 293.6648,
+              "fixed_gain": 0.46
+            }
+          ],
+          "description": "Identically shaped piano-like events with fixed gains from 0.006 to 0.46.",
+          "source_peak": 0.3564646542072296,
+          "frames": 288000,
+          "channels": 2
+        },
+        "silence": {
+          "events": [],
+          "description": "Exact digital zero throughout.",
+          "source_peak": 0.0,
+          "frames": 288000,
+          "channels": 2
+        },
+        "impulse": {
+          "events": [
+            {
+              "time_seconds": 0.925,
+              "duration_seconds": 2.0833333333333333e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.5
+            },
+            {
+              "time_seconds": 2.825,
+              "duration_seconds": 2.0833333333333333e-05,
+              "kind": "unit_sample",
+              "amplitude": -0.5
+            },
+            {
+              "time_seconds": 4.625,
+              "duration_seconds": 2.0833333333333333e-05,
+              "kind": "unit_sample",
+              "amplitude": 0.25
+            }
+          ],
+          "description": "Separated positive/negative unit samples, identical in both stereo channels.",
+          "source_peak": 0.5,
+          "frames": 288000,
+          "channels": 2
+        },
+        "sweep": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "linear_frequency_sweep",
+              "frequency_start_hz": 20.0,
+              "frequency_end_hz": 22080.0
+            }
+          ],
+          "description": "Linear 20 Hz to 0.46*sample-rate sweep with 25 ms cosine ramps; no pitch stationarity expectation.",
+          "source_peak": 0.30000001192092896,
+          "frames": 288000,
+          "channels": 2
+        },
+        "simple_tone": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "sine",
+              "fundamental_hz": 440.0
+            }
+          ],
+          "description": "440 Hz sinusoid, identical in both stereo channels, 25 ms cosine ramps.",
+          "source_peak": 0.3499999940395355,
+          "frames": 288000,
+          "channels": 2
+        },
+        "stereo_probe": {
+          "events": [
+            {
+              "time_seconds": 0.225,
+              "duration_seconds": 4.9,
+              "kind": "stereo_partial_probe",
+              "component_hz": [
+                220.0,
+                659.2551,
+                880.0,
+                1100.0
+              ]
+            }
+          ],
+          "description": "Shared 220 Hz, antiphase 659.2551 Hz, channel-specific upper tones; mono is exact stereo fold-down.",
+          "source_peak": 0.3594653904438019,
+          "frames": 288000,
+          "channels": 2
+        }
+      }
+    },
+    {
+      "fixture": "emotional_piano_00s",
+      "original_filename": "Emotional_piano.wav",
+      "original_sha256": "9661f81d37c59f230b324b830ab68c0482336af3ec117c92e73108ffb4095f15",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 48000,
+      "channels": 2,
+      "channel_conversion": "native channels",
+      "resampler": "scipy.signal.resample_poly default Kaiser window (5.0)",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 6000
+    },
+    {
+      "fixture": "katanga_00s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 0.0,
+      "source_end_s": 12.0,
+      "target_rate": 48000,
+      "channels": 2,
+      "channel_conversion": "native channels",
+      "resampler": "scipy.signal.resample_poly default Kaiser window (5.0)",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 6000
+    },
+    {
+      "fixture": "katanga_24s",
+      "original_filename": "Katanga.wav",
+      "original_sha256": "5782e604fcac61a25bacf449f0ce9ce74555d13fb68ab62050f5cdcdcda89fc3",
+      "native_rate": 44100,
+      "source_start_s": 24.0,
+      "source_end_s": 36.0,
+      "target_rate": 48000,
+      "channels": 2,
+      "channel_conversion": "native channels",
+      "resampler": "scipy.signal.resample_poly default Kaiser window (5.0)",
+      "gain": "unaltered source gain; no peak/RMS normalization",
+      "guard_frames": 6000
+    }
+  ],
+  "diagnostics": {
+    "frequency_sensitivity": [
+      {
+        "rate": 44100,
+        "hz": 40,
+        "harmonics": 1,
+        "relative_rms": 0.12108231766899295,
+        "matched_relative_rms": 0.01660833204950162,
+        "gain_db": -1.1110953570537536
+      },
+      {
+        "rate": 44100,
+        "hz": 40,
+        "harmonics": 8,
+        "relative_rms": 0.09543052659547843,
+        "matched_relative_rms": 0.06658761641956876,
+        "gain_db": -0.6360661497377363
+      },
+      {
+        "rate": 44100,
+        "hz": 100,
+        "harmonics": 1,
+        "relative_rms": 0.11936537055301827,
+        "matched_relative_rms": 0.014417005219296258,
+        "gain_db": -1.0964946937734608
+      },
+      {
+        "rate": 44100,
+        "hz": 100,
+        "harmonics": 8,
+        "relative_rms": 0.11980764048014897,
+        "matched_relative_rms": 0.021129955365959165,
+        "gain_db": -1.0921358585516954
+      },
+      {
+        "rate": 44100,
+        "hz": 220,
+        "harmonics": 1,
+        "relative_rms": 0.11953854729631642,
+        "matched_relative_rms": 0.01503087361720853,
+        "gain_db": -1.097552217189247
+      },
+      {
+        "rate": 44100,
+        "hz": 220,
+        "harmonics": 8,
+        "relative_rms": 0.11957648123370652,
+        "matched_relative_rms": 0.014717893199679005,
+        "gain_db": -1.0982698945685063
+      },
+      {
+        "rate": 44100,
+        "hz": 440,
+        "harmonics": 1,
+        "relative_rms": 0.11943430077022413,
+        "matched_relative_rms": 0.014718714584211352,
+        "gain_db": -1.0968569558147387
+      },
+      {
+        "rate": 44100,
+        "hz": 440,
+        "harmonics": 8,
+        "relative_rms": 0.11964522640677715,
+        "matched_relative_rms": 0.014956214909556328,
+        "gain_db": -1.0986940056483445
+      },
+      {
+        "rate": 44100,
+        "hz": 1000,
+        "harmonics": 1,
+        "relative_rms": 0.11944063106431735,
+        "matched_relative_rms": 0.014728429574316283,
+        "gain_db": -1.0969093385055433
+      },
+      {
+        "rate": 44100,
+        "hz": 1000,
+        "harmonics": 8,
+        "relative_rms": 0.1196585902041508,
+        "matched_relative_rms": 0.01502832515466315,
+        "gain_db": -1.0987476761785617
+      },
+      {
+        "rate": 44100,
+        "hz": 5000,
+        "harmonics": 1,
+        "relative_rms": 0.1196623009974293,
+        "matched_relative_rms": 0.015256073014636575,
+        "gain_db": -1.098532195843003
+      },
+      {
+        "rate": 44100,
+        "hz": 5000,
+        "harmonics": 8,
+        "relative_rms": 0.11959375135026915,
+        "matched_relative_rms": 0.015115806540142133,
+        "gain_db": -1.0980069390046079
+      },
+      {
+        "rate": 44100,
+        "hz": 10000,
+        "harmonics": 1,
+        "relative_rms": 0.11939838703626147,
+        "matched_relative_rms": 0.014723723995455483,
+        "gain_db": -1.0964949077657014
+      },
+      {
+        "rate": 44100,
+        "hz": 10000,
+        "harmonics": 8,
+        "relative_rms": 0.11944731976719292,
+        "matched_relative_rms": 0.014824771533507385,
+        "gain_db": -1.0968714405663895
+      },
+      {
+        "rate": 44100,
+        "hz": 18000,
+        "harmonics": 1,
+        "relative_rms": 0.12142168268630728,
+        "matched_relative_rms": 0.016799160544283542,
+        "gain_db": -1.1142476117349158
+      },
+      {
+        "rate": 44100,
+        "hz": 18000,
+        "harmonics": 8,
+        "relative_rms": 0.12142168268630728,
+        "matched_relative_rms": 0.016799160544283542,
+        "gain_db": -1.1142476117349158
+      },
+      {
+        "rate": 48000,
+        "hz": 40,
+        "harmonics": 1,
+        "relative_rms": 0.12145550458756346,
+        "matched_relative_rms": 0.02015034825248287,
+        "gain_db": -1.1101046102191163
+      },
+      {
+        "rate": 48000,
+        "hz": 40,
+        "harmonics": 8,
+        "relative_rms": 0.09890072665742561,
+        "matched_relative_rms": 0.08149780470974032,
+        "gain_db": -0.5323638694920861
+      },
+      {
+        "rate": 48000,
+        "hz": 100,
+        "harmonics": 1,
+        "relative_rms": 0.11943032368374049,
+        "matched_relative_rms": 0.013810044552856398,
+        "gain_db": -1.0977669315591463
+      },
+      {
+        "rate": 48000,
+        "hz": 100,
+        "harmonics": 8,
+        "relative_rms": 0.1187769054848841,
+        "matched_relative_rms": 0.01592260161477646,
+        "gain_db": -1.08897055548473
+      },
+      {
+        "rate": 48000,
+        "hz": 220,
+        "harmonics": 1,
+        "relative_rms": 0.11947853884723017,
+        "matched_relative_rms": 0.014166030584438312,
+        "gain_db": -1.0978808516031928
+      },
+      {
+        "rate": 48000,
+        "hz": 220,
+        "harmonics": 8,
+        "relative_rms": 0.11963753117441306,
+        "matched_relative_rms": 0.01406246258498055,
+        "gain_db": -1.0995660423185594
+      },
+      {
+        "rate": 48000,
+        "hz": 440,
+        "harmonics": 1,
+        "relative_rms": 0.11959050677522616,
+        "matched_relative_rms": 0.014446602337440162,
+        "gain_db": -1.0986986870053377
+      },
+      {
+        "rate": 48000,
+        "hz": 440,
+        "harmonics": 8,
+        "relative_rms": 0.11967146182307342,
+        "matched_relative_rms": 0.014402630570229807,
+        "gain_db": -1.0995489637299154
+      },
+      {
+        "rate": 48000,
+        "hz": 1000,
+        "harmonics": 1,
+        "relative_rms": 0.11942979309836371,
+        "matched_relative_rms": 0.01421779497366812,
+        "gain_db": -1.0973431953316193
+      },
+      {
+        "rate": 48000,
+        "hz": 1000,
+        "harmonics": 8,
+        "relative_rms": 0.12141087063560281,
+        "matched_relative_rms": 0.026310102747947532,
+        "gain_db": -1.0992245853765388
+      },
+      {
+        "rate": 48000,
+        "hz": 5000,
+        "harmonics": 1,
+        "relative_rms": 0.11942818779211949,
+        "matched_relative_rms": 0.01421666674003154,
+        "gain_db": -1.097328435339949
+      },
+      {
+        "rate": 48000,
+        "hz": 5000,
+        "harmonics": 8,
+        "relative_rms": 0.12114447184436233,
+        "matched_relative_rms": 0.02506020581741792,
+        "gain_db": -1.098890236683818
+      },
+      {
+        "rate": 48000,
+        "hz": 10000,
+        "harmonics": 1,
+        "relative_rms": 0.11942844922130623,
+        "matched_relative_rms": 0.014217189598871343,
+        "gain_db": -1.097330484984608
+      },
+      {
+        "rate": 48000,
+        "hz": 10000,
+        "harmonics": 8,
+        "relative_rms": 0.1194286815462023,
+        "matched_relative_rms": 0.014217460687305781,
+        "gain_db": -1.0973325084394077
+      },
+      {
+        "rate": 48000,
+        "hz": 18000,
+        "harmonics": 1,
+        "relative_rms": 0.14049384620196403,
+        "matched_relative_rms": 0.0768389809352372,
+        "gain_db": -1.116353964692692
+      },
+      {
+        "rate": 48000,
+        "hz": 18000,
+        "harmonics": 8,
+        "relative_rms": 0.14049384620196403,
+        "matched_relative_rms": 0.0768389809352372,
+        "gain_db": -1.116353964692692
+      }
+    ],
+    "amplitude_homogeneity": [
+      {
+        "scale": 0.001,
+        "max_error": 2.9103830456733704e-11
+      },
+      {
+        "scale": 0.1,
+        "max_error": 3.725290298461914e-09
+      },
+      {
+        "scale": 3,
+        "max_error": 1.1920928955078125e-07
+      }
+    ],
+    "kernel_formula": [
+      {
+        "strength": 0.35,
+        "max_kernel_error": 1.7763568394002505e-15
+      },
+      {
+        "strength": 0.55,
+        "max_kernel_error": 1.7763568394002505e-15
+      },
+      {
+        "strength": 0.75,
+        "max_kernel_error": 1.7763568394002505e-15
+      }
+    ],
+    "cold_start": [
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "velvet",
+        "raw_peak": 0.5780864357948303,
+        "pre_delay_peak": 0.5780864357948303,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4815700650215149
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "legato",
+        "raw_peak": 0.908421516418457,
+        "pre_delay_peak": 0.908421516418457,
+        "over_fullscale": 0,
+        "aligned_peak": 0.47103866934776306
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "melt",
+        "raw_peak": 1.2387566566467285,
+        "pre_delay_peak": 1.2387566566467285,
+        "over_fullscale": 3,
+        "aligned_peak": 0.46050727367401123
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "velvet",
+        "raw_peak": 0.49995726346969604,
+        "pre_delay_peak": 0.005803231615573168,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49995726346969604
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "legato",
+        "raw_peak": 0.4999328553676605,
+        "pre_delay_peak": 0.009119364432990551,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4999328553676605
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "melt",
+        "raw_peak": 0.499908447265625,
+        "pre_delay_peak": 0.012435496784746647,
+        "over_fullscale": 0,
+        "aligned_peak": 0.499908447265625
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "bypass",
+        "raw_peak": 0.49999988079071045,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49999988079071045
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "velvet",
+        "raw_peak": 0.49099668860435486,
+        "pre_delay_peak": 0.03588838502764702,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49099668860435486
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "legato",
+        "raw_peak": 0.48594072461128235,
+        "pre_delay_peak": 0.056396033614873886,
+        "over_fullscale": 0,
+        "aligned_peak": 0.48594072461128235
+      },
+      {
+        "rate": 44100,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "melt",
+        "raw_peak": 0.4808847904205322,
+        "pre_delay_peak": 0.07690367847681046,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4808847904205322
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "velvet",
+        "raw_peak": 0.5780864357948303,
+        "pre_delay_peak": 0.5780864357948303,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4815700650215149
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "legato",
+        "raw_peak": 0.908421516418457,
+        "pre_delay_peak": 0.908421516418457,
+        "over_fullscale": 0,
+        "aligned_peak": 0.47103866934776306
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "melt",
+        "raw_peak": 1.2387566566467285,
+        "pre_delay_peak": 1.2387566566467285,
+        "over_fullscale": 6,
+        "aligned_peak": 0.46050727367401123
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "velvet",
+        "raw_peak": 0.49995726346969604,
+        "pre_delay_peak": 0.005803231615573168,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49995726346969604
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "legato",
+        "raw_peak": 0.4999328553676605,
+        "pre_delay_peak": 0.009119364432990551,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4999328553676605
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "melt",
+        "raw_peak": 0.499908447265625,
+        "pre_delay_peak": 0.012435496784746647,
+        "over_fullscale": 0,
+        "aligned_peak": 0.499908447265625
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "bypass",
+        "raw_peak": 0.49999988079071045,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49999988079071045
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "velvet",
+        "raw_peak": 0.49099668860435486,
+        "pre_delay_peak": 0.03588838502764702,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49099668860435486
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "legato",
+        "raw_peak": 0.48594072461128235,
+        "pre_delay_peak": 0.056396033614873886,
+        "over_fullscale": 0,
+        "aligned_peak": 0.48594072461128235
+      },
+      {
+        "rate": 44100,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "melt",
+        "raw_peak": 0.4808847904205322,
+        "pre_delay_peak": 0.07690367847681046,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4808847904205322
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "velvet",
+        "raw_peak": 0.529912531375885,
+        "pre_delay_peak": 0.529912531375885,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4815700650215149
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "legato",
+        "raw_peak": 0.8327197432518005,
+        "pre_delay_peak": 0.8327197432518005,
+        "over_fullscale": 0,
+        "aligned_peak": 0.47103866934776306
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "dc_step",
+        "mode": "melt",
+        "raw_peak": 1.1355268955230713,
+        "pre_delay_peak": 1.1355268955230713,
+        "over_fullscale": 1,
+        "aligned_peak": 0.46050727367401123
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "velvet",
+        "raw_peak": 0.49995726346969604,
+        "pre_delay_peak": 0.005319629330188036,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49995726346969604
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "legato",
+        "raw_peak": 0.4999328553676605,
+        "pre_delay_peak": 0.00835941731929779,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4999328553676605
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "impulse",
+        "mode": "melt",
+        "raw_peak": 0.499908447265625,
+        "pre_delay_peak": 0.011399205774068832,
+        "over_fullscale": 0,
+        "aligned_peak": 0.499908447265625
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "velvet",
+        "raw_peak": 0.49209797382354736,
+        "pre_delay_peak": 0.07142189145088196,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49209797382354736
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "legato",
+        "raw_peak": 0.48758646845817566,
+        "pre_delay_peak": 0.11223439872264862,
+        "over_fullscale": 0,
+        "aligned_peak": 0.48758646845817566
+      },
+      {
+        "rate": 48000,
+        "channels": 1,
+        "signal": "sine_440",
+        "mode": "melt",
+        "raw_peak": 0.48307496309280396,
+        "pre_delay_peak": 0.15304690599441528,
+        "over_fullscale": 0,
+        "aligned_peak": 0.48307496309280396
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "velvet",
+        "raw_peak": 0.529912531375885,
+        "pre_delay_peak": 0.529912531375885,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4815700650215149
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "legato",
+        "raw_peak": 0.8327197432518005,
+        "pre_delay_peak": 0.8327197432518005,
+        "over_fullscale": 0,
+        "aligned_peak": 0.47103866934776306
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "dc_step",
+        "mode": "melt",
+        "raw_peak": 1.1355268955230713,
+        "pre_delay_peak": 1.1355268955230713,
+        "over_fullscale": 2,
+        "aligned_peak": 0.46050727367401123
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "velvet",
+        "raw_peak": 0.49995726346969604,
+        "pre_delay_peak": 0.005319629330188036,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49995726346969604
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "legato",
+        "raw_peak": 0.4999328553676605,
+        "pre_delay_peak": 0.00835941731929779,
+        "over_fullscale": 0,
+        "aligned_peak": 0.4999328553676605
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "impulse",
+        "mode": "melt",
+        "raw_peak": 0.499908447265625,
+        "pre_delay_peak": 0.011399205774068832,
+        "over_fullscale": 0,
+        "aligned_peak": 0.499908447265625
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "bypass",
+        "raw_peak": 0.5,
+        "pre_delay_peak": 0.0,
+        "over_fullscale": 0,
+        "aligned_peak": 0.5
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "velvet",
+        "raw_peak": 0.49209797382354736,
+        "pre_delay_peak": 0.07142189145088196,
+        "over_fullscale": 0,
+        "aligned_peak": 0.49209797382354736
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "legato",
+        "raw_peak": 0.48758646845817566,
+        "pre_delay_peak": 0.11223439872264862,
+        "over_fullscale": 0,
+        "aligned_peak": 0.48758646845817566
+      },
+      {
+        "rate": 48000,
+        "channels": 2,
+        "signal": "sine_440",
+        "mode": "melt",
+        "raw_peak": 0.48307496309280396,
+        "pre_delay_peak": 0.15304690599441528,
+        "over_fullscale": 0,
+        "aligned_peak": 0.48307496309280396
+      }
+    ]
+  }
+}

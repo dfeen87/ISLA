@@ -1,0 +1,328 @@
+{
+  "schema": 1,
+  "status": "POST-FREEZE ENGINEERING SUCCESSOR 01; NOT EXPERIMENT 02 RE-EVALUATION",
+  "frozen_commit": "f775995d173689967f76f30a3826403d066c06ce",
+  "freeze_sha256": "0d41467f483776a3ed4ac260d7c38068c9a52cc2b34deacb0b63c0f7b60ecd79",
+  "sources": {
+    "tools/resonance02/slowdown_successor_audit.py": "59eb1b7805298664d6d4afe2be71e01d768def1fea375cd3d3bcf05fb100295f",
+    "tools/resonance02/slowdown.py": "207e2de135960d9e65a4765e3a14cdf18cd7e0a5c6296e8b60d96cc6f0bed74b",
+    "tools/resonance02/slowdown_successor.py": "62c678423312a27bd954cc20069c86524ee1512970bd7379234ae5c42eb8865b",
+    "tests/test_resonance02_slowdown.py": "c560a4b63c8ddadef3ef97011031217958e1670b786251d980ea5dcc527ef1cb",
+    "tests/test_resonance02_slowdown_successor.py": "2ffc665adad02207469a17bb424ec40e4973d02889320f32ee4bd200f5ff7927"
+  },
+  "environment": {
+    "python": "3.13.5",
+    "platform": "macOS-26.7.2-arm64-arm-64bit-Mach-O",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "soundfile": "0.14.0"
+  },
+  "limitations": [
+    "isolated detector-selected attacks only; detected neighbors <4096 samples are unsupported",
+    "missed onsets and sample-energy anchor ambiguity remain",
+    "recorded piano stereo and creator listening unvalidated",
+    "analysis-phase reinitialization can perturb simultaneous sustained content",
+    "two synthesis passes for admitted signals; offline only"
+  ],
+  "external_audio": [
+    {
+      "path": "frozen_16000_1.25.wav",
+      "sha256": "dfe66ce3cb96e400e301d57de3a4cd304685e9843ce40b55b185f14f656a195f",
+      "frames": 28000,
+      "channels": 1,
+      "sr": 16000
+    },
+    {
+      "path": "successor_01_16000_1.25.wav",
+      "sha256": "9d7ccc47d09cc668cfff5c221fe0c1006749082738d60aeab43f398fa38a677a",
+      "frames": 28000,
+      "channels": 1,
+      "sr": 16000
+    },
+    {
+      "path": "frozen_16000_1.50.wav",
+      "sha256": "df3a1f6e986e92b9cb0417ebbe03f87b75f398960ea1780a5da839a48b33fef6",
+      "frames": 33600,
+      "channels": 1,
+      "sr": 16000
+    },
+    {
+      "path": "successor_01_16000_1.50.wav",
+      "sha256": "72455ff49c529b1c66a4359405d9f06139dc5d70b97f6705071f949917a7ad40",
+      "frames": 33600,
+      "channels": 1,
+      "sr": 16000
+    }
+  ],
+  "external_measurement_json": {
+    "path": "final-measurements/MEASUREMENTS.json",
+    "sha256": "edb9081b95d4f47484319a16edbc731e8dbc3b258914c9f275638f4ffe7ac777",
+    "recovery": "Obtain the creator-held ISLA-Slowdown-Successor package, verify SHA256SUMS.json, then run the documented audit into a new external folder. Original Experiment 01/02 archives are separate and unchanged."
+  },
+  "fixture_summary": [
+    {
+      "sample_rate": 16000,
+      "ratio": 1.25,
+      "implementation": "frozen",
+      "expected": [
+        5000,
+        13000,
+        21000
+      ],
+      "detected": [
+        4768,
+        12832,
+        20768
+      ],
+      "max_error_ms": 14.5,
+      "local_90pct_energy_spread_ms": [
+        48.125,
+        0.0625,
+        48.125
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 16000,
+      "ratio": 1.25,
+      "implementation": "successor_01",
+      "expected": [
+        5000,
+        13000,
+        21000
+      ],
+      "detected": [
+        5000,
+        13000,
+        21000
+      ],
+      "max_error_ms": 0.0,
+      "local_90pct_energy_spread_ms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 16000,
+      "ratio": 1.5,
+      "implementation": "frozen",
+      "expected": [
+        6000,
+        15600,
+        25200
+      ],
+      "detected": [
+        5536,
+        15264,
+        24736
+      ],
+      "max_error_ms": 29.0,
+      "local_90pct_energy_spread_ms": [
+        64.0625,
+        64.0,
+        64.0625
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 16000,
+      "ratio": 1.5,
+      "implementation": "successor_01",
+      "expected": [
+        6000,
+        15600,
+        25200
+      ],
+      "detected": [
+        6000,
+        15600,
+        25200
+      ],
+      "max_error_ms": 0.0,
+      "local_90pct_energy_spread_ms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 44100,
+      "ratio": 1.25,
+      "implementation": "frozen",
+      "expected": [
+        13781,
+        35831,
+        57881
+      ],
+      "detected": [
+        13585,
+        35577,
+        57697
+      ],
+      "max_error_ms": 5.759637188208616,
+      "local_90pct_energy_spread_ms": [
+        13.582766439909298,
+        15.238095238095237,
+        13.333333333333334
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 44100,
+      "ratio": 1.25,
+      "implementation": "successor_01",
+      "expected": [
+        13781,
+        35831,
+        57881
+      ],
+      "detected": [
+        13781,
+        35831,
+        57881
+      ],
+      "max_error_ms": 0.0,
+      "local_90pct_energy_spread_ms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 44100,
+      "ratio": 1.5,
+      "implementation": "frozen",
+      "expected": [
+        16538,
+        42998,
+        69458
+      ],
+      "detected": [
+        16145,
+        42489,
+        69089
+      ],
+      "max_error_ms": 11.541950113378684,
+      "local_90pct_energy_spread_ms": [
+        19.501133786848072,
+        22.22222222222222,
+        23.015873015873016
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 44100,
+      "ratio": 1.5,
+      "implementation": "successor_01",
+      "expected": [
+        16538,
+        42998,
+        69458
+      ],
+      "detected": [
+        16538,
+        42998,
+        69458
+      ],
+      "max_error_ms": 0.0,
+      "local_90pct_energy_spread_ms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 48000,
+      "ratio": 1.25,
+      "implementation": "frozen",
+      "expected": [
+        15000,
+        39000,
+        63000
+      ],
+      "detected": [
+        14816,
+        38752,
+        62816
+      ],
+      "max_error_ms": 5.166666666666667,
+      "local_90pct_energy_spread_ms": [
+        10.666666666666666,
+        10.666666666666666,
+        10.666666666666666
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 48000,
+      "ratio": 1.25,
+      "implementation": "successor_01",
+      "expected": [
+        15000,
+        39000,
+        63000
+      ],
+      "detected": [
+        15000,
+        39000,
+        63000
+      ],
+      "max_error_ms": 0.0,
+      "local_90pct_energy_spread_ms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 48000,
+      "ratio": 1.5,
+      "implementation": "frozen",
+      "expected": [
+        18000,
+        46800,
+        75600
+      ],
+      "detected": [
+        18016,
+        46304,
+        75616
+      ],
+      "max_error_ms": 10.333333333333334,
+      "local_90pct_energy_spread_ms": [
+        18.666666666666668,
+        21.333333333333332,
+        18.666666666666668
+      ],
+      "deterministic": true
+    },
+    {
+      "sample_rate": 48000,
+      "ratio": 1.5,
+      "implementation": "successor_01",
+      "expected": [
+        18000,
+        46800,
+        75600
+      ],
+      "detected": [
+        18000,
+        46800,
+        75600
+      ],
+      "max_error_ms": 0.0,
+      "local_90pct_energy_spread_ms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deterministic": true
+    }
+  ]
+}

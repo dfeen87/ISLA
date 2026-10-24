@@ -36,20 +36,34 @@ these inputs; fixed and shuffled controls do too. Added governance complexity
 has not demonstrated a clear advantage. Legato's connected-melody continuity
 proxy slightly worsens. Creator listening remains pending.
 
-The combined regression result is **418 passed, 2 failed, 1 existing expected
-failure** in the pinned macOS/Python 3.13.5 environment. The two failures remain
-ordinary failing tests:
+At integration commit `9cef83b`, the frozen implementation's combined regression
+result was **418 passed, 2 failed, 1 existing expected failure**, reproduced on
+all four hosted Python jobs. Its two ordinary failing tests were:
 
 ```
 tests/test_resonance02_slowdown.py::test_repeated_impulse_registered_event_count_and_timing[1.25]
 tests/test_resonance02_slowdown.py::test_repeated_impulse_registered_event_count_and_timing[1.5]
 ```
 
-Protected slowdown's maximum development-fixture timing errors are 14.5 ms and
-29 ms against the unchanged 10 ms screen. No skip, xfail, tolerance adjustment
-or CI exclusion conceals them. A combined CI run is expected to remain red on
-these known research failures. Production-only baseline results remain separate:
-305 passed, 1 unchanged expected failure.
+Frozen protected slowdown's maximum development-fixture timing errors remain
+14.5 ms and 29 ms against the unchanged 10 ms screen. Replaying the original
+test file against `slowdown.py` still fails both assertions. Production-only
+baseline results remain separate: 305 passed, 1 unchanged expected failure.
+
+## Separately labeled engineering successor
+
+[Post-freeze successor 01](SLOWDOWN_SUCCESSOR.md) corrects isolated-transient
+placement in `slowdown_successor.py`. The development test file now binds to
+this explicit successor; its fixtures, assertions and 10 ms limit are unchanged.
+The original `slowdown.py`, frozen `run.py` and all Experiment 02 results remain
+unchanged. Green successor development checks do not revise the original
+research verdict or establish robust recorded-piano slowdown.
+
+The successor record contains the root-cause derivation, before/after timing
+and spread measurements, independent production acceptance, reproducible audit
+command and remaining dense-onset/phase/stereo/listening limits. CI runs production
+acceptance as a separately named step, followed by the complete unfiltered suite.
+See PR #33 for hosted outcomes at the current head.
 
 Other limits include false attack detections from natural beating, unresolved
 recorded-transient peak ambiguities, post-stretch stereo phase changes, and a

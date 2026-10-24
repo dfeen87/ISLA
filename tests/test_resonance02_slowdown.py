@@ -1,10 +1,14 @@
-"""Development fixtures, not the frozen recorded-source candidate evaluation."""
+"""Unchanged development screens, now exercised by post-freeze successor 01.
+
+The frozen implementation and its failing measurements remain preserved. Only
+the implementation binding changes; no assertion, fixture or tolerance changes.
+"""
 
 import numpy as np
 import pytest
 from scipy.signal import find_peaks
 
-from tools.resonance02.slowdown import stretch
+from tools.resonance02.slowdown_successor import stretch
 
 
 def _tone(sr=16000, seconds=1.5, frequency=440.0, phase=0.0):

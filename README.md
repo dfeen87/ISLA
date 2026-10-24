@@ -191,14 +191,27 @@ isla>
 devices
 ~~~
 
-**Device-selection tip:** `devices` displays a list, **not** a numbered selection menu. For a list showing `0: BlackHole 2ch` and `1: External Headphones`, enter `input 0` and `output 1` (or `input "BlackHole 2ch"` and `output "External Headphones"`) **after `source system`**. Typing only `1`, `1:`, or `External Headphones` is not a valid command; device indices may differ on your Mac. If startup shows `Output: BlackHole 2ch`, that's the current macOS default output, not your selected physical ISLA output.
+**Recommended: guided audio setup.** At `isla>`, enter:
 
-In the next block, **replace `External Headphones` with your actual physical output device** before typing each command. Built-in speakers may be named `MacBook Pro Speakers`. Never select `BlackHole 2ch` as ISLA's output.
+~~~text
+setup audio
+~~~
+
+ISLA will list **BlackHole 2ch** as the capture input and only verified **physical stereo outputs** as playback choices. Enter the listed number or exact device name at each prompt. For example, if BlackHole is `0` and External Headphones is `1`, enter `0` when asked for the **input**, then `1` when asked for the **output**. Device numbers vary by Mac. Type `cancel` to leave the wizard without changing your route. The wizard selects `source system`, input, and output, but **does not start monitoring or change macOS Sound settings**.
+
+**Manual alternative:** `devices` is a list, not a selection menu. From the normal `isla>` prompt, enter these commands one line at a time, replacing `External Headphones` with your own physical output (for example, `MacBook Pro Speakers`):
 
 ~~~text
 source system
 input "BlackHole 2ch"
 output "External Headphones"
+~~~
+
+Or use `input 0` and `output 1` **if those are the indices in your current list**. Typing a bare `1`, `1:`, or `External Headphones` at `isla>` does not select a device. Never choose BlackHole as the ISLA output. A startup line such as `Output: BlackHole 2ch` reflects the macOS default output, not your selected physical ISLA output.
+
+**With either setup method**, after confirming macOS **System Settings → Sound → Output** is set to **BlackHole 2ch**, type:
+
+~~~text
 bypass
 monitor start
 status

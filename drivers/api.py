@@ -1,5 +1,5 @@
 """
-Python API driver for Phased-Music-Notes.
+Python API driver for ISLA (formerly Phased-Music-Notes).
 
 Provides:
     - smooth(): one-call file-based interface
@@ -15,7 +15,7 @@ from typing import Union, BinaryIO
 
 import numpy as np
 
-from src.main import PhasedMusicEngine
+from src.main import IslaMusicEngine
 
 
 # ----------------------------------------------------------------------
@@ -42,14 +42,14 @@ def smooth(input_path: Union[str, Path, BinaryIO],
     if isinstance(output_path, Path):
         output_path = str(output_path)
 
-    engine = PhasedMusicEngine(mode=mode)
+    engine = IslaMusicEngine(mode=mode)
     engine.smooth_file(input_path, output_path)
 
 
 # ----------------------------------------------------------------------
 # File-based OO API
 # ----------------------------------------------------------------------
-class PhasedNotes:
+class IslaFile:
     """
     Object-oriented API wrapper for file-based processing.
 
@@ -61,7 +61,7 @@ class PhasedNotes:
 
     def __init__(self, mode: str = "velvet"):
         self.mode = mode
-        self.engine = PhasedMusicEngine(mode=mode)
+        self.engine = IslaMusicEngine(mode=mode)
 
     def process(self,
                 input_path: Union[str, Path, BinaryIO],
@@ -76,7 +76,7 @@ class PhasedNotes:
 # ----------------------------------------------------------------------
 # Buffer-based API for DAW/VST integration
 # ----------------------------------------------------------------------
-class PhasedNotesBuffer:
+class IslaBuffer:
     """
     Buffer-based DSP driver for DAW/VST integration.
 
@@ -92,7 +92,7 @@ class PhasedNotesBuffer:
     def __init__(self, mode: str = "velvet", sr: int = 44100):
         self.mode = mode
         self.sr = sr
-        self.engine = PhasedMusicEngine(mode=mode)
+        self.engine = IslaMusicEngine(mode=mode)
 
     def process_buffer(self, audio_buffer: np.ndarray) -> np.ndarray:
         """
@@ -121,3 +121,8 @@ class PhasedNotesBuffer:
         final_output = self.engine.harmonics.blend(softened, self.sr)
 
         return final_output
+
+
+# Legacy aliases keep existing scripts, pipeline adapters and integrations working.
+PhasedNotes = IslaFile
+PhasedNotesBuffer = IslaBuffer

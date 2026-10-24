@@ -9,12 +9,12 @@ MIT License
 """
 
 import soundfile as sf
-from phased_music_notes.analyzer import NoteAnalyzer
-from phased_music_notes.smoother import PhaseSmoother
-from phased_music_notes.harmonics import HarmonicBlender
+from isla.analyzer import NoteAnalyzer
+from isla.smoother import PhaseSmoother
+from isla.harmonics import HarmonicBlender
 
 
-class PhasedMusicEngine:
+class IslaMusicEngine:
     """
     Static-style engine inspired by AeroCam's main.cpp.
     Modules are initialized once, mirroring embedded-style determinism.
@@ -59,6 +59,9 @@ class PhasedMusicEngine:
             print(f"Output saved to memory buffer.")
 
 
+PhasedMusicEngine = IslaMusicEngine  # Backward-compatible alias.
+
+
 if __name__ == "__main__":
-    engine = PhasedMusicEngine(mode="velvet")
+    engine = IslaMusicEngine(mode="velvet")
     engine.smooth_file("input.wav", "output_smooth.wav")

@@ -49,7 +49,7 @@ Requires Python 3.10+ and the project dependencies. From a local checkout:
 python -m pip install -e .
 ```
 
-**Compatibility note:** The Python distribution remains `phased-music-notes`, and the import path remains `phased_music_notes` in this branding PR. This avoids breaking existing scripts. The GitHub repository URL and JUCE/plugin identifiers also remain unchanged until a separately reviewed migration.
+**Python identity:** The editable distribution is `isla-audio`, with new imports via `isla`. The original `phased_music_notes` package and legacy Python class names remain available as compatibility aliases. The GitHub repository URL stays unchanged until its separate settings rename. Existing gRPC wire service identifiers and JUCE plugin IDs are preserved for compatibility.
 
 ---
 
@@ -58,7 +58,7 @@ python -m pip install -e .
 Process a local WAV file using the existing `SmoothPhase` interface:
 
 ```python
-from phased_music_notes import SmoothPhase
+from isla import SmoothPhase
 
 engine = SmoothPhase(mode="velvet")
 engine.smooth_file("input.wav", "output_isla.wav")
@@ -67,6 +67,10 @@ engine.smooth_file("input.wav", "output_isla.wav")
 Choose `"velvet"`, `"legato"`, or `"melt"` to explore different transition treatments. Use files you own or have permission to process.
 
 **Implementation note:** `SmoothPhase` exposes `smooth_file(input_path, output_path)`, not `.smooth(...)`; the example above matches the existing code.
+
+---
+
+From the command line, you can also use `isla --input input.wav --output output_isla.wav --mode velvet` after installation, or `python -m isla` with the same arguments.
 
 ---
 

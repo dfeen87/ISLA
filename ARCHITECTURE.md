@@ -218,7 +218,7 @@ ISLA is an evolving offline-first DSP project. Python regression tests and Linux
 
 The JUCE/C++ Python bridge can allocate memory and acquire the GIL in the audio callback. Streaming with nonzero smoothing strength can differ across independently processed blocks. Both are documented risks requiring future engineering before any live-use claims.
 
-Historical references to `PhasedNotes`, `PhasedMusicEngine`, and `phased_music_notes` are retained as compatibility identifiers in this branding-only change.
+`isla` is the new public Python import name, while `phased_music_notes`, `PhasedNotes`, `PhasedNotesBuffer`, and `PhasedMusicEngine` remain available for backward compatibility. The Python distribution is `isla-audio`. The gRPC protobuf wire service and JUCE plugin identity codes remain unchanged to reduce integration breakage.
 
 ---
 

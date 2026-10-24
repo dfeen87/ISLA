@@ -29,7 +29,15 @@ jobs:
       - name: Install project, playback, and test dependencies
         run: python -m pip install -e '.[playback]' -r requirements.txt
       - name: Production-only acceptance (independent of research)
-        run: python -m pytest -q tests --ignore-glob='tests/test_resonance02_*.py'
+        run: python -m pytest -q tests --ignore-glob='tests/test_resonance02_*.py' --ignore-glob='tests/test_remastered*.py'
       - name: Complete acceptance including research (no research exclusions)
         if: ${{ !cancelled() }}
         run: python -m pytest -q tests
+      - name: Remastered intensity evidence (post-freeze engineering matrix)
+        if: ${{ !cancelled() }}
+        run: python -m tools.remastered_verify --output remastered-verification.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: remastered-${{ matrix.os }}-python-${{ matrix.python }}
+          path: remastered-verification.json

@@ -76,6 +76,12 @@ class ControlState:
     live_applied_mode: str | None
     monitor_volume: int
     live_failure_reason: str
+    research_pending: bool = False
+    research_status: str = ''
+    research_mode: str = ''
+    research_intensity: int = 100
+    research_summary: str = ''
+    research_active: bool = False
 
 
 class ControlService:
@@ -88,6 +94,10 @@ class ControlService:
         if controller._setup_stage is not None:
             raise AudioError("Finish setup audio or type cancel before opening window.")
         self.controller = controller
+        from isla.remastered_session import RemasteredSession
+        if not hasattr(controller, '_remastered'):
+            controller._remastered = RemasteredSession(controller)
+        self.preview = controller._remastered
         self.owns_controller = owns_controller
         self.closed = False
         self.error = ""
@@ -181,6 +191,7 @@ class ControlService:
             raise AudioError("LIVE rate must be 44100 or 48000 Hz.")
         self._fresh_selection(capture, output)
         c = self.controller
+        self.preview.cancel()
         c.execute("source system")
         c.execute("input " + shlex.quote(capture.name))
         c.execute("output " + shlex.quote(output.name))
@@ -241,6 +252,7 @@ class ControlService:
         self._enter()
         self._idle()
         c = self.controller
+        self.preview.reset()
         c.execute('source file')
         result = c.execute('load ' + shlex.quote(str(path)))
         self._file_touched = False
@@ -263,10 +275,20 @@ class ControlService:
             raise AudioError("Stop LIVE before using ALIVE playback.")
         if self.controller.source != 'file':
             self.controller.execute('source file')
+        if command in ('bypass', 'stop') or command.startswith('mode '):
+            self.preview.cancel()
         result = self.controller.execute(command)
         if command in ('play', 'pause', 'stop'):
             self._file_touched = True
         return result
+
+    def prepare_remastered(self, mode, intensity):
+        self._enter()
+        return self.preview.prepare(mode, intensity)
+
+    def cancel_remastered(self):
+        self._enter()
+        self.preview.cancel()
 
     def live_mode(self, mode):
         self._enter()
@@ -285,6 +307,7 @@ class ControlService:
     def poll(self):
         self._enter()
         self.controller.poll()
+        self.preview.poll()
         return self.snapshot()
 
     def snapshot(self):
@@ -320,11 +343,16 @@ class ControlService:
             not stream_active, not stream_active,
             not stream_active and devices_selected and self.ready and c.source == 'system', self.closed,
             getattr(getattr(live, 'processor', None), 'mode', None) if live_active else None,
-            self._monitor_volume.percent, live.error)
+            self._monitor_volume.percent, live.error,
+            self.preview.job is not None, self.preview.state,
+            self.preview.applied.mode if self.preview.applied else '',
+            self.preview.applied.intensity if self.preview.applied else 100,
+            self.preview.summary, p.mode.startswith('remastered_'))
 
     def shutdown(self):
         self._enter()
         c = self.controller
+        self.preview.cancel()
         # Keep the lease on ANY cleanup failure. Returning a borrowed controller
         # while a worker is still stopping would allow competing streams.
         if self.owns_controller:

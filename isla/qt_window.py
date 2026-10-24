@@ -153,7 +153,9 @@ class CommandWorker:
                               'live_mode': self.service.live_mode, 'devices': self.service.select_devices,
                               'file_output': self.service.select_file_output,
                               'refresh': self.service.refresh_devices, 'start': self.service.start_live,
-                              'stop': self.service.stop_live, 'volume': self.service.set_monitor_volume}[action]
+                              'stop': self.service.stop_live, 'volume': self.service.set_monitor_volume,
+                              'research': self.service.prepare_remastered,
+                              'cancel_research': self.service.cancel_remastered}[action]
                     result = method(*args)
                     self.service.error = ''
                     if result:
@@ -284,6 +286,49 @@ class ControlWindow(QMainWindow):
         self.progress.setTextVisible(False)
         box.addWidget(self.progress)
         self.file_modes = self._modes(box, 'file')
+        self.research_toggle = QPushButton('Show v4.0 Remastered Research Preview')
+        self.research_toggle.setCheckable(True)
+        box.addWidget(self.research_toggle)
+        research = QGroupBox('v4.0 Remastered — Research Preview')
+        self.research_panel = research
+        research.setVisible(False)
+        self.research_toggle.toggled.connect(research.setVisible)
+        self.research_toggle.toggled.connect(lambda shown: self.research_toggle.setText(
+            ('Hide' if shown else 'Show') + ' v4.0 Remastered Research Preview'))
+        research_box = QVBoxLayout(research)
+        research_box.addWidget(label('0% is exact original; 100% is the governed research baseline. Intensity controls permitted DSP depth, not volume.'))
+        self.research_mode = QComboBox()
+        self.research_mode.setAccessibleName('Remastered research mode')
+        for mode in ('velvet', 'legato', 'melt'):
+            self.research_mode.addItem(mode.title() + ' Remastered', mode)
+        research_box.addWidget(self.research_mode)
+        # Integer ticks map exactly to 5%; mouse and keyboard cannot request
+        # an off-grid value. Draft choices are not overwritten by health polls.
+        self.research_intensity = QSlider(Qt.Orientation.Horizontal)
+        self.research_intensity.setRange(0, 20)
+        self.research_intensity.setSingleStep(1)
+        self.research_intensity.setPageStep(1)
+        self.research_intensity.setValue(20)
+        self.research_intensity.setAccessibleName('Remastered intensity, 0 to 100 percent in 5 percent steps')
+        self.research_intensity_value = label('100% permitted depth')
+        self.research_intensity.valueChanged.connect(
+            lambda value: self.research_intensity_value.setText(f'{value * 5}% permitted depth'))
+        self.research_intensity.sliderReleased.connect(self._prepare_research)
+        research_box.addWidget(self.research_intensity)
+        research_box.addWidget(self.research_intensity_value)
+        row = QHBoxLayout()
+        self.apply_research = QPushButton('Prepare / Apply Remastered')
+        self.apply_research.clicked.connect(self._prepare_research)
+        self.cancel_research = QPushButton('Cancel Preparation')
+        self.cancel_research.clicked.connect(lambda: self.submit('cancel_research'))
+        row.addWidget(self.apply_research)
+        row.addWidget(self.cancel_research)
+        research_box.addLayout(row)
+        self.research_status, self.research_summary = label(), label()
+        research_box.addWidget(self.research_status)
+        research_box.addWidget(self.research_summary)
+        research_box.addWidget(label('44.1/48 kHz mono/stereo, up to 30 seconds. Audio continues during preparation. Original / Bypass restores the source. REVISE / INCONCLUSIVE; listening acceptance pending.'))
+        box.addWidget(research)
         box.addWidget(label('Listening output (shared with LIVE)'))
         self.file_output = QComboBox()
         self.file_output.setAccessibleName('ALIVE physical listening output')
@@ -447,6 +492,12 @@ class ControlWindow(QMainWindow):
         if path:
             self.submit('load', path)
 
+    def _prepare_research(self):
+        if not self.apply_research.isEnabled():
+            return False
+        return self.submit('research', self.research_mode.currentData(),
+                           self.research_intensity.value() * 5)
+
     def submit(self, action, *args):
         if self.busy or self.closed_cleanly:
             return False
@@ -483,7 +534,7 @@ class ControlWindow(QMainWindow):
                 self.activity.setText(value)
             elif kind == 'error':
                 action, message = value
-                target = self.file_error if action in ('load', 'file', 'file_output', 'poll') else self.live_error
+                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'cancel_research') else self.live_error
                 target.setText('Action required: ' + message)
                 if action == 'live_mode':
                     self._live_mode_error = message
@@ -568,11 +619,15 @@ class ControlWindow(QMainWindow):
         available = s is not None and not self.busy and not self.closing
         for button in (self.open_file, self.play, self.pause, self.stop_file, self.start_live, self.stop_live,
                        self.apply_devices, self.apply_output, self.refresh, self.recheck, self.settings,
-                       self.apply_volume, self.mute_volume):
+                       self.apply_volume, self.mute_volume, self.apply_research, self.cancel_research):
             button.setEnabled(bool(available))
         for combo in (self.capture, self.output, self.file_output, self.rate):
             combo.setEnabled(bool(available and s.can_configure))
         self.monitor_volume.setEnabled(bool(available))
+        self.research_mode.setEnabled(bool(available and s.can_play))
+        self.research_intensity.setEnabled(bool(available and s.can_play))
+        self.apply_research.setEnabled(bool(available and s.can_play))
+        self.cancel_research.setEnabled(bool(available and s.research_pending))
         for button in self.file_modes.values():
             button.setEnabled(False)
         # Set the final enabled state once. Temporarily disabling a combo on
@@ -593,6 +648,15 @@ class ControlWindow(QMainWindow):
                 self.rate.setCurrentIndex(self.rate.findData(s.rate))
                 self._rate_initialized = True
         self.filename.setText(s.file_name or 'No file selected')
+        if not getattr(self, '_research_initialized', False):
+            if s.research_active:
+                self.research_mode.setCurrentIndex(self.research_mode.findData(s.research_mode))
+                self.research_intensity.setValue(s.research_intensity // 5)
+            self._research_initialized = True
+        active = (f'Active: {s.research_mode.title()} Remastered — {s.research_intensity}%'
+                  if s.research_active else 'Active: ' + s.file_mode.title())
+        self.research_status.setText(active + '\n' + s.research_status)
+        self.research_summary.setText(s.research_summary)
         self.file_status.setText(s.preparation if s.file_state.value == 'File preparation in progress' else
                                  ('Open an audio file to begin' if not s.duration else s.file_state.value))
         if self.cleanup_error:

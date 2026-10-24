@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from tools.resonance02.measure import beat_metrics, metrics, reference
+from tools.resonance02.core import stft
 
 
 def _tone(sr=48000):
@@ -59,6 +60,36 @@ def test_silent_stereo_channel_has_undefined_correlation_without_nan():
     result = metrics(x, x, 48000, cell, reference(x, 48000, cell))
     assert result["stereo_correlation_delta"] is None
     json.dumps(result, allow_nan=False)
+
+
+def test_muted_known_tone_fails_instead_of_becoming_unmeasurable_pass():
+    sr = 48000
+    t = np.arange(2*sr)/sr
+    x = np.pad(.1*np.cos(2*np.pi*440*t), (6000, 6000))[:, None]
+    cell = _cell("simple_tone")
+    result = metrics(x, np.zeros_like(x), sr, cell, reference(x, sr, cell))
+    assert result["screen_failures"]
+    assert result["rms_gain_db"] < -100
+    assert result["spectral_log_envelope_rms"] > 1
+    assert result["pitch_delta_cents"] is None
+    json.dumps(result, allow_nan=False)
+
+
+def test_reported_frame_energy_matches_independent_time_domain_parseval_oracle():
+    sr = 48000
+    t = np.arange(sr//2)/sr
+    x = np.pad(np.full(len(t), .1), (6000, 6000))[:, None]
+    y = np.pad(.1*np.sqrt(2)*np.cos(2*np.pi*440*t), (6000, 6000))[:, None]
+    cell = _cell()
+    _, frames_x, window = stft(x)
+    _, frames_y, _ = stft(y)
+    # Windowed samples give an independent energy oracle, including DC/edge
+    # content; unweighted one-sided FFT power would give the wrong ratio.
+    ex = np.sum((frames_x*window[None, :, None])**2, axis=(1, 2))
+    ey = np.sum((frames_y*window[None, :, None])**2, axis=(1, 2))
+    expected = np.max(ey/np.maximum(ex, 1e-20))
+    result = metrics(x, y, sr, cell, reference(x, sr, cell))
+    assert result["max_frame_energy_ratio"] == pytest.approx(expected, abs=1e-10)
 
 
 @pytest.mark.parametrize("base,delta,tau", [(440., .2, None), (3520., 3., 6.)])

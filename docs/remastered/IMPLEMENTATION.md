@@ -5,12 +5,18 @@ and local-song search, see [LIVE and discovery](LIVE_AND_DISCOVERY.md).
 
 This opt-in ALIVE preview connects the frozen Experiment 02 governed renderer
 to the existing file player. It adds independent processing-depth control for
-Velvet, Legato and Melt. Production package/release metadata remains 3.3.0;
-this branch does not promote the research, merge, tag or release it.
+Velvet, Legato and Melt. The Python package, HTTP API and JUCE/CMake
+**source version is 4.0.0**, while the latest published release remains
+v3.3.0. This is an unreleased source-version alignment, not scientific
+promotion or completed physical-Mac/creator-listening acceptance. The frozen
+Experiment 02 core, protocol, parameters, historical evidence and original
+source hashes retain their authoritative pinned versions; the historical
+preservation manifests describe their original commits rather than this
+subsequent application-level metadata version change.
 
 ## Use the preview
 
-Install this PR branch in a separate checkout/environment, then run:
+Install a checked-out source candidate in a separate environment, then run:
 
 ```bash
 python -m pip install -e '.[gui]'

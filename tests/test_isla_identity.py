@@ -11,7 +11,7 @@ from drivers.cli import create_parser
 
 
 def test_isla_public_api_and_legacy_imports():
-    assert isla.__version__ == phased_music_notes.__version__ == "3.3.0"
+    assert isla.__version__ == phased_music_notes.__version__ == "4.0.0"
     assert isla.SmoothPhase is phased_music_notes.SmoothPhase
     assert SmoothPhase(mode="velvet").mode == "velvet"
     assert HarmonicBlender is IslaHarmonicBlender is LegacyHarmonicBlender

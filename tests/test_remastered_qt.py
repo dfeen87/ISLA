@@ -50,7 +50,10 @@ def test_native_widgets_control_actual_render_without_restarting_audio(app, tmp_
         assert w.state.research_mode == 'melt' and w.state.research_intensity == 50
         assert c.player.cursor == cursor and c.player.stream is stream and len(files.streams) == 1
         assert not live.streams and c.live.mode == 'bypass'
-        assert 'numerical screens PASS' in w.research_summary.text()
+        # Detailed research metrics now live in the unified Diagnostics pane,
+        # not a duplicate block under the ALIVE buttons.
+        assert 'numerical screens PASS' in w.health.toPlainText()
+        assert 'Remastered active: Melt at 50% depth' in w.health.toPlainText()
         assert w.research_intensity.value() == 10  # Polling preserves the draft.
         assert np.isfinite(stream.pump()).all()
         # Zero is a source copy, not a muted or FFT-reconstructed buffer.

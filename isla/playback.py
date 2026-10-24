@@ -4,6 +4,11 @@ from __future__ import annotations
 import numpy as np
 
 
+# Audio Control Center Play starts local ALIVE output at 25% digital amplitude.
+# This is separate from LIVE monitoring volume and macOS device volume.
+ALIVE_GUI_PLAY_LEVEL_PERCENT = 25
+
+
 class AudioError(RuntimeError):
     """An actionable audio output error for the terminal."""
 
@@ -79,6 +84,10 @@ class BufferPlayer:
         self.state = "idle"
         self.warning = ""
         self.output = "Not opened"
+        # Legacy CLI playback retains unity unless the Control Center explicitly
+        # requests a safer listening level before opening an output stream.
+        self.output_level_percent = 100
+        self._output_gain = 1.0
         self._ended = False
         self._origin = None
         self._base = 0
@@ -100,6 +109,13 @@ class BufferPlayer:
             raise AudioError("Load an audio file before selecting a mode.")
         self.mode = mode
         self._selected = self.buffers[mode]
+
+    def set_output_level_percent(self, percent):
+        """Apply output-only attenuation; keep decoded/DSP buffers untouched."""
+        if type(percent) is not int or not 0 <= percent <= 100:
+            raise ValueError('ALIVE output level must be an integer from 0 to 100%.')
+        self.output_level_percent = percent
+        self._output_gain = percent / 100.0
 
     def _callback(self, outdata, frames, timing, status):
         outdata.fill(0)
@@ -123,6 +139,11 @@ class BufferPlayer:
                 np.multiply(self._previous[start:start + n], self._inverse[a:b], out=self._scratch[:n])
                 np.add(outdata[:n], self._scratch[:n], out=outdata[:n])
                 self._fade_pos = b
+            # After the mode crossfade, attenuate EVERY ALIVE mode (including
+            # Original/Bypass and Remastered) before PortAudio receives samples.
+            # In-place multiply adds no allocated buffers inside the callback.
+            if self._output_gain != 1.0:
+                np.multiply(outdata[:count], self._output_gain, out=outdata[:count])
             self.cursor = start + count
         if self.cursor >= len(selected):
             raise self.backend.CallbackStop

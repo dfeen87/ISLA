@@ -217,6 +217,59 @@ def test_start_live_original_effect_toggle_and_listening_volume(app):
         close_window(app, w, c)
 
 
+def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
+    """No background CoreAudio scans while LIVE owns the stream; Stop is prompt."""
+    w, c, live, _, _, routing = window_session(app)
+    try:
+        w.capture.setCurrentIndex(1)
+        w.output.setCurrentIndex(1)
+        wait_ui(app, lambda: w.apply_devices.isEnabled())
+        click(app, w, w.apply_devices)
+        click(app, w, w.start_live)
+        assert w.state.live_active and len(live.streams) == 1
+        assert not w.refresh.isEnabled() and not w.recheck.isEnabled()
+
+        rescans = []
+        service = w.worker.service
+        original_scan = service.refresh_devices
+        def track_scan():
+            rescans.append('unexpected rescan')
+            return original_scan()
+        monkeypatch.setattr(service, 'refresh_devices', track_scan)
+        # Force the background two-second threshold without sleeping two
+        # seconds: worker must skip it while LIVE is running.
+        w.worker._last_device_refresh = 0.
+        wait_ui(app, lambda: w.worker._last_device_refresh != 0.)
+        assert not rescans
+        click(app, w, w.stop_live)
+        assert not c.live.running and live.streams[0].closed
+        assert not rescans, 'Stop LIVE must not enumerate native devices'
+        assert w.refresh.isEnabled() and w.recheck.isEnabled()
+        assert not w.state.routing_ready
+    finally:
+        close_window(app, w, c)
+
+
+def test_monitor_safety_stop_displays_exact_reason(app):
+    """A worker fault must explain spontaneous stop, not just say 'Fatal'."""
+    w, c, live, _, _, _ = window_session(app)
+    try:
+        w.capture.setCurrentIndex(1)
+        w.output.setCurrentIndex(1)
+        wait_ui(app, lambda: w.apply_devices.isEnabled())
+        click(app, w, w.apply_devices)
+        click(app, w, w.start_live)
+        reason = 'Audio device disconnected or callbacks stopped. Reconnect and monitor start.'
+        c.live._fault(reason, device=True)
+        wait_ui(app, lambda: not w.state.live_active and reason in w.live_error.text())
+        assert w.state.live_state == UIState.FATAL_ERROR
+        assert w.state.live_failure_reason == reason
+        assert 'LIVE stopped safely' in w.live_error.text()
+        assert reason in w.health.toPlainText()
+        assert live.streams[0].closed
+    finally:
+        close_window(app, w, c)
+
 def test_preparation_failure_recovers_with_error_visible_and_close_works(app):
     w, c, *_ = window_session(app)
     try:

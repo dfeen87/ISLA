@@ -75,6 +75,7 @@ class ControlState:
     closed: bool
     live_applied_mode: str | None
     monitor_volume: int
+    live_failure_reason: str
 
 
 class ControlService:
@@ -228,7 +229,12 @@ class ControlService:
         self._enter()
         result = self.controller.live.stop()
         self.error = ""
-        self.refresh_devices()
+        # Audio stop must finish without waiting for a PortAudio/CoreAudio
+        # enumeration that may hang on a disconnected device. Refresh only
+        # after the stream is released, on the ordinary idle poll cycle or
+        # through the now-enabled Refresh / Recheck buttons.
+        self.ready = False
+        self.routing_message = "LIVE stopped. Recheck audio routing before restarting."
         return result
 
     def load_file(self, path):
@@ -314,7 +320,7 @@ class ControlService:
             not stream_active, not stream_active,
             not stream_active and devices_selected and self.ready and c.source == 'system', self.closed,
             getattr(getattr(live, 'processor', None), 'mode', None) if live_active else None,
-            self._monitor_volume.percent)
+            self._monitor_volume.percent, live.error)
 
     def shutdown(self):
         self._enter()

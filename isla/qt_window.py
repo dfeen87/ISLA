@@ -63,6 +63,7 @@ class CommandWorker:
         self.controller = controller
         self.factory = factory or (lambda: TerminalController(SoundDeviceBackend()))
         self.service = None
+        self._last_device_refresh = 0.0
         self.thread = threading.Thread(target=self._run, name='isla-control', daemon=True)
 
     def start(self):
@@ -120,7 +121,7 @@ class CommandWorker:
             else:
                 self.events.put(('unavailable', str(exc)))
                 return
-        checked = time.monotonic()
+        self._last_device_refresh = time.monotonic()
         while True:
             try:
                 action, args = self.commands.get(timeout=.1)
@@ -134,10 +135,16 @@ class CommandWorker:
                 if action == 'settings':
                     self.events.put(('message', open_sound_settings()))
                 elif action == 'poll':
-                    self.service.poll()
-                    if time.monotonic() - checked > 2:
-                        self.service.refresh_devices()
-                        checked = time.monotonic()
+                    state = self.service.poll()
+                    now = time.monotonic()
+                    if now - self._last_device_refresh > 2:
+                        # CoreAudio/PortAudio enumeration can block in a native
+                        # driver. Never do a background rescan while a stream is
+                        # running: it delays Stop and competes with LIVE audio.
+                        # The LIVE worker still validates its routing itself.
+                        self._last_device_refresh = now
+                        if not state.stream_active:
+                            self.service.refresh_devices()
                 else:
                     method = {'load': self.service.load_file, 'file': self.service.file_command,
                               'live_mode': self.service.live_mode, 'devices': self.service.select_devices,
@@ -531,6 +538,9 @@ class ControlWindow(QMainWindow):
                          self.output.currentData() != s.selected_output or self.rate.currentData() != s.rate)
         self.start_live.setEnabled(bool(available and s.can_start and not dirty_devices))
         self.stop_live.setEnabled(bool(available and (s.live_active or s.live_state.value == 'Fatal audio failure')))
+        # Manual rescans can block in native device enumeration, too.
+        self.refresh.setEnabled(bool(available and not s.stream_active))
+        self.recheck.setEnabled(bool(available and not s.stream_active))
         for mode, button in self.file_modes.items():
             button.setEnabled(bool(available and s.can_play))
             button.setChecked(('original' if mode == 'bypass' else mode) == s.file_mode)
@@ -560,6 +570,13 @@ class ControlWindow(QMainWindow):
         self.next_action.setText(s.routing_message + ('\nNext action: ' + MANUAL_SETTINGS + ' Return to ISLA and click Recheck Audio Routing.' if not s.routing_ready else
                                 '\nNext action: Apply LIVE Devices / Select LIVE Source.' if s.source != 'system' or dirty_devices else ''))
         self.live_status.setText('LIVE stopping' if self.busy in ('stop', 'shutdown') else s.live_state.value)
+        if s.live_failure_reason:
+            stage = 'LIVE safety event (monitor stopping)' if s.live_active else 'LIVE stopped safely'
+            self.live_error.setText(f'{stage}: {s.live_failure_reason}')
+        elif not s.error:
+            # Do not clear command errors from the event handler until the
+            # backend returns to a healthy state.
+            self.live_error.setText('')
         if s.file_warning:
             self.file_error.setText(s.file_warning)
         self._update_health(s.live_health)

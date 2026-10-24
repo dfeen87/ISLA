@@ -2,10 +2,18 @@
 
 ### Hear music differently. · Phase-aligned note smoothing · ALIVE + LIVE
 
+
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Status](https://img.shields.io/badge/Status-ALIVE%20%2B%20LIVE-experimental-blue)
+![Status](https://img.shields.io/badge/Status-ALIVE%20%2B%20LIVE%20%28Experimental%29-blue)
 [![CI](https://github.com/dfeen87/ISLA/actions/workflows/ci.yml/badge.svg)](https://github.com/dfeen87/ISLA/actions/workflows/ci.yml)
+
+![Next Release](https://img.shields.io/badge/Next%20Release-v3.0.0-orange)
+![macOS](https://img.shields.io/badge/macOS-13%2B%20Target-black?logo=apple)
+![LIVE Audio](https://img.shields.io/badge/LIVE-BlackHole%202ch-purple)
+![Audio Rate](https://img.shields.io/badge/Audio-44.1%20%2F%2048%20kHz-teal)
+[![Last Commit](https://img.shields.io/github/last-commit/dfeen87/ISLA)](https://github.com/dfeen87/ISLA/commits/main)
+
 
 **ISLA** is an experimental audio-processing project exploring smoother musical note transitions, phase-aware analysis, and harmonic blending. Listen to your Mac's audio—including music playing in a browser—through **LIVE**, or open a local recording with the **ALIVE** file player. Compare the original sound with **Velvet**, **Legato**, and **Melt**, all from the terminal.
 

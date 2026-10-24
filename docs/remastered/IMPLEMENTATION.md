@@ -2,12 +2,16 @@
 
 This opt-in ALIVE preview connects the frozen Experiment 02 governed renderer
 to the existing file player. It adds independent processing-depth control for
-Velvet, Legato and Melt. Production package/release metadata remains 3.3.0;
-this branch does not promote the research, merge, tag or release it.
+Velvet, Legato and Melt. This codebase's Python package, HTTP API and CMake/JUCE
+source version is 4.0.0. The published v3.3.0 release and existing production
+DSP/LIVE behavior remain unchanged. This version alignment does not constitute
+a published v4.0.0 GitHub Release, production promotion or native/creator
+listening acceptance. The historical Experiment 02 freeze and its original
+3.x-versioned file hashes remain pinned to their original source revisions.
 
 ## Use the preview
 
-Install this PR branch in a separate checkout/environment, then run:
+Install a checked-out v4.0.0 source candidate in a separate environment, then run:
 
 ```bash
 python -m pip install -e '.[gui]'

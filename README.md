@@ -22,11 +22,11 @@ Listen to your Mac's audio through **LIVE**, or open a local recording in the **
 
 Phased Music Notes was conceived to explore the hidden texture of classical piano recordings—slowing musical passages to reveal their resonance, harmonic vibrations, and decaying notes, then using phase-aware signal processing to create smoother, more connected musical transitions while preserving the instrument's expressive character.
 
-> **Version:** The source package, HTTP API and JUCE/CMake metadata are aligned at **3.2.0 — Audio Control Center**. The previously published [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) remains an immutable historical release. The optional GUI and experimental LIVE monitoring still require physical macOS acceptance. [Read the v3.2.0 release scope and limitations](docs/releases/v3.2.0.md).
+> **Version:** The Python package, HTTP API and JUCE/CMake metadata are aligned at **3.3.0 — LIVE Control & Reliability**. This source version incorporates the merged post-v3.2.0 improvements to LIVE mode selection, monitoring volume, terminal navigation and audio setup. The published [v3.2.0 release](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0) remains an immutable baseline; creating the v3.3.0 tag and GitHub release is a separate step after acceptance. [Read the v3.3.0 release notes and limitations](docs/releases/v3.3.0.md).
 
 **Start here:** [Graphical control center](#isla-control-center--graphical-interface) · [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
 
-**Explore:** [v3.2.0 release scope](docs/releases/v3.2.0.md) · [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
+**Explore:** [v3.3.0 release scope](docs/releases/v3.3.0.md) · [Published v3.2.0 baseline](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0) · [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
 
 ---
 
@@ -611,7 +611,7 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 - **Latency and buffers:** The LIVE DSP adds **32.00 ms at 48 kHz / 34.83 ms at 44.1 kHz**, plus queues and device latency. Native test sessions reported roughly **79–107 ms** in ADC/DAC timestamp estimates, not independent acoustic measurements. Bypass shares the processing delay; video sync can be affected. Fixed buffers can run dry and emit silence, while capture/ring failures can stop monitoring. Check `status` for counters and errors. There is no user-facing buffer-size command.
 - **Routing and recovery:** ISLA rejects virtual, Aggregate and Multi-Output sinks for LIVE, but cannot detect every other app's monitoring path. It does not change the Mac's system output or reconnect devices automatically. Stop monitoring before changing devices, and restore normal output in macOS when finished.
 - **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo is the guaranteed format; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
-- **Release status:** Python package, HTTP service and JUCE/CMake metadata are aligned at **3.2.0**. The optional GUI and research-only improvements included since the last published tag are documented in the [v3.2.0 release scope and limitations](docs/releases/v3.2.0.md). The [v3.0.0 — ALIVE + LIVE](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0), [v3.1.0 — DSP Stability](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) and [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) releases are published from separate pinned commits. Software checks alone do not establish native release acceptance of recovery. Longer-session, stress, physical-disconnect and broader hardware acceptance remain pending. The optional desktop GUI requires separate native acceptance; mobile apps are future work; the JUCE plugin remains experimental.
+- **Release status:** Package, HTTP and JUCE/CMake source metadata are aligned at **3.3.0**. The [v3.3.0 source release notes](docs/releases/v3.3.0.md) cover merged PRs #38–#45 and the remaining native macOS verification requirements. A version bump or merged PR does **not** itself publish a GitHub tag/release; consult [GitHub Releases](https://github.com/dfeen87/ISLA/releases) for the actual latest publication. The immutable [v3.2.0](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0), [v3.1.1](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1), [v3.1.0](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0), and [v3.0.0](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) releases remain separate historical baselines. Physical LIVE/GUI, long-session, hot-plug and broader hardware acceptance remain pending; mobile apps and production-grade plugin validation remain future work.
 
 ## Engineering and evidence
 
@@ -641,7 +641,7 @@ These records preserve the versions and procedures used during their original te
 - **ALIVE + LIVE v3.0.0:** Published milestone for terminal file playback and experimental Mac system-audio monitoring; its release commit is preserved.
 - **DSP stability v3.1.0:** Published numerical LIVE reconstruction robustness corrections, reproducible listening comparisons and improved guided setup; its release commit is preserved.
 - **LIVE recovery v3.1.1:** Published bounded capture-discontinuity recovery and expanded diagnostics; sustained native Mac recovery acceptance remains pending.
-- **Future work:** Distinctive musical-mode tuning, longer-session reliability, graphical Mac experience, mobile research, and separate production-grade plugin validation.
+- **Future work:** Independent native-Mac control-window/BlackHole acceptance, distinctive musical-mode tuning, longer-session reliability, mobile research, and separate production-grade plugin validation.
 
 ---
 

@@ -164,6 +164,7 @@ class LiveMonitor:
         self._recovering = self._recovery_ready = False
         self._recovery_start = 0
         self._last_recovery = None
+        self._last_startup_gap = None
         self._last_adc = None
         self._empty_run = self._device_empty_run = self._callbacks = 0
         self.latency_ms = None
@@ -276,7 +277,7 @@ class LiveMonitor:
                 self.last_interruption = "Device audio loss during discarded startup interval"
                 self.recovery_state = "Startup loss reported"
             if capture_gap:
-                self._last_recovery = self._callbacks
+                self._last_startup_gap = self._callbacks
             return
         if output_overflow:
             self._fault("Device output overflow; stopped safely.", device=True)
@@ -288,11 +289,24 @@ class LiveMonitor:
         if capture_gap:
             self.last_interruption = ("Capture input overflow; audio lost" if input_overflow
                                       else "Capture input underflow; audio lost")
-            if (self._recovering or self.recovery_attempts >= MAX_RECOVERIES or
-                    (self._last_recovery is not None and
-                     (self._callbacks - self._last_recovery) * BLOCK / self.config.rate < RECOVERY_QUIET_SECONDS)):
+            # Startup discards are not admitted recovery attempts. Keep loss
+            # continuing across that boundary fatal, but do not let a startup
+            # flag veto an isolated interruption after clean capture resumes.
+            # Every admitted active interruption still gates/reset/discards via
+            # the worker, and starts the unchanged quiet interval and budget.
+            rejection = None
+            if self._recovering:
+                rejection = "Repeated capture discontinuity during recovery; stopped safely."
+            elif self._last_startup_gap == self._callbacks - 1:
+                rejection = "Repeated capture discontinuity continuing beyond startup; stopped safely."
+            elif self.recovery_attempts >= MAX_RECOVERIES:
+                rejection = "Repeated capture discontinuity; session recovery budget exhausted; stopped safely."
+            elif (self._last_recovery is not None and
+                  (self._callbacks - self._last_recovery) * BLOCK / self.config.rate < RECOVERY_QUIET_SECONDS):
+                rejection = "Repeated capture discontinuity within recovery quiet interval; stopped safely."
+            if rejection is not None:
                 self.failed_recoveries += int(not self._recovering)
-                self._fault("Repeated capture discontinuity; recovery limit reached; stopped safely.", device=True)
+                self._fault(rejection, device=True)
                 return
             self.recovery_attempts += 1
             self._last_recovery = self._recovery_start = self._callbacks

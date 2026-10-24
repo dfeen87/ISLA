@@ -116,8 +116,10 @@ def test_async_swap_preserves_cursor_stream_and_existing_crossfade(tmp_path):
         out = stream.pump()
         n = len(c.player._fade)
         expected = current[cursor:cursor+n]*c.player._fade + previous[cursor:cursor+n]*c.player._inverse
-        np.testing.assert_array_equal(out[:n], expected)
-        np.testing.assert_array_equal(out[n:], current[cursor+n:cursor+512])
+        # Research buffers/crossfade remain bit-exact; only the GUI-owned
+        # PortAudio output is 25% of the preserved prepared result.
+        np.testing.assert_array_equal(out[:n], expected * .25)
+        np.testing.assert_array_equal(out[n:], current[cursor+n:cursor+512] * .25)
         # Pause retains position/state when a completed render is published.
         s.file_command('pause')
         paused = c.player.cursor

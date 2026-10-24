@@ -92,6 +92,14 @@ class ControlState:
     live_research_health: str = ''
     device_status: str = ''
     file_sample_rate: int = 0
+    file_channels: int = 2
+    research_stage: str = 'Ready'
+    research_requested: str = ''
+    alive_output: str = ''
+    alive_applied_mode: str = ''
+    alive_health: str = ''
+    live_opened_output: str = ''
+    monitor_applied_volume: int | None = None
 
 
 class ControlService:
@@ -429,7 +437,19 @@ class ControlService:
             self._live_settings.request.engine,self._live_settings.request.intensity,
             getattr(getattr(engine,'applied',None),'engine','') if live_active else '',
             getattr(engine,'diagnostics','') if live_active else '',self.device_status,
-            p.sr if p.buffers else 0)
+            p.sr if p.buffers else 0,
+            p.buffers['original'].shape[1] if p.buffers else 0,
+            self.preview.stage,
+            (f'{self.preview.requested.mode} / {self.preview.requested.intensity}% depth'
+             if self.preview.requested else ''),
+            p.output,
+            (p.mode if getattr(p, '_current', None) is getattr(p, '_selected', None) else
+             'previous buffer — selected mode awaits callback') if p.stream else 'No active stream',
+            self._alive_gui_backend.diagnostics(),
+            (f'{live.config.output_name} (PortAudio {live.config.output_id}; '
+             f'native {live.config.identity[1]})' if live.config else 'Not opened'),
+            round(live.processor._applied * 100)
+            if isinstance(getattr(live, 'processor', None), ListeningGainDSP) else None)
 
     def shutdown(self):
         self._enter()

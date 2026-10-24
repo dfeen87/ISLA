@@ -230,8 +230,14 @@ def label(text=''):
 
 def remastered_readiness(state):
     """Report the actual background renderer admission gates before Apply."""
+    if state is not None and state.live_active:
+        return False, 'Stop LIVE before preparing an ALIVE Remastered excerpt.'
     if state is None or not state.can_play:
         return False, 'Load and prepare an ALIVE recording first.'
+    if state.source != 'file':
+        return False, 'Select ALIVE playback (Play or a standard mode) before preparing Remastered.'
+    if state.file_channels not in (1, 2):
+        return False, 'Remastered ALIVE requires non-empty mono or stereo audio.'
     if state.duration > MAX_SECONDS:
         return False, (f'{state.duration:.2f}-second file exceeds the '
                        f'{MAX_SECONDS}-second Remastered ALIVE limit. '
@@ -239,8 +245,6 @@ def remastered_readiness(state):
     if state.file_sample_rate not in (44100, 48000):
         return False, ('Remastered ALIVE requires a 44.1/48 kHz source; '
                        'regular ALIVE playback is still supported.')
-    if state.live_active:
-        return False, 'Stop LIVE before preparing an ALIVE Remastered excerpt.'
     return True, ('Eligible local excerpt. Preparation runs separately and '
                   'only a complete, validated buffer can become active.')
 
@@ -251,11 +255,17 @@ def audio_diagnostics(state):
         return 'Waiting for the audio session…'
     lines = ['ALIVE — Local playback',
              f'State: {state.file_state.value}',
-             f'Active mode: {state.file_mode}']
+             f'Requested/selected mode: {state.file_mode}',
+             f'Applied at callback: {state.alive_applied_mode or "no output callback yet"}',
+             f'Opened output: {state.alive_output or "Not opened"}']
     if state.duration:
         lines.append(f'Source: {state.duration:.2f} s / {state.file_sample_rate:,} Hz')
         lines.append('Control Center playback: 25% digital output amplitude')
     _, readiness = remastered_readiness(state)
+    lines.append('Remastered stage: ' + state.research_stage)
+    lines.append('Remastered availability: ' + readiness)
+    if state.research_requested:
+        lines.append('Requested render: ' + state.research_requested)
     if state.research_pending:
         lines.extend(['Remastered: preparing (NOT YET APPLIED)',
                       'Worker: ' + state.research_status,
@@ -265,14 +275,25 @@ def audio_diagnostics(state):
                      f'at {state.research_intensity}% depth')
         if state.research_summary:
             lines.append('Research measurements: ' + state.research_summary)
-    else:
-        lines.append('Remastered availability: ' + readiness)
-        if state.research_status and not state.research_status.startswith('Opt-in'):
-            lines.append('Last preparation: ' + state.research_status)
+    if state.research_status and not state.research_status.startswith('Opt-in'):
+        lines.append('Last preparation: ' + state.research_status)
+    if state.alive_health:
+        lines.append('ALIVE transport: ' + state.alive_health)
+    if state.file_warning:
+        lines.append('ALIVE warning: ' + state.file_warning)
     lines.extend(['', 'LIVE — Transport',
                   f'State: {state.live_state.value}',
                   f'Capture: {state.capture or "not selected"}',
-                  f'Playback device: {state.output or "not selected"}'])
+                  f'Requested playback device: {state.output or "not selected"}',
+                  f'Opened playback device: {state.live_opened_output or "Not opened"}',
+                  f'System default (capture route): {state.system_output}',
+                  f'Requested mode: {state.live_mode}; worker mode: {state.live_applied_mode or "not observed"}',
+                  f'Requested gain: {state.monitor_volume}%; worker-applied gain: '
+                  + (f'{state.monitor_applied_volume}%' if state.monitor_applied_volume is not None else
+                     'unavailable — start LIVE from this window'),
+                  'Worker gain precedes the bounded output queue; hardware volume is unchanged.'])
+    if state.live_research_health:
+        lines.append(state.live_research_health)
     if state.live_active:
         lines.append(f'Mode: {state.live_mode}; LIVE listening volume: {state.monitor_volume}%')
         if state.live_health:
@@ -491,6 +512,8 @@ class ControlWindow(QMainWindow):
         self.monitor_volume.setValue(100)
         self.monitor_volume_value = label('100%')
         self.monitor_volume.valueChanged.connect(lambda value: self.monitor_volume_value.setText(f'{value}%'))
+        self._volume_dirty = False
+        self.monitor_volume.valueChanged.connect(self._volume_edited)
         self.monitor_volume.sliderReleased.connect(self._apply_volume)
         volume_box.addWidget(self.monitor_volume)
         row = QHBoxLayout()
@@ -645,8 +668,16 @@ class ControlWindow(QMainWindow):
             self.submit('stop')
         self.apply_state()
 
+    def _volume_edited(self, value):
+        # Retain keyboard edits after focus moves to Apply. Health snapshots
+        # are committed state, not permission to overwrite a user's draft.
+        self._volume_dirty = True
+
     def _apply_volume(self):
-        return self.submit('volume', self.monitor_volume.value())
+        accepted = self.submit('volume', self.monitor_volume.value())
+        if accepted:
+            self._volume_dirty = False
+        return accepted
 
     def _toggle_mute(self):
         if self.state is None:
@@ -656,7 +687,10 @@ class ControlWindow(QMainWindow):
             target = 0
         else:
             target = getattr(self, '_last_nonzero_volume', 100)
-        return self.submit('volume', target)
+        accepted = self.submit('volume', target)
+        if accepted:
+            self._volume_dirty = False
+        return accepted
 
     def choose_file(self):
         if not self.open_file.isEnabled():
@@ -807,9 +841,19 @@ class ControlWindow(QMainWindow):
         self.research_intensity.setEnabled(prepared and not pending)
         self.apply_research.setEnabled(bool(available and admitted and not pending))
         self.cancel_research.setEnabled(bool(available and pending))
+        apply_reason = ('Wait for the current audio command to finish.' if not available else
+                        'A preparation is already running; cancel it before starting another.' if pending else
+                        admission_note)
+        cancel_reason = ('Wait for the current audio command to finish.' if not available else
+                         'Cancel the pending render; existing audio will be preserved.' if pending else
+                         'No preparation is pending. Existing applied audio is preserved.')
+        for button, reason in ((self.apply_research, apply_reason), (self.cancel_research, cancel_reason)):
+            button.setToolTip(reason)
+            button.setAccessibleDescription(reason)
         self.research_admission.setText(admission_note)
-        self.research_progress.setVisible(pending)
-        if pending:
+        show_progress = pending or bool(s and s.research_stage == 'Applying')
+        self.research_progress.setVisible(show_progress)
+        if show_progress:
             self.research_progress.setRange(0, 0)  # Indeterminate, never a guessed %.
         else:
             self.research_progress.setRange(0, 1)
@@ -842,7 +886,8 @@ class ControlWindow(QMainWindow):
             self._live_processing_initialized = True
         self.live_processing_status.setText(
             f'Requested LIVE engine: {s.live_engine.title()} — {s.live_intensity}% Remastered depth.\n'
-            + (s.live_research_health if s.live_active else 'Applied on the next LIVE start; choose a sound effect after starting.'))
+            + ('Applied engine and worker measurements are in Diagnostics.' if s.live_active else
+               'Applied on the next LIVE start; choose a sound effect after starting.'))
         if not getattr(self, '_research_initialized', False):
             if s.research_active:
                 self.research_mode.setCurrentIndex(self.research_mode.findData(s.research_mode))
@@ -851,7 +896,9 @@ class ControlWindow(QMainWindow):
         active = (f'Now playing: {s.research_mode.title()} Remastered — {s.research_intensity}% depth'
                   if s.research_active else 'Now playing: ' + s.file_mode.title())
         if s.research_pending:
-            self.research_status.setText(active + '\nPreparing separately: ' + s.research_status)
+            self.research_status.setText(active + '\nPreparing separately: ' + s.research_stage)
+        elif s.research_stage in ('Canceled', 'Failed', 'Applying'):
+            self.research_status.setText(active + '\n' + s.research_stage + ' — see Diagnostics.')
         else:
             self.research_status.setText(active)
         self.research_summary.setText('')  # Detailed report is in Diagnostics.
@@ -888,9 +935,13 @@ class ControlWindow(QMainWindow):
                 selected = ('original' if mode == 'bypass' else mode) == s.file_mode
                 if button.isChecked() != selected:
                     button.setChecked(selected)
-        if not self.monitor_volume.isSliderDown() and not self.monitor_volume.hasFocus():
+        if (not self._volume_dirty and self.busy != 'volume' and not self.apply_volume.isDown()
+                and not self.monitor_volume.isSliderDown() and not self.monitor_volume.hasFocus()):
             if self.monitor_volume.value() != s.monitor_volume:
+                self.monitor_volume.blockSignals(True)
                 self.monitor_volume.setValue(s.monitor_volume)
+                self.monitor_volume.blockSignals(False)
+                self.monitor_volume_value.setText(f'{s.monitor_volume}%')
         self.monitor_volume_status.setText(
             f'LIVE listening level: {s.monitor_volume}% '
             + ('(muted)' if s.monitor_volume == 0 else '(unity)' if s.monitor_volume == 100

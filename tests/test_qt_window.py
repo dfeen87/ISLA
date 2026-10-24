@@ -239,7 +239,7 @@ def test_remastered_preflight_blocks_full_songs_but_keeps_production_modes(app):
     try:
         # The source file is loaded and regular ALIVE playback remains usable.
         long_song = replace(w.state, file_state=UIState.PLAYING, can_play=True,
-                            duration=303.71, file_sample_rate=48000,
+                            duration=303.71, file_sample_rate=48000, file_channels=2,
                             file_mode='legato')
         admitted, note = remastered_readiness(long_song)
         assert not admitted and '30-second' in note
@@ -275,7 +275,7 @@ def test_remastered_preparation_indicator_and_unified_diagnostics(app):
     w, c, *_ = window_session(app)
     try:
         current = replace(w.state, file_state=UIState.PLAYING, can_play=True,
-                          duration=12.0, file_sample_rate=44100,
+                          duration=12.0, file_sample_rate=44100, file_channels=2,
                           file_mode='legato', research_pending=True,
                           research_status='Rendering Velvet in a separate process…',
                           research_active=False)

@@ -31,6 +31,7 @@ def _render(source, directory, sr, request, connection):
         connection.send(('progress', f'Rendering {request.mode.title()} Remastered at '
                          f'{request.intensity}% depth in a separate process…'))
         y, report = render_preview(x, sr, request)
+        connection.send(('stage', 'Validating'))
         connection.send(('progress', 'Checking numerical and output peak safeguards…'))
         buffer = np.asarray(y, dtype=np.float32)
         report['playback_output'] = output_metrics(x, buffer)
@@ -67,6 +68,7 @@ class RemasteredPreparation:
             args=(str(source), self.directory.name, sr, request, child), daemon=True)
         self.done = self.closed = False
         self.state = 'Starting background Remastered preparation…'
+        self.stage = 'Preparing'
         try:
             self.process.start()
         except BaseException:
@@ -87,9 +89,14 @@ class RemasteredPreparation:
             if kind == 'progress':
                 self.state = value
                 continue
+            if kind == 'stage':
+                self.stage = value
+                continue
             self.done = True
             if kind == 'error':
                 raise ValueError(value)
+            if kind != 'ready':
+                raise ValueError('Invalid Remastered worker response; active audio preserved.')
             # Copy away from the temporary mapping before publishing. Old
             # callback references remain ordinary owned arrays during crossfade.
             result = np.array(np.load(Path(self.directory.name, 'rendered.npy'),

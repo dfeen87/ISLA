@@ -230,7 +230,22 @@ class LiveMonitor:
         if self._recovering:
             self.failed_recoveries += 1
         self.recovery_state = "Stopped safely"
+        self.state = "Failed"
         self.halt.set()
+
+    def _validate_devices(self):
+        """Worker-only native inspection, also required before recovery commit."""
+        started = time.perf_counter()
+        try:
+            if not self.stream.active:
+                raise AudioError("Audio device disconnected. Reconnect and monitor start.")
+            self.backend.validate(self.config)
+            return True
+        except Exception as exc:
+            self._fault(str(exc), device=True)
+            return False
+        finally:
+            self.max_routing_ms = max(self.max_routing_ms, (time.perf_counter() - started) * 1000)
 
     def _callback(self, indata, outdata, frames, timing, status):
         outdata.fill(0)
@@ -344,16 +359,15 @@ class LiveMonitor:
                     if not self.stream.active or self._callbacks == callback_count:
                         self._fault("Audio device disconnected or callbacks stopped. Reconnect and monitor start.", device=True)
                         break
-                    started = time.perf_counter()
-                    try:
-                        self.backend.validate(self.config)
-                    except Exception as exc:
-                        self._fault(str(exc), device=True)
+                    if not self._validate_devices():
                         break
-                    self.max_routing_ms = max(self.max_routing_ms, (time.perf_counter() - started) * 1000)
                     callback_count = self._callbacks
                     checked = now
                 if self._recovering and not self._recovery_ready:
+                    if not self._validate_devices():
+                        break
+                    if self.halt.is_set():
+                        break
                     # The callback neither reads nor writes rings until ready.
                     # This worker has finished any in-flight old DSP result.
                     try:

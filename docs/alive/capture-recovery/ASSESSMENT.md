@@ -46,7 +46,7 @@ separate evidence; see `VALIDATION.md`.
   directions, and default output. These are native property calls and can delay
   the DSP worker. They are outside the audio callback. A delayed worker can
   starve output or fill input; Python/GIL or native callback delays can also cause
-  driver flags. `max_routing_ms` now measures successful inspection duration.
+  driver flags. `max_routing_ms` now measures inspection duration, including errors.
   A forced blocked-inspection test proves recovery still has a callback deadline.
   There is no native correlation trace proving inspection caused this incident.
   Validation remains synchronous and fail-closed; moving it to another thread
@@ -92,7 +92,8 @@ same stream. There is no automatic restart, rerouting, or device replacement.
    expose chronic faults even when spaced apart. Explicit start resets session
    totals/budget; stop/failure retain totals for inspection.
 3. Gate callbacks to silence while the worker finishes/discards any old in-flight
-   result, flushes both application rings, and constructs a fresh DSP instance.
+   result, freshly verifies active stream/device identity and routing, flushes both
+   application rings, and constructs a fresh DSP instance.
    The worker acknowledges readiness only after flush and reset. Callbacks never
    flush rings, construct DSP, wait for locks, inspect devices, log, or run FFTs.
    The worker uses nonblocking flush locks too; unexpected contention stops.
@@ -155,7 +156,10 @@ reported timestamps are trusted per PortAudio's contract; private host buffering
 and physical DAC behavior are not observable here. Already submitted hardware
 output cannot be recalled. No precise lost-audio duration or native driver fix is
 claimed. The conservative limits may intentionally stop some recoverable native
-sessions. Sustained Mac observation, glitch listening, queue/latency evidence,
+sessions. A native property call that never returns cannot be cancelled by Python:
+callbacks remain silent after halt, while the existing three-second stop/join
+guard prevents starting another session with an owned worker still stopping.
+No claim of bounded kernel-call completion is made. Sustained Mac observation, glitch listening, queue/latency evidence,
 and safe physical disconnection remain release gates.
 
 Primary references (read October 24, 2026):

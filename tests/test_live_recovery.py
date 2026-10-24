@@ -327,10 +327,10 @@ def test_native_identity_and_routing_guards_still_stop_pending_recovery(defect):
         monitor.backend.validate = lambda config: routing.validate(config.input_name, config.output_name, expected)
         # Match the fake Core Audio fixture's physical name.
         monitor.config = type(monitor.config)(0, 1, "BlackHole 2ch", "Test speakers", 48000, 2, expected)
-        stream.pump(ZERO, GAP)
         if defect == "disconnect":
             stream.active = False
-        stream.clock += .3  # trigger unchanged periodic native validation
+        # No periodic-check deadline is advanced: recovery itself must validate.
+        stream.pump(ZERO, GAP)
         wait_for(lambda: not monitor.running)
         assert stream.closed and monitor.fatal_device_errors == monitor.failed_recoveries == 1
         assert {"disconnect": "disconnected", "identity": "identity changed", "routing": "Single-path"}[defect] in monitor.error
@@ -354,3 +354,21 @@ def test_slow_routing_inspection_does_not_disable_recovery_deadline():
             release.set()
         wait_for(lambda: not monitor.running)
         assert stream.closed and monitor.failed_recoveries == 1
+
+
+def test_failed_dsp_reseed_stops_without_publishing_old_audio():
+    constructors = []
+    class CannotReseed(PassThrough):
+        def __init__(self, rate, channels):
+            constructors.append(threading.current_thread().name)
+            if len(constructors) > 1:
+                raise RuntimeError("DSP reseed failed")
+            super().__init__(rate, channels)
+    with session(CannotReseed) as (monitor, stream):
+        pump(monitor, stream, np.full_like(ZERO, -.5))
+        assert not stream.pump(ZERO, GAP).any()
+        wait_for(lambda: not monitor.running)
+        assert monitor.failed_recoveries == 1 and monitor.recoveries == 0
+        assert monitor.output.count == 0 and stream.closed
+        assert "DSP reseed failed" in monitor.error
+        assert constructors[-1] == "isla-live"  # reset work never runs in callback

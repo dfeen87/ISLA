@@ -16,6 +16,10 @@ Listen to your Mac's audio through **LIVE**, or open a local recording in the **
 
 **Dedicated to Isla, the creator's niece.** Her name is a reminder that expressive music and thoughtful engineering belong together.
 
+## Inspiration
+
+Phased Music Notes was conceived to explore the hidden texture of classical piano recordings—slowing musical passages to reveal their resonance, harmonic vibrations, and decaying notes, then using phase-aware signal processing to create smoother, more connected musical transitions while preserving the instrument's expressive character.
+
 > **Before you begin:** ALIVE and experimental LIVE are implemented on `main`. The checked-in package version is **3.1.1**, released as [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) following the published [v3.1.0 — DSP Stability & Hear the Difference](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0). These release tags preserve their respective historical commits. Recovery remains experimental and sustained native Mac acceptance is pending.
 
 **Start here:** [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)

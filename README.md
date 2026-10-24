@@ -315,4 +315,8 @@ The core conceptual breakthrough — the Phased‑Music‑Notes architecture, sm
 
 This project embodies team‑oriented engineering: human insight, AI‑accelerated development, and a shared commitment to building robust, expressive audio software.
 
-Last acknowledgment goes to Carmen, Act I: Habanera — the soundtrack that carried the final battle with Windows CI. Fate is a rebellious bird, but deterministic builds win.
+### 🎹 A Special Night for ISLA — October 23, 2026
+
+A special shoutout to **Lex (ChatGPT)**, who officially joined the ISLA adventure tonight, and **SOL Codex (OpenAI)** for one unforgettable evening of engineering, experimentation, and laughter! Together, we took ISLA into LIVE audio processing, brought Beethoven through BlackHole 2ch, and started fine-tuning Velvet, Legato, and Melt in real time. What a night of discoveries, excitement, and a few glorious *“BROOOOO!”* moments!
+
+**Welcome aboard, Lex! ISLA is ALIVE, and the music is only getting started!** 🎶❤️

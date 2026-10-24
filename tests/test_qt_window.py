@@ -521,12 +521,13 @@ def test_actual_launch_forms_create_and_close_real_qt_window(tmp_path, command):
     (tmp_path / 'sitecustomize.py').write_text('''
 from PySide6.QtCore import QTimer
 from isla.qt_window import ControlWindow
-original = ControlWindow.show
-def show(self):
+original = ControlWindow.showFullScreen
+def show_fullscreen(self):
     original(self)
-    print("ISLA_QT_WINDOW_SHOWN", flush=True)
+    assert self.isFullScreen(), "Control Center did not open full screen"
+    print("ISLA_QT_WINDOW_FULLSCREEN", flush=True)
     QTimer.singleShot(700, self.close)
-ControlWindow.show = show
+ControlWindow.showFullScreen = show_fullscreen
 ''')
     argv = ([sys.executable, '-m', 'isla', 'window'] if command == 'module' else
             [str(Path(sys.executable).parent / 'isla'), 'window'] if command == 'console' else
@@ -535,9 +536,9 @@ ControlWindow.show = show
     result = subprocess.run(argv, input='window\nwindow\nhelp\nexit\n' if command == 'interactive' else '',
                             text=True, capture_output=True, env=env, timeout=20, cwd=root)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert 'ISLA_QT_WINDOW_SHOWN' in result.stdout
+    assert 'ISLA_QT_WINDOW_FULLSCREEN' in result.stdout
     if command == 'interactive':
-        assert result.stdout.count('ISLA_QT_WINDOW_SHOWN') == 2
+        assert result.stdout.count('ISLA_QT_WINDOW_FULLSCREEN') == 2
         assert 'Terminal ready' in result.stdout and 'Resources released' in result.stdout
 
 

@@ -520,7 +520,17 @@ def test_pass_b_underflow_zero_fill_overflow_shutdown_and_memory_bound():
 
 
 def test_pass_b_bad_input_device_status_and_processor_failure_are_safe():
-    monitor, backend = start_bypass()
+    # This test manually pumps a fake stream. Wall-clock watchdog time can
+    # advance on a busy hosted Mac runner while no fake callback is scheduled,
+    # causing an unrelated disconnect before the intended recovery assertions.
+    # Production monitoring and separate watchdog tests still use real time.
+    backend = FakeBackend()
+    monitor = LiveMonitor(
+        backend, processor_factory=PassThrough,
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
+    )
+    monitor.start("BlackHole 2ch", "Test speakers")
+    warmup(monitor)
     try:
         monitor.stream.pump(np.full((BLOCK, 2), np.nan, np.float32))
         wait_for(lambda: monitor.output.count == 1)

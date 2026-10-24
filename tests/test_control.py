@@ -71,6 +71,49 @@ def test_no_file_loading_ready_play_pause_stop_exact_original():
     assert all(stream.closed for stream in files.streams)
 
 
+
+def test_gui_play_forces_quarter_level_before_first_callback_and_on_resume():
+    """A borrowed GUI session attenuates playback, then restores CLI unity."""
+    c, live, files, *_ = make_session()
+    original_backend = c.player.backend
+    s = ControlService(c)
+    buffers = {mode: np.full((8192, 2), value, np.float32)
+               for mode, value in (('original', .8), ('velvet', .4),
+                                   ('legato', .6), ('melt', .2))}
+    c.player.install(buffers, 48000)
+    try:
+        assert c.player.backend is original_backend
+        assert s.snapshot().can_play
+        s.file_command('play')
+        assert c.player.backend is s._alive_gui_backend
+        assert c.player.backend.output_level_percent == 25
+        np.testing.assert_allclose(files.streams[-1].pump(), np.full((512, 2), .2),
+                                   atol=1e-7)
+        s.file_command('mode velvet')
+        np.testing.assert_allclose(files.streams[-1].pump()[-64:],
+                                   np.full((64, 2), .1), atol=1e-7)
+
+        s.file_command('pause')
+        c.player.backend = original_backend  # Simulate an external reset.
+        s.file_command('play')              # GUI reattaches before stream start.
+        assert c.player.backend is s._alive_gui_backend
+        np.testing.assert_allclose(files.streams[-1].pump()[-64:],
+                                   np.full((64, 2), .1), atol=1e-7)
+
+        s.file_command('stop')
+        c.player.backend = original_backend
+        s.file_command('play')
+        assert c.player.backend is s._alive_gui_backend
+        assert s._monitor_volume.percent == 100  # LIVE untouched.
+        assert not live.streams
+    finally:
+        s.shutdown()
+        assert c.player.backend is original_backend
+        c.close()
+    assert all(stream.closed for stream in files.streams)
+
+
+
 def test_recoverable_preparation_failure_can_reload_and_close_pending_job():
     c, *_ = make_session()
     s = ControlService(c)

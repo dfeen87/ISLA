@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 from isla.control import ControlService, UIState
 from isla.audio_files import AUDIO_FILE_FILTER
 from isla.playback import SoundDeviceBackend
+from isla.alive_listening_gain import ALIVE_GUI_PLAY_LEVEL_PERCENT
 from isla.terminal import TerminalController
 
 SOUND_SETTINGS_URL = 'x-apple.systempreferences:com.apple.Sound-Settings.extension'
@@ -329,6 +330,14 @@ class ControlWindow(QMainWindow):
         box.addWidget(guidance)
         self.file_error = label()
         box.addWidget(self.file_error)
+        # The Control Center reduces ALIVE's PCM output before opening a stream.
+        # This is not a macOS hardware-volume setting or a LIVE volume change.
+        self.alive_volume_notice = label(
+            f'ALIVE Play automatically starts at {ALIVE_GUI_PLAY_LEVEL_PERCENT}% software '
+            'output level. Mac system volume and LIVE volume stay unchanged. '
+            'Start with headphones/speakers turned down.')
+        self.alive_volume_notice.setAccessibleName('ALIVE automatic playback level')
+        box.addWidget(self.alive_volume_notice)
         row = QHBoxLayout()
         self.play, self.pause, self.stop_file = (QPushButton(text) for text in ('Play', 'Pause', 'Stop'))
         for button, cmd in [(self.play, 'play'), (self.pause, 'pause'), (self.stop_file, 'stop')]:

@@ -1,0 +1,13 @@
+{
+  "listening_files": 80,
+  "file_hashes": "pass",
+  "raw_array_hashes": "pass",
+  "rates_shapes_and_finite": "pass",
+  "fixed_scalar_gain_reconstruction": "pass",
+  "silence": "exact zero",
+  "below_gate_gain": "unity",
+  "maximum_target_error_lu": 2.332797777171436e-07,
+  "maximum_encoding_error": 5.9604643568023086e-08,
+  "maximum_saved_sample_peak": 0.31673967838287354,
+  "source_recording_hash": "pass"
+}

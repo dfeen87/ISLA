@@ -1,0 +1,280 @@
+......................................FFFFFFFFFFFF                       [100%]
+=================================== FAILURES ===================================
+________ test_cold_step_impulse_and_subnormal_controls[velvet-44100-1] _________
+
+rate = 44100, channels = 1, profile = 'velvet'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-6.27467816e-04],\n       [-6.29076851e-04],\n       [-6.23598346e-04],\n       [-6.25186542e-04],\n       [-6.197...       [-4.56556961e-08],\n       [-2.58101309e-08],\n       [-1.13944267e-08],\n       [-2.86284418e-09]], dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+________ test_cold_step_impulse_and_subnormal_controls[velvet-44100-2] _________
+
+rate = 44100, channels = 2, profile = 'velvet'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-6.2746782e-04, -6.2746782e-04],\n       [-6.2907685e-04, -6.2907685e-04],\n       [-6.2359835e-04, -6.2359835e-...-08],\n       [-1.1394427e-08, -1.1394427e-08],\n       [-2.8628442e-09, -2.8628442e-09]], shape=(512, 2), dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+________ test_cold_step_impulse_and_subnormal_controls[velvet-48000-1] _________
+
+rate = 48000, channels = 1, profile = 'velvet'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-6.27467816e-04],\n       [-6.29076851e-04],\n       [-6.23598346e-04],\n       [-6.25186542e-04],\n       [-6.197...       [-4.56556961e-08],\n       [-2.58101309e-08],\n       [-1.13944267e-08],\n       [-2.86284418e-09]], dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+________ test_cold_step_impulse_and_subnormal_controls[velvet-48000-2] _________
+
+rate = 48000, channels = 2, profile = 'velvet'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-6.2746782e-04, -6.2746782e-04],\n       [-6.2907685e-04, -6.2907685e-04],\n       [-6.2359835e-04, -6.2359835e-...-08],\n       [-1.1394427e-08, -1.1394427e-08],\n       [-2.8628442e-09, -2.8628442e-09]], shape=(512, 2), dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+________ test_cold_step_impulse_and_subnormal_controls[legato-44100-1] _________
+
+rate = 44100, channels = 1, profile = 'legato'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-9.86020896e-04],\n       [-9.88549320e-04],\n       [-9.79940291e-04],\n       [-9.82436002e-04],\n       [-9.738...       [-7.17446653e-08],\n       [-4.05587777e-08],\n       [-1.79055277e-08],\n       [-4.49875515e-09]], dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+________ test_cold_step_impulse_and_subnormal_controls[legato-44100-2] _________
+
+rate = 44100, channels = 2, profile = 'legato'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-9.8602090e-04, -9.8602090e-04],\n       [-9.8854932e-04, -9.8854932e-04],\n       [-9.7994029e-04, -9.7994029e-...-08],\n       [-1.7905528e-08, -1.7905528e-08],\n       [-4.4987551e-09, -4.4987551e-09]], shape=(512, 2), dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+________ test_cold_step_impulse_and_subnormal_controls[legato-48000-1] _________
+
+rate = 48000, channels = 1, profile = 'legato'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-9.86020896e-04],\n       [-9.88549320e-04],\n       [-9.79940291e-04],\n       [-9.82436002e-04],\n       [-9.738...       [-7.17446653e-08],\n       [-4.05587777e-08],\n       [-1.79055277e-08],\n       [-4.49875515e-09]], dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+________ test_cold_step_impulse_and_subnormal_controls[legato-48000-2] _________
+
+rate = 48000, channels = 2, profile = 'legato'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-9.8602090e-04, -9.8602090e-04],\n       [-9.8854932e-04, -9.8854932e-04],\n       [-9.7994029e-04, -9.7994029e-...-08],\n       [-1.7905528e-08, -1.7905528e-08],\n       [-4.4987551e-09, -4.4987551e-09]], shape=(512, 2), dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+_________ test_cold_step_impulse_and_subnormal_controls[melt-44100-1] __________
+
+rate = 44100, channels = 1, profile = 'melt'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-1.34457392e-03],\n       [-1.34802179e-03],\n       [-1.33628212e-03],\n       [-1.33968552e-03],\n       [-1.327...       [-9.78336345e-08],\n       [-5.53074244e-08],\n       [-2.44166287e-08],\n       [-6.13466611e-09]], dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+_________ test_cold_step_impulse_and_subnormal_controls[melt-44100-2] __________
+
+rate = 44100, channels = 2, profile = 'melt'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-1.3445739e-03, -1.3445739e-03],\n       [-1.3480218e-03, -1.3480218e-03],\n       [-1.3362821e-03, -1.3362821e-...-08],\n       [-2.4416629e-08, -2.4416629e-08],\n       [-6.1346661e-09, -6.1346661e-09]], shape=(512, 2), dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+_________ test_cold_step_impulse_and_subnormal_controls[melt-48000-1] __________
+
+rate = 48000, channels = 1, profile = 'melt'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-1.34457392e-03],\n       [-1.34802179e-03],\n       [-1.33628212e-03],\n       [-1.33968552e-03],\n       [-1.327...       [-9.78336345e-08],\n       [-5.53074244e-08],\n       [-2.44166287e-08],\n       [-6.13466611e-09]], dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+_________ test_cold_step_impulse_and_subnormal_controls[melt-48000-2] __________
+
+rate = 48000, channels = 2, profile = 'melt'
+
+    @pytest.mark.parametrize("rate,channels", FORMATS)
+    @pytest.mark.parametrize("profile", tuple(SWEEPS))
+    def test_cold_step_impulse_and_subnormal_controls(rate, channels, profile):
+        for kind in ("step", "impulse", "subnormal"):
+            x = np.full((4096, channels), .5, np.float32)
+            if kind == "impulse":
+                x[1:] = 0
+            if kind == "subnormal":
+                x[:] = np.finfo(np.float32).smallest_subnormal
+            _, raw = render(x, rate, profile, {profile: max(SWEEPS[profile])})
+            assert np.isfinite(raw).all()
+            assert np.max(abs(raw)) <= .5
+>           assert not np.any(raw[-512:])
+E           assert not np.True_
+E            +  where np.True_ = <function any at 0x106b371f0>(array([[-1.3445739e-03, -1.3445739e-03],\n       [-1.3480218e-03, -1.3480218e-03],\n       [-1.3362821e-03, -1.3362821e-...-08],\n       [-2.4416629e-08, -2.4416629e-08],\n       [-6.1346661e-09, -6.1346661e-09]], shape=(512, 2), dtype=float32))
+E            +    where <function any at 0x106b371f0> = np.any
+
+tests/test_identity_lab.py:141: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[velvet-44100-1]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[velvet-44100-2]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[velvet-48000-1]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[velvet-48000-2]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[legato-44100-1]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[legato-44100-2]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[legato-48000-1]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[legato-48000-2]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[melt-44100-1]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[melt-44100-2]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[melt-48000-1]
+FAILED tests/test_identity_lab.py::test_cold_step_impulse_and_subnormal_controls[melt-48000-2]
+12 failed, 38 passed in 1.30s

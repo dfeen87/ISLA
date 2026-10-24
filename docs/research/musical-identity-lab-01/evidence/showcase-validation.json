@@ -1,0 +1,10 @@
+{
+  "kind": "Static JavaScript logic and asset checks with stub DOM; not a browser playback test",
+  "sourceOptions": 10,
+  "profileOptions": 4,
+  "successfulFileSelections": 281,
+  "playbackCalls": 0,
+  "syntax": "pass",
+  "selectionBlindReveal": "pass",
+  "browserPreview": "blocked by local file URL policy; not bypassed"
+}

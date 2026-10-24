@@ -1,0 +1,10 @@
+WARNING: The directory '/Users/donfeeney/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing /Users/donfeeney/Documents/Codex/2026-10-24/isla-sol-extra-high-musical-identity-8/work/ISLA
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: isla-audio
+  Building wheel for isla-audio (pyproject.toml): started
+  Building wheel for isla-audio (pyproject.toml): finished with status 'done'
+  Created wheel for isla-audio: filename=isla_audio-3.1.0-py3-none-any.whl size=45431 sha256=a00f9cbf426825f8f5e48d8d259660bfcd94059e605984e5026144600396ae28
+  Stored in directory: /private/var/folders/kv/0t0sccnx5ld__qgcssnk9nxm0000gn/T/pip-ephem-wheel-cache-o1e_hu3_/wheels/3a/81/c5/6ab73b6b90053ce6f510215b4a25782d5761db404c8ba12335
+Successfully built isla-audio

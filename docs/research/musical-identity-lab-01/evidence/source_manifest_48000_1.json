@@ -1,0 +1,579 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "kind": "original deterministic mathematical synthesis",
+    "external_audio": false,
+    "recording": false,
+    "seed": 20261024,
+    "notes": "Generated from oscillators, analytic envelopes, and seeded bounded noise. No external recordings, samples, or music streams are used. Piano-like and percussion labels describe synthesis test roles."
+  },
+  "samplerate": 48000,
+  "channels": 1,
+  "duration_seconds": 6.0,
+  "silence_guard_frames": 6000,
+  "source_peak_limit": 0.85,
+  "normalization": "fixed synthesis gains; no per-render normalization",
+  "fixtures": {
+    "solo_piano": {
+      "events": [
+        {
+          "time_seconds": 0.245,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 261.6256
+        },
+        {
+          "time_seconds": 1.405,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 329.6276
+        },
+        {
+          "time_seconds": 2.645,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 391.9954
+        },
+        {
+          "time_seconds": 3.805,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 293.6648
+        }
+      ],
+      "description": "Piano-like additive attacks/decays; mild fixed partial inharmonicity.",
+      "source_peak": 0.4579193890094757,
+      "frames": 288000,
+      "channels": 1
+    },
+    "connected_melody": {
+      "events": [
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 220.0
+        },
+        {
+          "time_seconds": 0.7949999999999999,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 261.6256
+        },
+        {
+          "time_seconds": 1.365,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 293.6648
+        },
+        {
+          "time_seconds": 1.935,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 246.9417
+        },
+        {
+          "time_seconds": 2.505,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 329.6276
+        },
+        {
+          "time_seconds": 3.0749999999999997,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 293.6648
+        },
+        {
+          "time_seconds": 3.645,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 391.9954
+        },
+        {
+          "time_seconds": 4.215,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 329.6276
+        }
+      ],
+      "description": "Original eight-note sequence; 110 ms overlap of shaped harmonic voices.",
+      "source_peak": 0.2594771385192871,
+      "frames": 288000,
+      "channels": 1
+    },
+    "harmonic_sustain": {
+      "events": [
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 4.9,
+          "kind": "harmonic_sustain",
+          "fundamental_hz": 110.0,
+          "partials": 32
+        }
+      ],
+      "description": "32 exact harmonics at 110 Hz, 1/k partial amplitudes, gentle amplitude modulation.",
+      "source_peak": 0.2133503556251526,
+      "frames": 288000,
+      "channels": 1
+    },
+    "percussion": {
+      "events": [
+        {
+          "time_seconds": 0.245,
+          "duration_seconds": 0.34,
+          "kind": "kick"
+        },
+        {
+          "time_seconds": 0.475,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 0.735,
+          "duration_seconds": 0.22,
+          "kind": "snare"
+        },
+        {
+          "time_seconds": 0.965,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 1.225,
+          "duration_seconds": 0.34,
+          "kind": "kick"
+        },
+        {
+          "time_seconds": 1.455,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 1.7149999999999999,
+          "duration_seconds": 0.22,
+          "kind": "snare"
+        },
+        {
+          "time_seconds": 1.9449999999999998,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 2.205,
+          "duration_seconds": 0.34,
+          "kind": "kick"
+        },
+        {
+          "time_seconds": 2.435,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 2.6950000000000003,
+          "duration_seconds": 0.22,
+          "kind": "snare"
+        },
+        {
+          "time_seconds": 2.9250000000000003,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 3.185,
+          "duration_seconds": 0.34,
+          "kind": "kick"
+        },
+        {
+          "time_seconds": 3.415,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 3.675,
+          "duration_seconds": 0.22,
+          "kind": "snare"
+        },
+        {
+          "time_seconds": 3.905,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 4.165,
+          "duration_seconds": 0.34,
+          "kind": "kick"
+        },
+        {
+          "time_seconds": 4.3950000000000005,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        },
+        {
+          "time_seconds": 4.655,
+          "duration_seconds": 0.22,
+          "kind": "snare"
+        },
+        {
+          "time_seconds": 4.885000000000001,
+          "duration_seconds": 0.09,
+          "kind": "hat"
+        }
+      ],
+      "description": "Original kick sweeps and seeded noise/tone snare/hat events; no sampled percussion.",
+      "source_peak": 0.4684962332248688,
+      "frames": 288000,
+      "channels": 1
+    },
+    "dense_mix": {
+      "events": [
+        {
+          "time_seconds": 0.245,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 261.6256,
+          "source_fixture": "solo_piano"
+        },
+        {
+          "time_seconds": 1.405,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 329.6276,
+          "source_fixture": "solo_piano"
+        },
+        {
+          "time_seconds": 2.645,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 391.9954,
+          "source_fixture": "solo_piano"
+        },
+        {
+          "time_seconds": 3.805,
+          "duration_seconds": 1.5,
+          "kind": "piano_like",
+          "fundamental_hz": 293.6648,
+          "source_fixture": "solo_piano"
+        },
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 220.0,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 0.7949999999999999,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 261.6256,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 1.365,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 293.6648,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 1.935,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 246.9417,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 2.505,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 329.6276,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 3.0749999999999997,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 293.6648,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 3.645,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 391.9954,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 4.215,
+          "duration_seconds": 0.68,
+          "kind": "overlapping_tone",
+          "fundamental_hz": 329.6276,
+          "source_fixture": "connected_melody"
+        },
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 4.9,
+          "kind": "harmonic_sustain",
+          "fundamental_hz": 110.0,
+          "partials": 32,
+          "source_fixture": "harmonic_sustain"
+        },
+        {
+          "time_seconds": 0.245,
+          "duration_seconds": 0.34,
+          "kind": "kick",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 0.475,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 0.735,
+          "duration_seconds": 0.22,
+          "kind": "snare",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 0.965,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 1.225,
+          "duration_seconds": 0.34,
+          "kind": "kick",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 1.455,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 1.7149999999999999,
+          "duration_seconds": 0.22,
+          "kind": "snare",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 1.9449999999999998,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 2.205,
+          "duration_seconds": 0.34,
+          "kind": "kick",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 2.435,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 2.6950000000000003,
+          "duration_seconds": 0.22,
+          "kind": "snare",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 2.9250000000000003,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 3.185,
+          "duration_seconds": 0.34,
+          "kind": "kick",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 3.415,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 3.675,
+          "duration_seconds": 0.22,
+          "kind": "snare",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 3.905,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 4.165,
+          "duration_seconds": 0.34,
+          "kind": "kick",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 4.3950000000000005,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 4.655,
+          "duration_seconds": 0.22,
+          "kind": "snare",
+          "source_fixture": "percussion"
+        },
+        {
+          "time_seconds": 4.885000000000001,
+          "duration_seconds": 0.09,
+          "kind": "hat",
+          "source_fixture": "percussion"
+        }
+      ],
+      "description": "Fixed-gain mixture of the four musical synthetic fixtures.",
+      "components": {
+        "solo_piano": 0.43,
+        "connected_melody": 0.42,
+        "harmonic_sustain": 0.4,
+        "percussion": 0.48
+      },
+      "source_peak": 0.3449121415615082,
+      "frames": 288000,
+      "channels": 1
+    },
+    "quiet_dynamic": {
+      "events": [
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 0.85,
+          "kind": "piano_like",
+          "fundamental_hz": 220.0,
+          "fixed_gain": 0.006
+        },
+        {
+          "time_seconds": 1.165,
+          "duration_seconds": 0.85,
+          "kind": "piano_like",
+          "fundamental_hz": 277.1826,
+          "fixed_gain": 0.018
+        },
+        {
+          "time_seconds": 2.105,
+          "duration_seconds": 0.85,
+          "kind": "piano_like",
+          "fundamental_hz": 329.6276,
+          "fixed_gain": 0.06
+        },
+        {
+          "time_seconds": 3.045,
+          "duration_seconds": 0.85,
+          "kind": "piano_like",
+          "fundamental_hz": 246.9417,
+          "fixed_gain": 0.2
+        },
+        {
+          "time_seconds": 3.985,
+          "duration_seconds": 0.85,
+          "kind": "piano_like",
+          "fundamental_hz": 293.6648,
+          "fixed_gain": 0.46
+        }
+      ],
+      "description": "Identically shaped piano-like events with fixed gains from 0.006 to 0.46.",
+      "source_peak": 0.4180716276168823,
+      "frames": 288000,
+      "channels": 1
+    },
+    "silence": {
+      "events": [],
+      "description": "Exact digital zero throughout.",
+      "source_peak": 0.0,
+      "frames": 288000,
+      "channels": 1
+    },
+    "impulse": {
+      "events": [
+        {
+          "time_seconds": 0.925,
+          "duration_seconds": 2.0833333333333333e-05,
+          "kind": "unit_sample",
+          "amplitude": 0.5
+        },
+        {
+          "time_seconds": 2.825,
+          "duration_seconds": 2.0833333333333333e-05,
+          "kind": "unit_sample",
+          "amplitude": -0.5
+        },
+        {
+          "time_seconds": 4.625,
+          "duration_seconds": 2.0833333333333333e-05,
+          "kind": "unit_sample",
+          "amplitude": 0.25
+        }
+      ],
+      "description": "Separated positive/negative unit samples, identical in both stereo channels.",
+      "source_peak": 0.5,
+      "frames": 288000,
+      "channels": 1
+    },
+    "sweep": {
+      "events": [
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 4.9,
+          "kind": "linear_frequency_sweep",
+          "frequency_start_hz": 20.0,
+          "frequency_end_hz": 22080.0
+        }
+      ],
+      "description": "Linear 20 Hz to 0.46*sample-rate sweep with 25 ms cosine ramps; no pitch stationarity expectation.",
+      "source_peak": 0.30000001192092896,
+      "frames": 288000,
+      "channels": 1
+    },
+    "simple_tone": {
+      "events": [
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 4.9,
+          "kind": "sine",
+          "fundamental_hz": 440.0
+        }
+      ],
+      "description": "440 Hz sinusoid, identical in both stereo channels, 25 ms cosine ramps.",
+      "source_peak": 0.3499999940395355,
+      "frames": 288000,
+      "channels": 1
+    },
+    "stereo_probe": {
+      "events": [
+        {
+          "time_seconds": 0.225,
+          "duration_seconds": 4.9,
+          "kind": "stereo_partial_probe",
+          "component_hz": [
+            220.0,
+            659.2551,
+            880.0,
+            1100.0
+          ]
+        }
+      ],
+      "description": "Shared 220 Hz, antiphase 659.2551 Hz, channel-specific upper tones; mono is exact stereo fold-down.",
+      "source_peak": 0.23859089612960815,
+      "frames": 288000,
+      "channels": 1
+    }
+  }
+}

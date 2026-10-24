@@ -1,0 +1,14 @@
+{
+  "baseline_commit": "6a732e03c3f0adc3f555e0ecb002e365b7e3385f",
+  "previously_tracked_blobs_verified_unchanged": 176,
+  "git_tree_listing_sha256": "92e082a6e4b4a8b7ccb66ff825cac4c76cfd8f747f9d4b8d421eca0635a5e04f",
+  "protected_source_sha256": {
+    "isla/streaming.py": "221a99a03a7425595a79bb8d86460e3d0c43c4a1233ca9576d8431796983413f",
+    "isla/spectral.py": "4ec1939543a5770ee0bcecc4b52261b30c554eab6943fc94635f8c20ce214dc3",
+    "phased_music_notes/harmonics.py": "5d918b578fad901f630436f751359503946a37faf8725e10245f46a02e7c6551",
+    "isla/live.py": "19faaa79ab29eadd93df3f90031bb28e7364409514cb11dec0ca8a86c9b36685",
+    "pyproject.toml": "4d221e869dea04920656c28bd9e5e1f3005ec6d57b06309200ca53993f414800",
+    "CMakeLists.txt": "78caf8e1a7ee40b53c5a4d6245be1da74ce0d04e785459e592b47f883e55f8a9"
+  },
+  "policy": "Only new research paths added; no original blob changed"
+}

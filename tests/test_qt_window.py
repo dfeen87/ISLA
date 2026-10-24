@@ -123,6 +123,47 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
 
 
 
+
+
+def test_alive_mode_button_mouse_press_survives_50ms_status_polls(app, monkeypatch):
+    """A held ALIVE click survives Qt refreshes and switches the playing mode."""
+    w, c, live, files, *_ = window_session(app)
+    try:
+        monkeypatch.setattr(QFileDialog, 'getOpenFileName',
+                            lambda *args: ('long prepared recording.m4a', ''))
+        click(app, w, w.open_file)
+        c.job.result = prepared_buffers(), 48000
+        wait_ui(app, lambda: w.state.file_state == UIState.READY)
+        click(app, w, w.play)
+        assert w.state.file_state == UIState.PLAYING
+        assert w.file_modes['bypass'].isChecked()
+
+        # Simulate a real click spanning one or more of the 50 ms UI polls.
+        # Previously apply_state disabled/re-enabled every ALIVE mode, which
+        # discarded the mouse-down event before Qt could emit clicked.
+        for mode in ('velvet', 'legato', 'melt', 'bypass'):
+            button = w.file_modes[mode]
+            assert button.isEnabled()
+            QTest.mousePress(button, Qt.MouseButton.LeftButton)
+            assert button.isDown()
+            for _ in range(3):
+                w.drain_events()
+                app.processEvents()
+                assert button.isEnabled()
+                assert button.isDown(), 'Status refresh canceled an in-flight ALIVE click'
+            QTest.mouseRelease(button, Qt.MouseButton.LeftButton)
+            expected = 'original' if mode == 'bypass' else mode
+            wait_ui(app, lambda: not w.busy and
+                    w.state is not None and w.state.file_mode == expected)
+            assert c.player.mode == expected
+            assert c.player._selected is c.player.buffers[expected]
+            assert button.isChecked()
+            assert w.state.file_state == UIState.PLAYING
+        assert len(files.streams) == 1  # Mode switches must not restart audio.
+    finally:
+        close_window(app, w, c)
+
+
 def test_alive_next_step_explains_live_lock_and_restores_file_controls(app, monkeypatch):
     """A stopped, fully prepared ALIVE file must explain why LIVE owns output."""
     w, c, live, files, *_ = window_session(app)

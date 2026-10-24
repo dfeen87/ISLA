@@ -10,7 +10,7 @@
 
 **Dedicated to Isla, the creator's niece.** The name celebrates the idea that music and thoughtful engineering can make expressive moments feel a little softer.
 
-**Current scope:** Offline Python DSP and regression testing. The JUCE plugin integration remains experimental and is not validated for professional real-time audio. The playable desktop experience and mobile app are future goals, not shipped features.
+**Current scope:** Offline Python DSP plus the **ISLA v3.0.0 — ALIVE terminal audio MVP** for loaded local recordings on macOS. This is a release target pending acceptance, not a published v3 release. The JUCE plugin remains experimental; mobile and system-wide audio processing are future work.
 
 ---
 
@@ -51,6 +51,127 @@ python -m pip install -e .
 
 **Codebase identity:** The editable distribution is `isla-audio` and the public Python import is `isla`. The original `phased_music_notes` modules and legacy Python class names remain available for existing integrations. The JUCE build target and plugin product display are now `ISLA`, while original plugin identity codes and protobuf/gRPC wire service identifiers stay unchanged for compatibility. The GitHub repository is now `dfeen87/ISLA`.
 
+### After Cloning — Start ISLA on macOS
+
+Requires Python 3.10+ (`python3 --version`). In Terminal:
+
+```bash
+git clone https://github.com/dfeen87/ISLA.git
+cd ISLA
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[playback]'
+isla
+```
+
+These commands install the project, NumPy, SciPy, SoundFile, and the optional
+`sounddevice` playback backend. On macOS, the sounddevice pip wheel includes
+PortAudio; no DAW, VST, JUCE build, or separate audio driver is required.
+See the [backend installation documentation](https://python-sounddevice.readthedocs.io/en/latest/installation.html).
+The shell also opens with `python -m isla`. In a later Terminal session, return to
+`ISLA` and run `source .venv/bin/activate` before `isla`.
+
+Load your own recording. Quotes handle paths containing spaces; `~` expands to
+your home directory. Loading prepares all three modes in a background process.
+The prompt remains available; use `status` until `Preparation: Ready` appears,
+then play. A request to play before preparation finishes reports its progress.
+
+```text
+$ isla
+ISLA — ALIVE
+Audio Engine: Ready
+Status: Idle
+Type help for commands.
+Output: MacBook Pro Speakers
+isla> load "~/Music/my piano.wav"
+Loading audio and preparing Velvet, Legato, and Melt. Use status to check progress.
+isla> status
+File: /Users/you/Music/my piano.wav
+Preparation: Ready
+Mode: original
+Status: stopped
+Position: 0.00 / 120.00 s
+Output: MacBook Pro Speakers
+isla> play
+Playing original audio.
+isla> mode velvet
+VELVET enabled.
+isla> mode legato
+LEGATO enabled.
+isla> mode melt
+MELT enabled.
+isla> bypass
+Original audio enabled.
+isla> pause
+Playback paused.
+isla> play
+Playback resumed.
+isla> stop
+Playback stopped.
+isla> exit
+Audio stopped.
+Resources released.
+Goodbye from ISLA.
+```
+
+The example file, duration, and output name are illustrative; use a real local path.
+
+| Command | Behavior |
+|---|---|
+| `load <path>` | Load and prepare a local recording; replaces the previous recording after a valid header check |
+| `play` | Start, resume, or restart after completion |
+| `pause` | Pause and retain the current position |
+| `stop` | Stop and reset position to the beginning |
+| `mode velvet` | Select the existing Velvet DSP output |
+| `mode legato` | Select the existing Legato DSP output |
+| `mode melt` | Select the existing Melt DSP output |
+| `bypass` | Select the decoded original recording |
+| `status` | Show file, preparation progress, mode, playback state, position, and output |
+| `help` | Show commands |
+| `exit` | Stop audio, cancel preparation, release resources, and return to Terminal |
+
+Commands and mode names accept uppercase or lowercase. Paths retain their case.
+Ctrl-D or Ctrl-C at the prompt also exits and cleans up.
+
+**Formats and output:** WAV is the guaranteed input format, for mono or stereo.
+Other formats (such as FLAC/AIFF) depend on the installed libsndfile; MP3 support
+is not guaranteed. Sample rate, channel order/count, and sample length are kept;
+there is no application resampling or global volume adjustment. Playback uses
+float32 samples. Choose your speakers or headphones in **System Settings → Sound
+→ Output** before `play`. ISLA opens the default Core Audio output when starting
+or resuming; a change during playback may require `stop`, then `play`.
+
+**Troubleshooting:** If the device is unavailable, connect/select an output and
+try `play` again. Run `python -m sounddevice` in the activated environment to list
+what PortAudio sees. If `status` says playing but you hear nothing, check the
+listed output, macOS/app volume, and that the recording contains sound. ISLA does
+not change volume settings. If a device rejects a file's sample rate or channel
+count, ISLA reports the error; select a compatible output. If playback fails after
+a device disconnects, reconnect/select an output, then `stop` and `play`. If the
+backend cannot import, rerun `python -m pip install -e '.[playback]'` in the active
+virtual environment. Invalid/missing files report an error without terminating
+the shell. Preparation errors appear on the next command; load a valid file to retry.
+
+**Beta limits:** All modes are prepared before playback becomes available. Long
+recordings take time and require memory for offline DSP plus temporary disk space
+for four float32 buffers (about 81 MiB per minute of 44.1 kHz stereo audio).
+`status` updates progress and completion when requested. Switching uses a short
+5 ms crossfade at an output block boundary while retaining the sample cursor;
+sample-perfect gapless operation is not claimed. Pause uses the device clock to
+estimate the audible position; hardware latency and scheduling can affect it.
+Mode differences depend on detected note boundaries and can be subtle or absent
+on sustained tones. This Python output callback is an MVP, not a hard real-time
+audio engine. Listening quality and long-session reliability need owner acceptance.
+
+**Loaded files only:** ISLA processes recordings explicitly loaded into it. It does
+not intercept Spotify, browsers, games, or other system audio.
+
+For verification results and the exact owner listening checklist, see
+[ALIVE implementation and acceptance](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md).
+The [BEDROCK invariants](docs/bedrock/1.0/INVARIANT_REGISTER.md),
+[validation report](docs/bedrock/1.0/VALIDATION_REPORT.md), and
+[remaining DSP/real-time risks](docs/bedrock/1.0/RESIDUAL_RISKS.md) still apply.
+
 ---
 
 ## 🐍 Offline Audio Example
@@ -81,7 +202,7 @@ From the command line, you can also use `isla --input input.wav --output output_
 ## 🧭 Roadmap (Proposed — Not Yet Released)
 
 - **BEDROCK 1.0:** Established a regression-tested offline DSP foundation and documented outstanding streaming/real-time risks.
-- **ISLA v3.0.0 — ALIVE:** Explore a Mac-friendly offline audio interface with import, playback, A/B comparison, and export after BEDROCK acceptance.
+- **ISLA v3.0.0 — ALIVE:** Terminal MVP implemented for local-file playback, prepared Velvet/Legato/Melt modes, and bypass comparison; release acceptance remains pending. Offline CLI export remains available.
 - **ISLA Mobile / Pocket:** Research a future phone experience; no mobile application is available yet.
 - **Real-time plugin:** Requires a separate architectural validation effort and should not be represented as production-ready.
 

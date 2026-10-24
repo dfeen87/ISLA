@@ -9,7 +9,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from src.main import IslaMusicEngine  # adjust import if needed
+from src.main import IslaMusicEngine
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -23,17 +23,15 @@ def create_parser() -> argparse.ArgumentParser:
         """,
     )
 
-    # Required
+    # Required together for offline processing; no arguments opens ALIVE.
     parser.add_argument(
         "--input",
         type=str,
-        required=True,
-        help="Input audio file path (e.g., WAV, FLAC, MP3).",
+        help="Input audio file path (WAV guaranteed; other formats depend on libsndfile).",
     )
     parser.add_argument(
         "--output",
         type=str,
-        required=True,
         help="Output audio file path (e.g., output.wav).",
     )
 
@@ -48,9 +46,15 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> int:
+def main(argv=None) -> int:
     parser = create_parser()
-    args = parser.parse_args()
+    arguments = sys.argv[1:] if argv is None else argv
+    if not arguments:
+        from isla.terminal import run_terminal
+        return run_terminal()
+    args = parser.parse_args(arguments)
+    if not args.input or not args.output:
+        parser.error("offline processing requires both --input and --output; use isla without arguments for ALIVE")
 
     input_path = Path(args.input)
     output_path = Path(args.output)

@@ -2,6 +2,7 @@
 import os
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
+from dataclasses import replace
 import queue
 import subprocess
 import sys
@@ -16,7 +17,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QFileDialog
 
 from isla.control import UIState
-from isla.qt_window import CommandWorker, ControlWindow, open_sound_settings
+from isla.qt_window import CommandWorker, ControlWindow, alive_next_step, open_sound_settings
 from test_alive import PendingPreparation
 from test_control import make_session, prepared_buffers
 
@@ -86,17 +87,21 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
     try:
         assert w.windowTitle() == 'ISLA — Audio Control Center'
         assert w.file_status.text() == 'Open an audio file to begin'
+        assert 'Open Audio File' in w.file_next_step.text()
         assert not w.play.isEnabled() and not w.pause.isEnabled()
         assert not any(b.isEnabled() for b in w.file_modes.values())
         assert not w.start_live.isEnabled()
         monkeypatch.setattr(QFileDialog, 'getOpenFileName', lambda *a: ('piano with spaces.wav', ''))
         click(app, w, w.open_file)
         assert w.state.file_state == UIState.PREPARING
+        assert 'Preparing Original' in w.file_next_step.text()
         assert not w.play.isEnabled()
         c.job.result = prepared_buffers(), 48000
         wait_ui(app, lambda: w.state.file_state == UIState.READY)
+        assert 'ALIVE is ready' in w.file_next_step.text()
         click(app, w, w.play)
         assert w.state.file_state == UIState.PLAYING and w.pause.isEnabled()
+        assert 'ALIVE is playing' in w.file_next_step.text()
         assert not w.open_file.isEnabled() and not w.output.isEnabled()
         click(app, w, w.file_modes['melt'])
         assert c.player.mode == 'melt' and len(files.streams) == 1
@@ -109,6 +114,75 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
     finally:
         close_window(app, w, c)
     assert all(stream.closed for stream in files.streams)
+
+
+
+def test_alive_next_step_explains_live_lock_and_restores_file_controls(app, monkeypatch):
+    """A stopped, fully prepared ALIVE file must explain why LIVE owns output."""
+    w, c, live, files, *_ = window_session(app)
+    try:
+        monkeypatch.setattr(QFileDialog, 'getOpenFileName',
+                            lambda *args: ('My purchased song.m4a', ''))
+        click(app, w, w.open_file)
+        c.job.result = prepared_buffers(), 48000
+        wait_ui(app, lambda: w.state.file_state == UIState.READY)
+        click(app, w, w.play)
+        click(app, w, w.stop_file)
+        assert w.state.file_state == UIState.STOPPED
+
+        w.capture.setCurrentIndex(1)
+        w.output.setCurrentIndex(1)
+        wait_ui(app, lambda: w.apply_devices.isEnabled())
+        click(app, w, w.apply_devices)
+        click(app, w, w.start_live)
+        assert w.state.live_active
+        assert w.file_status.text() == 'File stopped'
+        assert not w.play.isEnabled()
+        assert not w.open_file.isEnabled()
+        assert not any(button.isEnabled() for button in w.file_modes.values())
+        hint = w.file_next_step.text()
+        assert 'ALIVE is locked' in hint
+        assert 'Stop LIVE' in hint
+        assert 'Play' in hint
+
+        click(app, w, w.stop_live)
+        wait_ui(app, lambda: not w.state.live_active and w.play.isEnabled())
+        assert 'ALIVE is ready' in w.file_next_step.text()
+        assert all(button.isEnabled() for button in w.file_modes.values())
+        click(app, w, w.play)
+        click(app, w, w.file_modes['velvet'])
+        assert c.player.mode == 'velvet'
+    finally:
+        close_window(app, w, c)
+
+
+def test_alive_next_step_explains_long_song_without_disabling_standard_playback(app):
+    """A full-length M4A can play, but the ALIVE research excerpt limit is separate."""
+    w, c, *_ = window_session(app)
+    try:
+        standard = replace(w.state, file_state=UIState.READY, can_play=True,
+                           duration=231.33)
+        assert 'ALIVE is ready' in alive_next_step(standard)
+        w.state = standard
+        w.apply_state()
+        assert '231.33-second' in w.file_next_step.text()
+        assert '30-second research limit' in w.file_next_step.text()
+        assert 'Standard ALIVE playback' in w.file_next_step.text()
+        assert 'LIVE Remastered' in w.file_next_step.text()
+
+        locked = replace(standard, live_active=True, can_play=False)
+        assert 'Stop LIVE' in alive_next_step(locked)
+        assert '30-second research limit' in alive_next_step(locked)
+        preparing = replace(standard, file_state=UIState.PREPARING,
+                            duration=0, can_play=False)
+        assert 'Preparing Original' in alive_next_step(preparing)
+        failed = replace(standard, file_state=UIState.RECOVERABLE_ERROR,
+                         duration=0, can_play=False)
+        assert 'Read the error' in alive_next_step(failed)
+        assert 'audio operation is in progress' in alive_next_step(standard, busy='load')
+    finally:
+        close_window(app, w, c)
+
 
 
 def test_file_picker_accepts_purchased_m4a_with_spaces(app, monkeypatch):

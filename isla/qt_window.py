@@ -8,6 +8,7 @@ session lease until cleanup completes; it never hands a busy engine to the CLI.
 from __future__ import annotations
 
 import queue
+from collections import deque
 import subprocess
 import sys
 import threading
@@ -63,6 +64,7 @@ class CommandWorker:
         self.controller = controller
         self.factory = factory or (lambda: TerminalController(SoundDeviceBackend()))
         self.service = None
+        self._sequence = 0
         self._last_device_refresh = 0.0
         self.thread = threading.Thread(target=self._run, name='isla-control', daemon=True)
 
@@ -73,7 +75,8 @@ class CommandWorker:
         self.commands.put_nowait((action, args))
 
     def _publish(self):
-        self.events.put(('state', self.service.snapshot()))
+        self._sequence += 1
+        self.events.put(('state', (self._sequence, self.service.snapshot())))
 
     def _run(self):
         try:
@@ -178,6 +181,12 @@ class ControlWindow(QMainWindow):
         self.worker = worker
         self._mode_groups = {}
         self.state = None
+        self._state_sequence = 0
+        self._pending_live_mode = None
+        self._mode_requests = deque()
+        self._mode_inflight = None
+        self._live_mode_error = ''
+        self._stop_requested = False
         self.busy = 'initialize'
         self.started = time.monotonic()
         self.closing = self.closed_cleanly = self.failed_initialize = False
@@ -350,7 +359,7 @@ class ControlWindow(QMainWindow):
         self.start_live = QPushButton('Start LIVE')
         self.start_live.clicked.connect(lambda: self.submit('start'))
         self.stop_live = QPushButton('Stop LIVE')
-        self.stop_live.clicked.connect(lambda: self.submit('stop'))
+        self.stop_live.clicked.connect(self._request_live_stop)
         row.addWidget(self.start_live)
         row.addWidget(self.stop_live)
         box.addLayout(row)
@@ -363,8 +372,11 @@ class ControlWindow(QMainWindow):
             self.live_mode_choice.addItem(name, mode)
         self.live_mode_choice.activated.connect(
             lambda index: self._choose_live_mode(self.live_mode_choice.itemData(index)))
-        box.addWidget(label('LIVE sound effect — choose a mode; selecting it again returns to Original'))
+        box.addWidget(label('LIVE sound effect — choose processing or reset to Original'))
         box.addWidget(self.live_mode_choice)
+        self.reset_live_mode = QPushButton('Reset to Original')
+        self.reset_live_mode.clicked.connect(lambda: self._choose_live_mode('bypass'))
+        box.addWidget(self.reset_live_mode)
         self.live_mode_status = label('Select a mode for LIVE monitoring.')
         box.addWidget(self.live_mode_status)
         self.live_status, self.live_error = label(), label()
@@ -382,11 +394,38 @@ class ControlWindow(QMainWindow):
         return panel
 
     def _choose_live_mode(self, mode):
-        # A second click on an active effect returns to Original/Bypass.
-        # Qt buttons remain exclusive; the worker snapshot owns their state.
-        selected = self.state.live_mode if self.state is not None else 'bypass'
-        requested = 'bypass' if mode == selected else mode
-        return self.submit('live_mode', requested)
+        # Native combo activation is a selection, not a toggle. Same-item
+        # activation differs between platforms; Reset is an explicit action.
+        if (self.state is None or self.state.source != 'system' or self.closing
+                or self._stop_requested or self.busy not in (None, 'live_mode')):
+            return False
+        selected = self._pending_live_mode or self.state.live_mode
+        if mode == selected:
+            return False
+        self._pending_live_mode = mode
+        self._mode_requests.append(mode)
+        self._live_mode_error = ''
+        self._dispatch_live_mode()
+        self.apply_state()
+        return True
+
+    def _dispatch_live_mode(self):
+        # Only one command crosses the existing bounded worker queue at once.
+        # Further meaningful native activations stay ordered on the GUI thread.
+        if not self.busy and self._mode_requests and not self.closing:
+            self._mode_inflight = self._mode_requests.popleft()
+            self.submit('live_mode', self._mode_inflight)
+
+    def _request_live_stop(self):
+        # Stop/Close take priority over mode requests not yet dispatched. They
+        # still wait for the owning worker; never close audio on the GUI thread.
+        self._mode_requests.clear()
+        self._pending_live_mode = self._mode_inflight
+        self._stop_requested = True
+        if not self.busy:
+            self._stop_requested = False
+            self.submit('stop')
+        self.apply_state()
 
     def _apply_volume(self):
         return self.submit('volume', self.monitor_volume.value())
@@ -430,9 +469,15 @@ class ControlWindow(QMainWindow):
             except queue.Empty:
                 break
             if kind == 'state':
-                self.state = value
+                sequence, state = value
+                if sequence > self._state_sequence:
+                    self._state_sequence, self.state = sequence, state
             elif kind == 'done':
                 self.busy = None
+                if value == 'live_mode':
+                    self._mode_inflight = None
+                    if not self._mode_requests:
+                        self._pending_live_mode = None
                 self.activity.setText('Audio session ready.')
             elif kind == 'message':
                 self.activity.setText(value)
@@ -440,6 +485,12 @@ class ControlWindow(QMainWindow):
                 action, message = value
                 target = self.file_error if action in ('load', 'file', 'file_output', 'poll') else self.live_error
                 target.setText('Action required: ' + message)
+                if action == 'live_mode':
+                    self._live_mode_error = message
+                    self._mode_requests.clear()
+                    self._pending_live_mode = None
+                    # A rejection explicitly reconciles to committed state.
+                    self.live_mode_choice.hidePopup()
                 if action == 'shutdown':
                     self.closing = False
                     self.cleanup_error = 'Cleanup is incomplete; the session remains owned by this window. Retry Close after the audio worker stops. ' + message
@@ -468,10 +519,15 @@ class ControlWindow(QMainWindow):
                 self.close()
                 return
         if self.busy and not self.worker_failed and time.monotonic() - self.started > 10:
-            self.global_error.setText('Audio operation is taking longer than expected. The window remains responsive; commands are locked until it returns. Close will request cleanup. Do not launch another audio session.')
+            self.global_error.setText('Audio operation is taking longer than expected. The window remains responsive; Close will request cleanup after it returns. Do not launch another audio session.')
         self.apply_state()
         if self.closing and not self.busy and not self.failed_initialize:
             self.submit('shutdown')
+        elif self._stop_requested and not self.busy:
+            self._stop_requested = False
+            self.submit('stop')
+        else:
+            self._dispatch_live_mode()
 
     @staticmethod
     def _choices(combo, choices, selected):
@@ -519,7 +575,13 @@ class ControlWindow(QMainWindow):
         self.monitor_volume.setEnabled(bool(available))
         for button in self.file_modes.values():
             button.setEnabled(False)
-        self.live_mode_choice.setEnabled(False)
+        # Set the final enabled state once. Temporarily disabling a combo on
+        # every health tick dismisses its native popup before activation.
+        mode_available = bool(s and s.source == 'system' and not self.closing
+                              and not self._stop_requested
+                              and self.busy in (None, 'live_mode'))
+        self.live_mode_choice.setEnabled(mode_available)
+        self.reset_live_mode.setEnabled(mode_available)
         if s is None:
             return
         self._choices(self.capture, s.captures, s.selected_capture)
@@ -548,7 +610,8 @@ class ControlWindow(QMainWindow):
         dirty_devices = (self.capture.currentData() != s.selected_capture or
                          self.output.currentData() != s.selected_output or self.rate.currentData() != s.rate)
         self.start_live.setEnabled(bool(available and s.can_start and not dirty_devices))
-        self.stop_live.setEnabled(bool(available and (s.live_active or s.live_state.value == 'Fatal audio failure')))
+        self.stop_live.setEnabled(bool(not self.closing and self.busy in (None, 'live_mode')
+                                       and (s.live_active or s.live_state.value == 'Fatal audio failure')))
         # Manual rescans can block in native device enumeration, too.
         self.refresh.setEnabled(bool(available and not s.stream_active))
         self.recheck.setEnabled(bool(available and not s.stream_active))
@@ -564,27 +627,36 @@ class ControlWindow(QMainWindow):
                else '(ISLA output attenuation)'))
         self.mute_volume.setText('Unmute' if s.monitor_volume == 0 else 'Mute')
         # Choosing a LIVE mode keeps the existing DSP worker and stream.
-        self.live_mode_choice.setEnabled(bool(available and s.source == 'system'))
-        if self.live_mode_choice.currentData() != s.live_mode:
+        desired = self._pending_live_mode or s.live_mode
+        if (not self.live_mode_choice.view().isVisible()
+                and self.live_mode_choice.currentData() != desired):
             self.live_mode_choice.blockSignals(True)
-            self.live_mode_choice.setCurrentIndex(self.live_mode_choice.findData(s.live_mode))
+            self.live_mode_choice.setCurrentIndex(self.live_mode_choice.findData(desired))
             self.live_mode_choice.blockSignals(False)
         chosen = s.live_mode.title()
-        if s.live_active:
+        if self._pending_live_mode:
+            self.live_mode_status.setText(
+                f'Requested: {self._pending_live_mode.title()} — awaiting control worker; '
+                f'confirmed: {chosen}; DSP worker: {s.live_applied_mode or "not running"}.')
+        elif s.live_active:
             if s.live_applied_mode == s.live_mode:
                 self.live_mode_status.setText(f'LIVE mode: {chosen} — selected by the DSP worker.')
             else:
                 self.live_mode_status.setText(
-                    f'LIVE mode: {chosen} — waiting for the next processed audio block.')
+                    f'LIVE mode: {chosen} — waiting for the next processed audio block; '
+                    f'DSP worker: {s.live_applied_mode or "not yet observed"}.')
         else:
             self.live_mode_status.setText(f'LIVE mode: {chosen} — selected for the next start.')
         self.routing.setText(f"{'LIVE routing ready' if s.routing_ready else 'LIVE is not ready'}\nCurrent macOS output: {s.system_output}\nRequired macOS output: BlackHole 2ch\nISLA Capture: {s.capture}\nISLA Physical Playback: {s.output}")
         self.next_action.setText(s.routing_message + ('\nNext action: ' + MANUAL_SETTINGS + ' Return to ISLA and click Recheck Audio Routing.' if not s.routing_ready else
                                 '\nNext action: Apply LIVE Devices / Select LIVE Source.' if s.source != 'system' or dirty_devices else ''))
         self.live_status.setText('LIVE stopping' if self.busy in ('stop', 'shutdown') else s.live_state.value)
+        mode_error = 'Mode change rejected: ' + self._live_mode_error if self._live_mode_error else ''
         if s.live_failure_reason:
             stage = 'LIVE safety event (monitor stopping)' if s.live_active else 'LIVE stopped safely'
-            self.live_error.setText(f'{stage}: {s.live_failure_reason}')
+            self.live_error.setText(f'{stage}: {s.live_failure_reason}' + ('\n' + mode_error if mode_error else ''))
+        elif mode_error:
+            self.live_error.setText(mode_error)
         elif not s.error:
             # Do not clear command errors from the event handler until the
             # backend returns to a healthy state.
@@ -606,6 +678,8 @@ class ControlWindow(QMainWindow):
                 self.started = time.monotonic()
             return
         self.closing = True
+        self._mode_requests.clear()
+        self._pending_live_mode = self._mode_inflight
         self.activity.setText('Closing: waiting for the current operation, then stopping all audio…')
         self.apply_state()
         if not self.busy:

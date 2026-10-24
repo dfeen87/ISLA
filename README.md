@@ -191,7 +191,7 @@ Install standalone **BlackHole 2ch** separately using the [LIVE instructions bel
 1. **Capture Source:** choose **BlackHole 2ch**.
 2. **Physical Listening Device:** choose your verified stereo speakers/headphones, such as MacBook Pro Speakers or External Headphones when present. Select **44,100** or **48,000 Hz**, then click **Apply LIVE Devices / Select LIVE Source**. Virtual, Aggregate, Multi-Output, ambiguous and mono sinks are excluded.
 3. **macOS Sound Routing:** inspect the detected current system output. Click **Open Sound Settings**, then manually select **BlackHole 2ch** in macOS Sound → Output. Return and click **Recheck Audio Routing**. If the button cannot open the pane, use Apple menu → System Settings → Sound → Output.
-4. Click **Start LIVE** to begin with **Original / Bypass** automatically selected. Under Step 4, use the **LIVE sound effect** dropdown (Original / Bypass, Velvet, Legato, Melt); selecting the active effect again, or choosing Original / Bypass, returns to Original. Start LIVE and Stop LIVE remain separate buttons so selecting an effect never unexpectedly starts or stops the monitor. You never need to stop and restart monitoring to switch modes. The LIVE panel reports the selected mode and when the DSP worker has picked it up on an audio block. Switching modes does **not** require Stop/Start and does not change any system routing. The modes can sound subtle; compare at similar loudness. Use **LIVE Listening Volume**, in the lower-left panel, to select 0–100% and click **Apply Volume**, or choose **Mute/Unmute**. The control attenuates only ISLA's processed signal headed to the selected physical headphones/speakers; it does not change BlackHole input gain, macOS volume or other applications. At 100%, Original/Bypass retains its existing exact unity audio. Volume changes ramp over about 5 ms and do not restart LIVE. Click **Stop LIVE** when finished. The **scrollable LIVE diagnostics panel** shows latency, signal levels, recovery and error counters; scroll inside that panel to read the lower entries while monitoring, without the display jumping back to the top. If LIVE stops unexpectedly, its safety reason appears beside the controls and in diagnostics. **Stop LIVE** releases audio without a blocking device rescan; Refresh Devices and Recheck Audio Routing become available once the stream stops.
+4. Click **Start LIVE** to begin with **Original / Bypass** automatically selected. Under Step 4, use the **LIVE sound effect** dropdown (Original / Bypass, Velvet, Legato, Melt); choose **Original / Bypass** or the adjacent **Reset to Original** button to return to Original. Re-selecting the same effect is idempotent. Start LIVE and Stop LIVE remain separate buttons so selecting an effect never unexpectedly starts or stops the monitor. You never need to stop and restart monitoring to switch modes. The LIVE panel reports **Requested** while a command is pending, the confirmed backend mode, and when the DSP worker has picked it up on an audio block. Health refreshes preserve a pending selection and leave the open dropdown usable. Rapid choices are dispatched once per changed selection in order; Stop and Close discard choices not yet dispatched. A rejected command restores the confirmed mode and leaves an error visible until another mode request. Switching modes does **not** require Stop/Start and does not change any system routing. The modes can sound subtle; compare at similar loudness. Use **LIVE Listening Volume**, in the lower-left panel, to select 0–100% and click **Apply Volume**, or choose **Mute/Unmute**. The control attenuates only ISLA's processed signal headed to the selected physical headphones/speakers; it does not change BlackHole input gain, macOS volume or other applications. At 100%, Original/Bypass retains its existing exact unity audio. Volume changes ramp over about 5 ms and do not restart LIVE. Click **Stop LIVE** when finished. The **scrollable LIVE diagnostics panel** shows latency, signal levels, recovery and error counters; scroll inside that panel to read the lower entries while monitoring, without the display jumping back to the top. If LIVE stops unexpectedly, its safety reason appears beside the controls and in diagnostics. **Stop LIVE** releases audio without a blocking device rescan; Refresh Devices and Recheck Audio Routing become available once the stream stops.
 
 Required arrangement:
 
@@ -502,11 +502,70 @@ Use `velvet`, `legato`, or `melt`. The API is `smooth_file(input_path, output_pa
 
 ---
 
+## Professional terminal help
+
+At `isla>`, type `help` or `?` for the ASCII command center. It shows the current source, monitor, mode, and selected devices; LIVE commands appear first for System Audio and ALIVE commands first for File. Columns adapt to the terminal width, including plain-text pipes, without color requirements, clearing the screen, or continuous repainting. Help reads session state without scanning hardware.
+
+| Topic | Guidance |
+|---|---|
+| `help live` | System capture, Start/Stop, modes and next steps |
+| `help file` (also `help alive`) | Prepare and play a local WAV |
+| `help devices` | Numbered pickers, BlackHole and physical outputs |
+| `help modes` | Processing selection, Bypass and window reset |
+| `help troubleshoot` | Mistaken commands, routing and recovery |
+
+Example command-center excerpt (device names and operational values come from your session):
+
+```text
++======================================================================+
+|                               I S L A                                |
+|                     AUDIO CONTROL COMMAND CENTER                     |
+| CONTEXT : LIVE SYSTEM AUDIO                                          |
+| SOURCE  : SYSTEM AUDIO                                               |
+| MONITOR : RUNNING                                                    |
+| MODE    : ORIGINAL / BYPASS                                          |
+| INPUT   : BlackHole 2ch                                              |
+| OUTPUT  : MacBook Pro Speakers                                       |
++----------------------------------------------------------------------+
+| LIVE AUDIO                                                           |
+|                                                                      |
+| monitor start            Start LIVE when stopped (default 48000 Hz). |
+| monitor stop             Stop LIVE and release audio devices.        |
+| bypass                   Original input within the existing monitor. |
+```
+
+**LIVE** captures your Mac's ongoing application audio. Start music in the browser or music app; it is not a WAV file waiting for ISLA's `play` command. At `isla>`:
+
+```text
+source system
+setup audio
+monitor start
+mode velvet
+bypass
+monitor stop
+```
+
+During `setup audio`, choose the listed BlackHole input and physical stereo output by number. Separately set macOS Sound Output to BlackHole as described in the [BlackHole routing guide](#2-set-up-the-physical-output-and-blackhole-routing), then start monitoring. The existing Audio MIDI screenshots, 0 dB BlackHole unity setting, low physical listening-volume precautions and separate macOS alert-volume instructions still apply.
+
+**ALIVE** prepares and plays a local file. At `isla>`:
+
+```text
+source file
+load "example.wav"
+play
+pause
+stop
+```
+
+Wait for preparation to finish (`status`) before `play`. `play` during LIVE explains this distinction without opening another stream. Repeating `monitor start` reports the active mode without restarting LIVE. `bypass` keeps the monitor running on its unprocessed input path. Device changes are refused while running: use `monitor stop`, then `output`, choose a physical stereo device by number, recheck macOS routing and use `monitor start`. ISLA does not stop audio automatically to accommodate device selection.
+
+Inside a numbered picker, help/topics remain available without consuming a device choice; use a listed number/exact name or `cancel`. `monitor stop` and `exit` remain available even during a picker or failed preparation. `status` retains full diagnostics and recovery counters with a short next-step hint.
+
 ## Terminal command reference
 
 | Command | File source (ALIVE) | System source (LIVE) |
 |---|---|---|
-| `help` / `devices` / `status` / `exit` | Supported | Supported |
+| `help [topic]` / `?` / `devices` / `status` / `exit` | Supported | Supported |
 | `window` | Open the optional GUI using this session; close to return | Preserve the current monitor on entry; stop on close |
 | `source file` / `source system` | Switch to file or system source | Switch to file or system source |
 | `output "<name or index>"` | Select a device while stopped | Select a **physical** device while stopped |

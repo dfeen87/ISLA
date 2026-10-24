@@ -110,8 +110,8 @@ def test_harmonic_blender_identity():
     blender = HarmonicBlender(strength=0.0)
     audio_out = blender.blend(audio, sr)
 
-    # Assert
-    assert np.allclose(audio, audio_out, atol=1e-5)
+    # Assert strict absolute tolerance
+    assert np.max(np.abs(audio - audio_out)) < 1e-5
 
 def test_harmonic_blender_streaming_continuity():
     """When strength is 0, the chunked output should exactly match the full output."""
@@ -168,12 +168,12 @@ def test_harmonic_blender_odd_windows():
     # 10ms at 44100Hz is 441 samples (odd)
     blender_10 = HarmonicBlender(strength=0.0, window_ms=10)
     out_10 = blender_10.blend(audio, sr)
-    assert np.allclose(audio, out_10, atol=1e-5), "Failed identity test with odd window (10ms)"
+    assert np.max(np.abs(audio - out_10)) < 1e-5, "Failed identity test with odd window (10ms)"
 
     # 30ms at 44100Hz is 1323 samples (odd)
     blender_30 = HarmonicBlender(strength=0.0, window_ms=30)
     out_30 = blender_30.blend(audio, sr)
-    assert np.allclose(audio, out_30, atol=1e-5), "Failed identity test with odd window (30ms)"
+    assert np.max(np.abs(audio - out_30)) < 1e-5, "Failed identity test with odd window (30ms)"
 
 @pytest.mark.parametrize("sr, window_ms", [
     (8000, 10),
@@ -201,4 +201,4 @@ def test_harmonic_blender_matrix(sr, window_ms):
     out = blender.blend(audio, sr)
 
     assert len(audio) == len(out), f"Length mismatch: {len(audio)} != {len(out)}"
-    assert np.allclose(audio, out, atol=1e-5), f"Failed identity test for {sr}Hz / {window_ms}ms"
+    assert np.max(np.abs(audio - out)) < 1e-5, f"Failed identity test for {sr}Hz / {window_ms}ms"

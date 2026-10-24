@@ -22,7 +22,7 @@ The BEDROCK 1.0 audit assessed the Phased-Music-Notes DSP engine with a focus on
 ### 3. C++/Python Bridge Memory Allocation in Real-Time Path
 **Severity**: CRITICAL
 **Status**: NOT RESOLVED (Deferred to RESIDUAL RISKS)
-**Description**: The JUCE VST integration defined in `drivers/vst/python_bridge.cpp` allocates memory (`py::array_t`) and invokes the global Python interpreter during the audio processing callback (`process_audio()`). This inherently violates real-time constraints and will cause audio dropouts in DAWs.
+**Description**: The JUCE VST integration defined in `drivers/vst/python_bridge.cpp` allocates memory (`py::array_t`) and invokes the global Python interpreter during the audio processing callback (`process_audio()`). This inherently violates real-time constraints and introduces a severe theoretical risk of audio dropouts in DAWs, though actual DAW behavior remains unvalidated.
 **Reproduction**: Inspection of `python_bridge.cpp` where GIL acquisition, exception handling, and NumPy heap allocation occur.
 **Resolution**: Documented as an architectural limitation. Requires a complete bridge rewrite or a rewrite of the DSP in C++.
 

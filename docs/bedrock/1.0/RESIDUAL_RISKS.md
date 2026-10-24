@@ -8,7 +8,7 @@ The following significant limitations were identified but excluded from the imme
 **Action Required:** Implement a stateful DSP interface (e.g., `process_block(block)`) that retains overlap tails and applies them to subsequent blocks.
 
 ## 2. Real-Time Violations in C++ / Python Bridge
-**Risk:** `python_bridge.cpp` embeds `pybind11` calls directly inside the `process_audio` callback. This callback acquires the Global Interpreter Lock (GIL), allocates NumPy arrays dynamically on the heap, and runs Python bytecode. In a production DAW environment, this will immediately and repeatedly cause audio dropouts, glitches, and potential crashes.
+**Risk:** `python_bridge.cpp` embeds `pybind11` calls directly inside the `process_audio` callback. This callback acquires the Global Interpreter Lock (GIL), allocates NumPy arrays dynamically on the heap, and runs Python bytecode. In a production DAW environment, this introduces severe real-time safety risks (dropouts, glitches, and potential crashes), though actual DAW behavior remains unvalidated.
 **Evidence:** Source inspection of `python_bridge.cpp`.
 **Action Required:** A profound architectural shift is needed if this plugin intends to be a real-time VST. Either:
 1. Re-write the DSP engine entirely in C++.

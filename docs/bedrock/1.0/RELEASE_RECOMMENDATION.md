@@ -7,7 +7,7 @@ The core offline DSP algorithms in Phased-Music-Notes have been proven mathemati
 **However, the repository is NOT ready for a commercial plugin release or real-time professional audio utilization.**
 
 ### Defensible Rationale:
-1. **Real-time Failure:** The architectural decision to embed a Python interpreter and dynamically allocate memory within the high-priority C++ audio thread guarantees dropouts in DAWs.
+1. **Real-time Risk:** The architectural decision to embed a Python interpreter and dynamically allocate memory within the high-priority C++ audio thread introduces severe real-time safety risks (unvalidated in actual DAWs).
 2. **Streaming Failure:** Processing chunked audio without historical phase and overlap context causes boundary discontinuities.
 
 ### Authorized Next Steps:

@@ -171,6 +171,11 @@ LIVE source below for browser and Mac system audio; file preparation stays offli
 
 ### LIVE Mode — Process YouTube and Mac System Audio
 
+**Testing this PR before merge:** after cloning, run
+`git switch feature/isla-live-system-audio`, then rerun
+`python -m pip install -e '.[playback]'` in the activated environment before `isla`.
+The unmerged LIVE feature is on that branch, not `main`.
+
 **Experimental MVP, not a released v3.0.0 or professional low-latency engine.**
 Target configuration: macOS 13+, Python 3.10+, standalone **BlackHole 2ch** input,
 and a separate stereo built-in, wired/USB, or Bluetooth physical output at **44.1

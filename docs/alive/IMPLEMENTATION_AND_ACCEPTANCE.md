@@ -86,7 +86,7 @@ recordings remains necessary before release.
 ## Owner macOS acceptance — required before release
 
 1. Follow **After Cloning — Start ISLA on macOS** in README. For this PR before
-   merge, check out its branch after cloning: `git checkout feature/isla-alive-terminal`.
+   merge, check out this follow-up branch after cloning: `git checkout feature/isla-live-system-audio`.
    Select speakers/headphones in System Settings → Sound → Output at a comfortable
    volume. Launch `isla` and verify that the listed output is the intended device.
 2. Run `load "~/Music/my piano.wav"` with a real mono or stereo WAV path containing

@@ -28,6 +28,8 @@ Phased Music Notes was conceived to explore the hidden texture of classical pian
 
 **Explore:** [v3.3.0 release scope](docs/releases/v3.3.0.md) · [Published v3.2.0 baseline](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0) · [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
 
+**Opt-in v4.0 Remastered research preview:** the control window's **Show v4.0 Remastered Research Preview** panel prepares the frozen Experiment 02 governed modes at **0–100% permitted depth, in 5% steps**. It supports mono/stereo 44.1/48 kHz excerpts up to 30 seconds. This is an engineering preview; the **REVISE / INCONCLUSIVE** scientific verdict and production version remain unchanged. See [usage, mathematical contract and verification](docs/remastered/IMPLEMENTATION.md).
+
 ---
 
 ## What ISLA does

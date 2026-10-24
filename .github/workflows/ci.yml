@@ -93,7 +93,7 @@ jobs:
         run: echo "PYTHONPATH=$PWD:$PWD/drivers:$PYTHONPATH" >> $GITHUB_ENV
 
       - name: Production-only acceptance (independent of research)
-        run: python -m pytest -q tests --ignore-glob='tests/test_resonance02_*.py'
+        run: python -m pytest -q tests --ignore-glob='tests/test_resonance02_*.py' --ignore-glob='tests/test_remastered*.py'
 
       - name: Run complete Python tests (excluding pybind11 vendor tests)
         if: ${{ !cancelled() }}

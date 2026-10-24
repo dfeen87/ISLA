@@ -16,7 +16,7 @@ The BEDROCK 1.0 audit assessed the Phased-Music-Notes DSP engine with a focus on
 **Severity**: HIGH
 **Status**: NOT RESOLVED (Deferred to RESIDUAL RISKS)
 **Description**: Chunking a continuous audio signal into smaller blocks results in discontinuities across block boundaries. Because the DSP modules lack internal retained state (e.g. historical buffers or phase context), `HarmonicBlender` processes each block blindly, generating independent windows that cannot be gaplessly spliced back together.
-**Reproduction**: `tests/test_harmonics_adversarial.py::test_harmonic_blender_streaming_continuity`
+**Reproduction**: `tests/test_harmonics_adversarial.py::test_harmonic_blender_streaming_nonzero_strength`
 **Resolution**: Documented as a fundamental architectural risk. Requires a deeper redesign of state-holding DSP nodes.
 
 ### 3. C++/Python Bridge Memory Allocation in Real-Time Path

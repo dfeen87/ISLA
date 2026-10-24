@@ -87,17 +87,14 @@ class HarmonicBlender:
         hop = max(1, win_samples // 2)
 
         # Pad for WOLA
-        pad_front = win_samples - hop
-        pad_back = win_samples
-        audio_padded = np.pad(audio, (pad_front, pad_back), mode='constant')
-
         # To avoid edge artifacts and properly reconstruct the beginning of the signal,
         # we pad the start with zeros. We pad the end to cover the last frame.
-        pad_front = win.size - hop
+        pad_front = win_samples - hop
+
         # Calculate padding needed to cover the last frame
         num_samples = len(audio)
         num_frames = int(np.ceil((num_samples + pad_front) / hop))
-        pad_back = num_frames * hop + win.size - hop - num_samples - pad_front
+        pad_back = num_frames * hop + win_samples - hop - num_samples - pad_front
 
         padded_audio = np.pad(audio, (pad_front, pad_back), mode='constant')
 
@@ -116,8 +113,8 @@ class HarmonicBlender:
         # ISTFT
         # We need to multiply by the window again in the synthesis stage for
         # proper overlap-add reconstruction with a Hann window
-        # Explicitly pass n=win.size to handle odd-length windows correctly.
-        frames_out = np.fft.irfft(spectrum_blended, n=win.size, axis=1) * win
+        # Explicitly pass n=win_samples to handle odd-length windows correctly.
+        frames_out = np.fft.irfft(spectrum_blended, n=win_samples, axis=1) * win
 
         # Calculate weights for normalization
         win_sq = win ** 2

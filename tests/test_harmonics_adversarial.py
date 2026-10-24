@@ -136,7 +136,7 @@ def test_harmonic_blender_streaming_continuity():
         max_diff = np.max(diff)
         assert max_diff < 1e-4, f"Streaming continuity failed for block size {block_size}. Max diff: {max_diff}"
 
-@pytest.mark.xfail(reason="Streaming continuity lacks retained state across chunks for non-zero strength (Residual Risk #1)")
+@pytest.mark.xfail(strict=True, reason="Streaming continuity lacks retained state across chunks for non-zero strength (Residual Risk #1)")
 def test_harmonic_blender_streaming_nonzero_strength():
     """When strength > 0, the lack of overlap-add state retention between chunks causes discontinuities."""
     sr = 44100
@@ -174,3 +174,31 @@ def test_harmonic_blender_odd_windows():
     blender_30 = HarmonicBlender(strength=0.0, window_ms=30)
     out_30 = blender_30.blend(audio, sr)
     assert np.allclose(audio, out_30, atol=1e-5), "Failed identity test with odd window (30ms)"
+
+@pytest.mark.parametrize("sr, window_ms", [
+    (8000, 10),
+    (8000, 30),
+    (8000, 40),
+    (11025, 10),
+    (11025, 30),
+    (11025, 40), # 441 samples
+    (44100, 10), # 441 samples
+    (44100, 30), # 1323 samples
+    (44100, 40),
+    (48000, 10),
+    (48000, 30),
+    (48000, 40), # 1920 samples
+    (96000, 10),
+    (96000, 30),
+    (96000, 40)
+])
+def test_harmonic_blender_matrix(sr, window_ms):
+    duration = 0.5
+    t = np.linspace(0, duration, int(sr * duration), endpoint=False)
+    audio = np.sin(2 * np.pi * 440 * t)
+
+    blender = HarmonicBlender(strength=0.0, window_ms=window_ms)
+    out = blender.blend(audio, sr)
+
+    assert len(audio) == len(out), f"Length mismatch: {len(audio)} != {len(out)}"
+    assert np.allclose(audio, out, atol=1e-5), f"Failed identity test for {sr}Hz / {window_ms}ms"

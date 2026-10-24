@@ -4,7 +4,7 @@ The following significant limitations were identified but excluded from the imme
 
 ## 1. Streaming DSP Discontinuities
 **Risk:** When an audio stream is processed in independent small chunks, the lack of retained internal state (such as overlap buffers and phase memory from previous chunks) causes audible clicks at block boundaries.
-**Evidence:** `test_harmonic_blender_streaming_continuity` demonstrates a maximum divergence nearing 1.0 when a pure sine wave is split into tiny blocks and blended, compared to a single large blend.
+**Evidence:** `test_harmonic_blender_streaming_nonzero_strength` demonstrates discontinuities when a pure sine wave is split into chunks and blended with `strength > 0`, compared to a single large blend. (Identity streaming continuity with `strength=0.0` has been mathematically resolved).
 **Action Required:** Implement a stateful DSP interface (e.g., `process_block(block)`) that retains overlap tails and applies them to subsequent blocks.
 
 ## 2. Real-Time Violations in C++ / Python Bridge

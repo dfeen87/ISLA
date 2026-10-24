@@ -203,7 +203,7 @@ def test_start_live_original_effect_toggle_and_listening_volume(app):
         w.monitor_volume.setValue(35)
         click(app, w, w.apply_volume)
         assert w.state.monitor_volume == 35
-        assert c.live.monitor_volume == 35
+        assert c.live.processor.volume.percent == 35
         assert '35%' in w.monitor_volume_status.text()
         click(app, w, w.mute_volume)
         assert w.state.monitor_volume == 0

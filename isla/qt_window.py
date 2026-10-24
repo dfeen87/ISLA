@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from isla.control import ControlService, UIState
+from isla.remastered_preparation import MAX_SECONDS
 from isla.audio_files import AUDIO_FILE_FILTER
 from isla.playback import SoundDeviceBackend
 from isla.alive_listening_gain import ALIVE_GUI_PLAY_LEVEL_PERCENT
@@ -227,6 +228,69 @@ def label(text=''):
     return result
 
 
+def remastered_readiness(state):
+    """Report the actual background renderer admission gates before Apply."""
+    if state is None or not state.can_play:
+        return False, 'Load and prepare an ALIVE recording first.'
+    if state.duration > MAX_SECONDS:
+        return False, (f'{state.duration:.2f}-second file exceeds the '
+                       f'{MAX_SECONDS}-second Remastered ALIVE limit. '
+                       'Use a shorter local excerpt or continuous Remastered LIVE.')
+    if state.file_sample_rate not in (44100, 48000):
+        return False, ('Remastered ALIVE requires a 44.1/48 kHz source; '
+                       'regular ALIVE playback is still supported.')
+    if state.live_active:
+        return False, 'Stop LIVE before preparing an ALIVE Remastered excerpt.'
+    return True, ('Eligible local excerpt. Preparation runs separately and '
+                  'only a complete, validated buffer can become active.')
+
+
+def audio_diagnostics(state):
+    """One scrollable record of ALIVE readiness, render state and LIVE health."""
+    if state is None:
+        return 'Waiting for the audio session…'
+    lines = ['ALIVE — Local playback',
+             f'State: {state.file_state.value}',
+             f'Active mode: {state.file_mode}']
+    if state.duration:
+        lines.append(f'Source: {state.duration:.2f} s / {state.file_sample_rate:,} Hz')
+        lines.append('Control Center playback: 25% digital output amplitude')
+    _, readiness = remastered_readiness(state)
+    if state.research_pending:
+        lines.extend(['Remastered: preparing (NOT YET APPLIED)',
+                      'Worker: ' + state.research_status,
+                      'Existing playback continues until successful validation.'])
+    elif state.research_active:
+        lines.append(f'Remastered active: {state.research_mode.title()} '
+                     f'at {state.research_intensity}% depth')
+        if state.research_summary:
+            lines.append('Research measurements: ' + state.research_summary)
+    else:
+        lines.append('Remastered availability: ' + readiness)
+        if state.research_status and not state.research_status.startswith('Opt-in'):
+            lines.append('Last preparation: ' + state.research_status)
+    lines.extend(['', 'LIVE — Transport',
+                  f'State: {state.live_state.value}',
+                  f'Capture: {state.capture or "not selected"}',
+                  f'Playback device: {state.output or "not selected"}'])
+    if state.live_active:
+        lines.append(f'Mode: {state.live_mode}; LIVE listening volume: {state.monitor_volume}%')
+        if state.live_health:
+            lines.extend(['', 'LIVE worker counters:', state.live_health])
+    else:
+        lines.append('No active LIVE monitoring stream.')
+        if state.live_failure_reason:
+            lines.append('Last safety stop: ' + state.live_failure_reason)
+        # The LIVE monitor's status retains its final, safety-critical failure
+        # and recovery counters after stopping. Do not discard them just
+        # because the stream is no longer active.
+        if state.live_health:
+            lines.extend(['', 'Retained LIVE worker diagnostics:', state.live_health])
+    if state.error:
+        lines.extend(['', 'ACTION REQUIRED: ' + state.error])
+    return '\n'.join(lines)
+
+
 class ControlWindow(QMainWindow):
     def __init__(self, worker):
         super().__init__()
@@ -355,15 +419,15 @@ class ControlWindow(QMainWindow):
         self.progress.setTextVisible(False)
         box.addWidget(self.progress)
         self.file_modes = self._modes(box, 'file')
-        self.research_toggle = QPushButton('Show v4.0 Remastered Research Preview')
+        self.research_toggle = QPushButton('Show v4.0 Remastered (Experimental ALIVE)')
         self.research_toggle.setCheckable(True)
         box.addWidget(self.research_toggle)
-        research = QGroupBox('v4.0 Remastered — Research Preview')
+        research = QGroupBox('v4.0 Remastered — Experimental ALIVE')
         self.research_panel = research
         research.setVisible(False)
         self.research_toggle.toggled.connect(research.setVisible)
         self.research_toggle.toggled.connect(lambda shown: self.research_toggle.setText(
-            ('Hide' if shown else 'Show') + ' v4.0 Remastered Research Preview'))
+            ('Hide' if shown else 'Show') + ' v4.0 Remastered (Experimental ALIVE)'))
         research_box = QVBoxLayout(research)
         research_box.addWidget(label('0% is exact original; 100% is the governed research baseline. Intensity controls permitted DSP depth, not volume.'))
         self.research_mode = QComboBox()
@@ -393,10 +457,20 @@ class ControlWindow(QMainWindow):
         row.addWidget(self.apply_research)
         row.addWidget(self.cancel_research)
         research_box.addLayout(row)
+        self.research_progress = QProgressBar()
+        self.research_progress.setAccessibleName('Remastered preparation active (duration unknown)')
+        self.research_progress.setRange(0, 1)
+        self.research_progress.setTextVisible(False)
+        self.research_progress.setVisible(False)
+        research_box.addWidget(self.research_progress)
+        self.research_admission = label('Load an ALIVE recording to check eligibility.')
+        research_box.addWidget(self.research_admission)
         self.research_status, self.research_summary = label(), label()
         research_box.addWidget(self.research_status)
-        research_box.addWidget(self.research_summary)
-        research_box.addWidget(label('44.1/48 kHz mono/stereo, up to 30 seconds. Audio continues during preparation. Original / Bypass restores the source. REVISE / INCONCLUSIVE; listening acceptance pending.'))
+        # Full depth, numerical and peak reports appear in unified Diagnostics.
+        research_box.addWidget(label('Remastered ALIVE remains an experimental '
+                                     'mode (REVISE / INCONCLUSIVE). The loading '
+                                     'bar indicates work, not a measured percent.'))
         box.addWidget(research)
         box.addWidget(label('Listening output (shared with LIVE)'))
         self.file_output = QComboBox()
@@ -521,10 +595,10 @@ class ControlWindow(QMainWindow):
         self.live_status, self.live_error = label(), label()
         box.addWidget(self.live_status)
         box.addWidget(self.live_error)
-        box.addWidget(label('LIVE diagnostics — scroll inside this panel to read all counters.'))
+        box.addWidget(label('Diagnostics — ALIVE / LIVE (scroll for render status and counters)'))
         self.health = QPlainTextEdit()
         self.health.setReadOnly(True)
-        self.health.setAccessibleName('LIVE health and diagnostics (scrollable)')
+        self.health.setAccessibleName('ALIVE and LIVE diagnostics (scrollable)')
         self.health.setMinimumHeight(230)
         self.health.setMaximumHeight(300)
         self.health.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
@@ -726,10 +800,20 @@ class ControlWindow(QMainWindow):
         self.live_engine.setEnabled(bool(available and s.source == 'system'))
         self.live_intensity.setEnabled(bool(available and s.source == 'system'))
         self.apply_live_intensity.setEnabled(bool(available and s.source == 'system'))
-        self.research_mode.setEnabled(bool(available and s.can_play))
-        self.research_intensity.setEnabled(bool(available and s.can_play))
-        self.apply_research.setEnabled(bool(available and s.can_play))
-        self.cancel_research.setEnabled(bool(available and s.research_pending))
+        admitted, admission_note = remastered_readiness(s)
+        pending = bool(s is not None and s.research_pending)
+        prepared = bool(available and s is not None and s.can_play)
+        self.research_mode.setEnabled(prepared and not pending)
+        self.research_intensity.setEnabled(prepared and not pending)
+        self.apply_research.setEnabled(bool(available and admitted and not pending))
+        self.cancel_research.setEnabled(bool(available and pending))
+        self.research_admission.setText(admission_note)
+        self.research_progress.setVisible(pending)
+        if pending:
+            self.research_progress.setRange(0, 0)  # Indeterminate, never a guessed %.
+        else:
+            self.research_progress.setRange(0, 1)
+            self.research_progress.setValue(0)
         # Preserve ALIVE mouse presses between 50 ms status refreshes. The
         # final can_play gate below manages all four buttons without an
         # intermediate disable/re-enable cycle.
@@ -764,10 +848,13 @@ class ControlWindow(QMainWindow):
                 self.research_mode.setCurrentIndex(self.research_mode.findData(s.research_mode))
                 self.research_intensity.setValue(s.research_intensity // 5)
             self._research_initialized = True
-        active = (f'Active: {s.research_mode.title()} Remastered — {s.research_intensity}%'
-                  if s.research_active else 'Active: ' + s.file_mode.title())
-        self.research_status.setText(active + '\n' + s.research_status)
-        self.research_summary.setText(s.research_summary)
+        active = (f'Now playing: {s.research_mode.title()} Remastered — {s.research_intensity}% depth'
+                  if s.research_active else 'Now playing: ' + s.file_mode.title())
+        if s.research_pending:
+            self.research_status.setText(active + '\nPreparing separately: ' + s.research_status)
+        else:
+            self.research_status.setText(active)
+        self.research_summary.setText('')  # Detailed report is in Diagnostics.
         self.file_status.setText(s.preparation if s.file_state.value == 'File preparation in progress' else
                                  ('Open an audio file to begin' if not s.duration else s.file_state.value))
         self.file_next_step.setText(alive_next_step(s, busy=self.busy))
@@ -846,7 +933,7 @@ class ControlWindow(QMainWindow):
             self.live_error.setText('')
         if s.file_warning:
             self.file_error.setText(s.file_warning)
-        self._update_health(s.live_health)
+        self._update_health(audio_diagnostics(s))
 
     def closeEvent(self, event):
         if self.closed_cleanly or self.failed_initialize:

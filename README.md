@@ -170,6 +170,19 @@ YouTube / Mac system audio → BlackHole 2ch → ISLA LIVE → physical speakers
 
 ISLA deliberately **does not change the macOS default sound output automatically**. You must restore that setting when finished.
 
+### Bluetooth stereo speakers / headphones (experimental)
+
+Bluetooth speakers and headphones can be selected as ISLA's **physical stereo output**, if Core Audio and PortAudio both identify a unique, connected stereo device that accepts 44.1 or 48 kHz. Wireless output is **not guaranteed**: Bluetooth adds device buffering, latency and possible clock drift/dropouts, so this is a listening convenience, **not** a low-latency or video-sync claim.
+
+1. Pair and connect your Bluetooth speaker/headphones in **System Settings → Bluetooth**. Verify ordinary Mac playback first at a comfortable volume. If the device presents separate hands-free/mono and stereo profiles, choose the stereo output and do not use its microphone as ISLA's input.
+2. With ISLA stopped, inspect its current `devices` list. Use `setup audio` to choose standalone **BlackHole 2ch** for input and the **exact listed Bluetooth stereo device** for output. Alternatively, use `source system`, `input "BlackHole 2ch"`, and `output "<exact listed Bluetooth device name>"` inside `isla>`. The name is discovered on your Mac; these commands do not pair hardware.
+3. In **Audio MIDI Setup**, use matching supported stereo formats for BlackHole and the Bluetooth output where configurable. Try 48 kHz first; if unsupported, try 44.1 kHz with `monitor start 44100` after matching BlackHole. ISLA refuses unsupported device/rate combinations rather than silently changing them.
+4. Manually set **macOS System Settings → Sound → Output** to **BlackHole 2ch**, *not* the Bluetooth speaker. The route is: Mac audio → BlackHole → ISLA LIVE → Bluetooth. Recheck the macOS default output after pairing or reconnecting, since macOS can switch it.
+5. At `isla>`, run `bypass`, then `monitor start` (or `monitor start 44100`), and `status`. Confirm sound, output name and counter behavior before trying modes. Avoid other monitors or Multi-Output/Aggregate devices, which can produce doubled sound.
+6. Stop ISLA **before** reconnecting, changing Bluetooth profiles or moving devices: `monitor stop`; reconnect, refresh `devices` and select the output again. If device listings remain stale, restart ISLA. Restore the usual Mac output in System Settings when finished.
+
+If audio crackles, stops or feels substantially delayed, check `status` for underflows/overflows, test another supported rate, and use wired speakers/headphones for the more dependable baseline. No Bluetooth latency compensation, automatic handoff or native acceptance is claimed here.
+
 ### 3. Launch ISLA and confirm Bypass
 
 **First, run these commands in macOS Terminal** (where your shell prompt usually ends in `%` or `$`). Reopen Terminal after the BlackHole restart, if needed:

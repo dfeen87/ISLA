@@ -120,6 +120,59 @@ def test_mouse_guided_devices_mismatch_recheck_start_stop_and_modes(app):
         close_window(app, w, c)
 
 
+
+def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable(app):
+    """UI switches Bypass/Velvet/Legato/Melt without stopping or creating streams."""
+    import numpy as np
+
+    w, c, live, _, _, routing = window_session(app)
+    try:
+        w.capture.setCurrentIndex(1)
+        w.output.setCurrentIndex(1)
+        # Qt state is refreshed by its event timer; selection alone does not
+        # synchronously enable the button until the next UI update.
+        wait_ui(app, lambda: w.apply_devices.isEnabled())
+        click(app, w, w.apply_devices)
+        click(app, w, w.start_live)
+        assert len(live.streams) == 1
+        stream = live.streams[0]
+
+        # Actual StreamingDSP is fed by the fake transport, not replaced with
+        # a mock. No native Mac audio or perceptual effect is claimed here.
+        for _ in range(8):
+            stream.pump(np.zeros((512, 2), np.float32))
+        for mode in ('velvet', 'legato', 'melt', 'bypass'):
+            click(app, w, w.live_modes[mode])
+            assert c.live.running and c.live.mode == mode
+            assert w.live_modes[mode].isChecked()
+            assert sum(button.isChecked() for button in w.live_modes.values()) == 1
+            stream.pump(np.full((512, 2), .12, np.float32))
+            wait_ui(app, lambda: w.state.live_applied_mode == mode, timeout=5)
+            assert c.live.processor.mode == mode
+            assert 'DSP worker' in w.live_mode_status.text()
+            assert len(live.streams) == 1
+
+        # The visible diagnostics control has a real scrollbar. A changing
+        # status snapshot must not forcibly return the user's viewport to top.
+        bar = w.health.verticalScrollBar()
+        assert bar.maximum() > 0
+        bar.setValue(bar.maximum())
+        previous = w.health.toPlainText()
+        c.live.underflows += 3
+        wait_ui(app, lambda: w.health.toPlainText() != previous)
+        assert bar.value() == bar.maximum()
+        bar.setValue(0)
+        previous = w.health.toPlainText()
+        c.live.underflows += 2
+        wait_ui(app, lambda: w.health.toPlainText() != previous)
+        assert bar.value() == 0
+        assert 'Recovery attempts/completed/failed' in w.health.toPlainText()
+        assert len(live.streams) == 1
+        click(app, w, w.stop_live)
+        assert live.streams[0].closed
+    finally:
+        close_window(app, w, c)
+
 def test_preparation_failure_recovers_with_error_visible_and_close_works(app):
     w, c, *_ = window_session(app)
     try:

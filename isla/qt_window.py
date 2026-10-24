@@ -16,7 +16,7 @@ import time
 from PySide6.QtCore import QEvent, QTimer, Qt
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
-    QApplication, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
+    QApplication, QButtonGroup, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
     QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
     QVBoxLayout, QWidget,
 )
@@ -169,6 +169,7 @@ class ControlWindow(QMainWindow):
     def __init__(self, worker):
         super().__init__()
         self.worker = worker
+        self._mode_groups = {}
         self.state = None
         self.busy = 'initialize'
         self.started = time.monotonic()
@@ -222,9 +223,15 @@ class ControlWindow(QMainWindow):
     def _modes(self, layout, source):
         row = QGridLayout()
         buttons = {}
+        # Exclusive selection is a mode choice, not four independent on/off
+        # switches. Backend snapshots remain authoritative after each click.
+        group = QButtonGroup(self)
+        group.setExclusive(True)
+        self._mode_groups[source] = group
         for name, value in [('Original / Bypass', 'bypass'), ('Velvet', 'velvet'), ('Legato', 'legato'), ('Melt', 'melt')]:
             button = QPushButton(name)
             button.setCheckable(True)
+            group.addButton(button)
             if source == 'file':
                 command = 'bypass' if value == 'bypass' else 'mode ' + value
                 button.clicked.connect(lambda checked=False, cmd=command: self.submit('file', cmd))
@@ -316,13 +323,18 @@ class ControlWindow(QMainWindow):
         row.addWidget(self.stop_live)
         box.addLayout(row)
         self.live_modes = self._modes(box, 'live')
+        self.live_mode_status = label('Select a mode for LIVE monitoring.')
+        box.addWidget(self.live_mode_status)
         self.live_status, self.live_error = label(), label()
         box.addWidget(self.live_status)
         box.addWidget(self.live_error)
+        box.addWidget(label('LIVE diagnostics — scroll inside this panel to read all counters.'))
         self.health = QPlainTextEdit()
         self.health.setReadOnly(True)
-        self.health.setAccessibleName('LIVE health and diagnostics')
-        self.health.setMaximumHeight(155)
+        self.health.setAccessibleName('LIVE health and diagnostics (scrollable)')
+        self.health.setMinimumHeight(230)
+        self.health.setMaximumHeight(300)
+        self.health.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         box.addWidget(self.health)
         box.addWidget(label(RESTORE_OUTPUT))
         return panel
@@ -418,6 +430,21 @@ class ControlWindow(QMainWindow):
                 combo.setCurrentIndex(i)
                 break
 
+    def _update_health(self, value):
+        # LIVE metrics refresh continuously. setPlainText() resets the viewport
+        # unless we restore it, making the lower counters effectively unreadable.
+        old_text = self.health.toPlainText()
+        if value == old_text:
+            return
+        scroll = self.health.verticalScrollBar()
+        old_position, old_maximum = scroll.value(), scroll.maximum()
+        follow_tail = bool(old_text) and old_position >= old_maximum - 1
+        self.health.setPlainText(value)
+        if follow_tail:
+            scroll.setValue(scroll.maximum())
+        else:
+            scroll.setValue(min(old_position, scroll.maximum()))
+
     def apply_state(self):
         s = self.state
         available = s is not None and not self.busy and not self.closing
@@ -461,15 +488,26 @@ class ControlWindow(QMainWindow):
             button.setEnabled(bool(available and s.can_play))
             button.setChecked(('original' if mode == 'bypass' else mode) == s.file_mode)
         for mode, button in self.live_modes.items():
+            # Mode selection is allowed while LIVE is running; the worker
+            # updates the original StreamingDSP at the next processed hop.
             button.setEnabled(bool(available and s.source == 'system'))
             button.setChecked(mode == s.live_mode)
+        chosen = s.live_mode.title()
+        if s.live_active:
+            if s.live_applied_mode == s.live_mode:
+                self.live_mode_status.setText(f'LIVE mode: {chosen} — selected by the DSP worker.')
+            else:
+                self.live_mode_status.setText(
+                    f'LIVE mode: {chosen} — waiting for the next processed audio block.')
+        else:
+            self.live_mode_status.setText(f'LIVE mode: {chosen} — selected for the next start.')
         self.routing.setText(f"{'LIVE routing ready' if s.routing_ready else 'LIVE is not ready'}\nCurrent macOS output: {s.system_output}\nRequired macOS output: BlackHole 2ch\nISLA Capture: {s.capture}\nISLA Physical Playback: {s.output}")
         self.next_action.setText(s.routing_message + ('\nNext action: ' + MANUAL_SETTINGS + ' Return to ISLA and click Recheck Audio Routing.' if not s.routing_ready else
                                 '\nNext action: Apply LIVE Devices / Select LIVE Source.' if s.source != 'system' or dirty_devices else ''))
         self.live_status.setText('LIVE stopping' if self.busy in ('stop', 'shutdown') else s.live_state.value)
         if s.file_warning:
             self.file_error.setText(s.file_warning)
-        self.health.setPlainText(s.live_health)
+        self._update_health(s.live_health)
 
     def closeEvent(self, event):
         if self.closed_cleanly or self.failed_initialize:

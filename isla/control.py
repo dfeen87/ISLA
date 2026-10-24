@@ -71,6 +71,7 @@ class ControlState:
     can_configure: bool
     can_start: bool
     closed: bool
+    live_applied_mode: str | None
 
 
 class ControlService:
@@ -287,7 +288,8 @@ class ControlService:
             self.ready, self.routing_message, self.error, p.warning, live.status(),
             stream_active, live_active, bool(p.buffers) and not preparing and not live_active,
             not stream_active, not stream_active,
-            not stream_active and devices_selected and self.ready and c.source == 'system', self.closed)
+            not stream_active and devices_selected and self.ready and c.source == 'system', self.closed,
+            getattr(getattr(live, 'processor', None), 'mode', None) if live_active else None)
 
     def shutdown(self):
         self._enter()

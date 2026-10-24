@@ -12,7 +12,7 @@ Date: 2026-10-24. Base: `6179f0721a15808ca183a699860ca87aa6a32352` (latest verif
 | Apply selected capture/output | Existing controller device commands, only with audio stopped |
 | Recheck / readiness | Existing read-only `CoreAudioRouting.snapshot/validate`; native identity tokens |
 | Start LIVE | Fresh enumeration/identity validation → existing `LiveMonitor.start` → `SystemCaptureBackend.configure/open` and native stream validation |
-| LIVE modes, health and stop | Same controller's `LiveMonitor`; existing bounded recovery, latency and fail-closed guards |
+| LIVE modes, health and stop | Same controller's `LiveMonitor` and LIVE DSP worker; mode selection remains available while monitoring and the UI shows the requested mode versus the last DSP-worker mode; scrollable health text preserves manual viewport position |
 | Open Sound Settings | `/usr/bin/open x-apple.systempreferences:com.apple.Sound-Settings.extension`; five-second timeout and manual Apple menu fallback |
 | Window close / desktop Quit | Serialized cleanup; ownership returns only after successful stop/cancel |
 
@@ -57,3 +57,11 @@ No native Mac desktop or physical audio devices are available in this execution 
 - Bluetooth pairing, device eligibility, sustained audio, latency, reconnect and profile behavior require separate real-device acceptance. No physical Bluetooth claim follows from fake-device or hosted tests.
 
 A native call stuck permanently in an OS driver cannot be safely killed from Python. The UI stays responsive and retains ownership; normal closure waits or retries cleanup. Process termination may be necessary in that case. A hard process kill can leave existing preparation temporary files, as with the terminal. There is no automatic default-device restoration.
+
+## Step 4 usability follow-up — LIVE modes and diagnostics
+
+- Modes are mutually exclusive buttons, not independent toggles. Clicking Velvet, Legato, Melt or Bypass while LIVE is running changes the requested `LiveMonitor.mode` without restarting the stream. The existing monitor worker samples the mode on each input hop and applies it through the unchanged `StreamingDSP`. The interface separately displays the selected mode and the mode currently observed on the DSP worker, so users can tell whether an audio block has passed since the change.
+- The LIVE diagnostics panel has a visible vertical scrollbar and a larger readable viewport. Repeated status updates preserve the reader's position; when scrolled to the bottom it continues to follow new measurements, while scrolling up does not snap back to the top or bottom.
+- Automated checks must switch all four modes during a single running fake transport, observe the worker's DSP mode, verify only one stream, test both top/bottom scroll preservation, and exercise LIVE stop/cleanup. These are software correctness checks, **not native macOS listening acceptance**.
+- Native owner review: while playing real system audio through BlackHole, click each mode and compare to Bypass at similar loudness. Processing may sound subtle; numerical mode selection does not establish audible preference. Scroll the diagnostics pane during active monitoring and inspect recovery, overflow and latency counters without the view jumping. Use both trackpad and scrollbar where possible.
+- No change to the frozen research manifest, `isla/live.py`, `isla/streaming.py`, audio callback, safety thresholds or production DSP.

@@ -106,7 +106,10 @@ Existing tests retain long-file/rate admission, supersession, real process
 cancellation, decode, mode switching, safety stops, output identity safeguards,
 launch commands, full research regressions and frozen-hash verification.
 The only existing test-fixture updates add explicit stereo metadata to synthetic
-loaded-file snapshots; no acceptance assertion or gate was removed.
+loaded-file snapshots; no acceptance assertion or gate was removed. New research
+publication/preparation tests use the existing `test_remastered*` naming convention
+so production-only acceptance remains independent of research. All eight new
+regressions run in the complete suite with optional GUI installed.
 
 Local final code verification (Linux, Python 3.12, optional GUI installed):
 
@@ -114,7 +117,7 @@ Local final code verification (Linux, Python 3.12, optional GUI installed):
 | --- | --- |
 | Focused hardening regressions | 8 passed |
 | Complete suite, no research exclusions | 825 passed, 8 skipped, 1 expected failure |
-| Production-only suite, existing exclusions | 471 passed, 8 skipped, 1 expected failure |
+| Production-only suite, existing exclusions | 467 passed, 8 skipped, 1 expected failure |
 | Remastered intensity matrix | 60 cells PASS |
 | LIVE Remastered equivalence/retained-state matrix | 60 cells PASS |
 | PCM comparison probe | 6 sources; exact expected static and transition output |

@@ -252,7 +252,7 @@ def test_live_remastered_diagnostics_do_not_move_sound_effect_controls(app):
             'Remastered LIVE Velvet — 100% permitted depth; applied depth 0.0333; '
             'vetoed 2740/16668 frames; sample peak 0.31589; '
             '1536-sample DSP delay; REVISE / INCONCLUSIVE',
-            '\\n'.join(f'Frame {i}: vetoed {i * 217}, peak 0.{i:05d}, '
+            '\n'.join(f'Frame {i}: vetoed {i * 217}, peak 0.{i:05d}, '
                       'applied depth 0.0333; REVISE / INCONCLUSIVE' for i in range(25)),
         )
         positions = []

@@ -199,7 +199,7 @@ def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
         wait_ui(app, lambda: w.worker._last_device_refresh != 0.)
         assert not rescans
         click(app, w, w.stop_live)
-        assert not live.running and live.streams[0].closed
+        assert not c.live.running and live.streams[0].closed
         assert not rescans, 'Stop LIVE must not enumerate native devices'
         assert w.refresh.isEnabled() and w.recheck.isEnabled()
         assert not w.state.routing_ready

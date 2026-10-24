@@ -166,7 +166,7 @@ def test_stop_live_is_independent_of_expensive_device_enumeration(monkeypatch):
             raise RuntimeError("CoreAudio device scan blocked")
         monkeypatch.setattr(service, 'refresh_devices', forbidden_scan)
         assert 'stopped' in service.stop_live().lower()
-        assert not live.running and not service.snapshot().routing_ready
+        assert not c.live.running and not service.snapshot().routing_ready
         assert 'Recheck audio routing' in service.snapshot().routing_message
     finally:
         service.shutdown()

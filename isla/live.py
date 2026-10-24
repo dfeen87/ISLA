@@ -146,6 +146,10 @@ class LiveMonitor:
         self.stream = self.worker = None
         self.config = None
         self.mode = "bypass"
+        # Listening attenuation is local to ISLA's physical output. The
+        # virtual BlackHole capture and macOS system volume are untouched.
+        self.monitor_volume = 100
+        self._applied_gain = 1.0
         self.state = "Stopped"
         self.error = ""
         self.halt = threading.Event()
@@ -193,6 +197,7 @@ class LiveMonitor:
             self._factory = factory
             self.processor = factory(rate, self.config.channels)
             self.processor.select(self.mode)
+            self._applied_gain = self.monitor_volume / 100.0
             self.input = BlockRing(self.config.channels)
             self.output = BlockRing(self.config.channels)
             self.halt.clear()
@@ -219,6 +224,27 @@ class LiveMonitor:
             raise ValueError("Choose velvet, legato, melt, or bypass.")
         self.mode = mode
         # Only the worker touches DSP state; it samples this reference each hop.
+
+    def set_monitor_volume(self, percent):
+        """Set bounded ISLA listening attenuation; 100% means exact unity."""
+        if isinstance(percent, bool) or not isinstance(percent, int) or not 0 <= percent <= 100:
+            raise ValueError("LIVE listening volume must be an integer from 0 to 100%.")
+        self.monitor_volume = percent
+
+    def _apply_monitor_volume(self, result):
+        """Worker-only, bounded 5 ms output ramp; DSP/recovery state is unchanged."""
+        target = self.monitor_volume / 100.0
+        previous = self._applied_gain
+        if target != previous:
+            frames = min(len(result), max(2, round(self.config.rate * .005)))
+            ramp = np.linspace(previous, target, frames, dtype=np.float32)[:, None]
+            np.multiply(result[:frames], ramp, out=result[:frames])
+            if frames < len(result) and target != 1.0:
+                result[frames:] *= target
+            self._applied_gain = target
+        elif target != 1.0:
+            result *= target
+        return result
 
     def _fault(self, message, device=False, ring=False):
         if self.halt.is_set():
@@ -402,6 +428,7 @@ class LiveMonitor:
                     continue
                 if result.shape != block.shape or not np.isfinite(result).all():
                     raise AudioError("DSP produced invalid audio; stopped safely.")
+                self._apply_monitor_volume(result)
                 self.output_rms = float(np.sqrt(np.mean(np.square(result, dtype=np.float64))))
                 if not self.output.push(result, stamp - self.processor.delay / self.config.rate):
                     self.overflows += 1
@@ -448,6 +475,7 @@ class LiveMonitor:
                 f"Input: {config.input_name if config else 'Not opened'}\n"
                 f"Output: {config.output_name if config else 'Not opened'}\n"
                 f"Sample rate: {config.rate if config else 'Not opened'}\n"
+                f"ISLA listening volume: {self.monitor_volume}% (physical output only)\n"
                 f"Latency (ADC/DAC estimate): {f'{latency:.1f} ms' if latency is not None else 'Pending audio'}\n"
                 f"Signal RMS (input/output): {getattr(self, 'input_rms', 0):.5f} / {getattr(self, 'output_rms', 0):.5f}\n"
                 f"Underflows: {getattr(self, 'underflows', 0)}; Overflows: {getattr(self, 'overflows', 0)}; "

@@ -72,6 +72,7 @@ class ControlState:
     can_start: bool
     closed: bool
     live_applied_mode: str | None
+    monitor_volume: int
 
 
 class ControlService:
@@ -205,6 +206,10 @@ class ControlService:
         self._fresh_selection(self.selected_capture, self.selected_output)
         if not self.check_routing():
             raise AudioError(self.routing_message)
+        # In the graphical workflow Start LIVE always begins in original
+        # Bypass; effect selection is deliberately a separate next step.
+        # Terminal-only commands retain their existing semantics.
+        c.live.select('bypass')
         # The existing monitor independently checks channel/rate settings,
         # routing, opened native stream IDs, latency and ongoing device health.
         return c.execute(f"monitor start {self.rate}")
@@ -253,6 +258,11 @@ class ControlService:
             raise AudioError("Select Bypass, Velvet, Legato or Melt.")
         self.controller.live.select(mode)
 
+    def set_monitor_volume(self, percent):
+        self._enter()
+        self.controller.live.set_monitor_volume(percent)
+        return f"ISLA listening volume: {percent}% (does not change macOS volume)."
+
     def poll(self):
         self._enter()
         self.controller.poll()
@@ -289,7 +299,8 @@ class ControlService:
             stream_active, live_active, bool(p.buffers) and not preparing and not live_active,
             not stream_active, not stream_active,
             not stream_active and devices_selected and self.ready and c.source == 'system', self.closed,
-            getattr(getattr(live, 'processor', None), 'mode', None) if live_active else None)
+            getattr(getattr(live, 'processor', None), 'mode', None) if live_active else None,
+            live.monitor_volume)
 
     def shutdown(self):
         self._enter()

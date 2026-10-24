@@ -139,6 +139,52 @@ def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
     assert backend.streams[0].closed and not monitor.running
 
 
+
+def test_live_listening_volume_attenuates_worker_output_without_changing_bypass():
+    """The real worker scales its output queue, not the original capture input."""
+    backend = FakeBackend()
+    monitor = LiveMonitor(
+        backend, processor_factory=PassThrough,
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
+    )
+    monitor.start("BlackHole 2ch", "Test speakers")
+    warmup(monitor)
+    signal = np.full((BLOCK, 2), .25, dtype=np.float32)
+
+    def render_blocks(count):
+        rendered = []
+        for _ in range(count):
+            rendered.append(monitor.stream.pump(signal))
+            wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
+            assert not monitor.halt.is_set(), monitor.error
+        return rendered
+
+    try:
+        # Normal 100% output remains the exact float32 bypass waveform.
+        dry = render_blocks(4)
+        np.testing.assert_array_equal(dry[-1], signal)
+        monitor.set_monitor_volume(50)
+        quiet = render_blocks(4)
+        np.testing.assert_allclose(quiet[-1], signal * .5, rtol=0, atol=1e-7)
+        assert np.isfinite(quiet[1]).all()
+        assert (quiet[1] <= signal).all() and (quiet[1] >= signal * .5).all()
+        assert monitor.mode == 'bypass' and monitor.monitor_volume == 50
+        monitor.set_monitor_volume(0)
+        muted = render_blocks(4)
+        assert np.count_nonzero(muted[-1]) == 0
+        monitor.set_monitor_volume(100)
+        restored = render_blocks(4)
+        np.testing.assert_array_equal(restored[-1], signal)
+        assert 'ISLA listening volume: 100%' in monitor.status()
+        for invalid in (-1, 101, 50.0, True, None):
+            with pytest.raises(ValueError, match="0 to 100"):
+                monitor.set_monitor_volume(invalid)
+        assert len(backend.streams) == 1
+    finally:
+        monitor.stop()
+    assert backend.streams[0].closed
+
+
 def test_manually_pumped_transport_does_not_timeout_during_runner_pause():
     backend = FakeBackend()
     monitor = LiveMonitor(

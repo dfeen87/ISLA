@@ -157,6 +157,39 @@ def test_live_start_stop_mode_duplicate_conflict_and_cleanup():
         c.close()
 
 
+
+def test_gui_live_start_defaults_original_and_monitor_volume_is_bounded():
+    s, c, backend, _, _, _ = selected_service()
+    try:
+        s.live_mode('melt')  # configured before starting
+        assert s.snapshot().live_mode == 'melt'
+        s.set_monitor_volume(35)
+        assert s.snapshot().monitor_volume == 35
+        with pytest.raises(ValueError, match='0 to 100'):
+            s.set_monitor_volume(101)
+        with pytest.raises(ValueError, match='0 to 100'):
+            s.set_monitor_volume(-1)
+        with pytest.raises(ValueError, match='0 to 100'):
+            s.set_monitor_volume(0.5)
+        s.start_live()
+        assert c.live.mode == 'bypass'
+        assert s.snapshot().monitor_volume == 35
+        assert len(backend.streams) == 1
+        for mode in ('velvet', 'legato', 'melt', 'bypass'):
+            s.live_mode(mode)
+            assert s.snapshot().live_mode == mode
+            assert len(backend.streams) == 1
+        s.set_monitor_volume(0)
+        assert c.live.monitor_volume == 0
+        s.set_monitor_volume(100)
+        assert c.live.monitor_volume == 100
+        s.stop_live()
+        assert backend.streams[0].closed
+    finally:
+        s.shutdown()
+        c.close()
+
+
 @pytest.mark.parametrize('change', ['missing_blackhole', 'unplug_output', 'rename_output', 'reindex', 'aggregate', 'ambiguous'])
 def test_device_refresh_and_start_fail_closed(change):
     s, c, live, _, devices, routing = selected_service()

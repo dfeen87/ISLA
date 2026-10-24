@@ -173,6 +173,50 @@ def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable
     finally:
         close_window(app, w, c)
 
+
+def test_start_live_original_effect_toggle_and_listening_volume(app):
+    """Start always selects Bypass; a second click on an effect resets Original."""
+    w, c, backend, _, _, _ = window_session(app)
+    try:
+        w.capture.setCurrentIndex(1)
+        w.output.setCurrentIndex(1)
+        wait_ui(app, lambda: w.apply_devices.isEnabled())
+        click(app, w, w.apply_devices)
+        click(app, w, w.live_modes['melt'])
+        assert c.live.mode == 'melt'
+        click(app, w, w.start_live)
+        assert c.live.mode == 'bypass'
+        assert w.live_modes['bypass'].isChecked()
+        assert len(backend.streams) == 1
+
+        for name in ('velvet', 'legato', 'melt'):
+            click(app, w, w.live_modes[name])
+            assert c.live.mode == name and w.live_modes[name].isChecked()
+            assert len([x for x in w.live_modes.values() if x.isChecked()]) == 1
+            click(app, w, w.live_modes[name])
+            assert c.live.mode == 'bypass' and w.live_modes['bypass'].isChecked()
+            assert len([x for x in w.live_modes.values() if x.isChecked()]) == 1
+        click(app, w, w.live_modes['velvet'])
+        click(app, w, w.live_modes['bypass'])
+        assert c.live.mode == 'bypass'
+
+        w.monitor_volume.setValue(35)
+        click(app, w, w.apply_volume)
+        assert w.state.monitor_volume == 35
+        assert c.live.monitor_volume == 35
+        assert '35%' in w.monitor_volume_status.text()
+        click(app, w, w.mute_volume)
+        assert w.state.monitor_volume == 0
+        assert w.mute_volume.text() == 'Unmute'
+        click(app, w, w.mute_volume)
+        assert w.state.monitor_volume == 35
+        assert len(backend.streams) == 1
+        click(app, w, w.stop_live)
+        assert backend.streams[0].closed
+    finally:
+        close_window(app, w, c)
+
+
 def test_preparation_failure_recovers_with_error_visible_and_close_works(app):
     w, c, *_ = window_session(app)
     try:

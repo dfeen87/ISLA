@@ -112,7 +112,8 @@ def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
     try:
         for block in blocks:
             rendered.append(monitor.stream.pump(block))
-            wait_for(lambda: monitor.output.count == 1)
+            wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
+            assert not monitor.halt.is_set(), monitor.error
         # One transport block of delay; no smoothing, clipping or gain change.
         np.testing.assert_array_equal(np.concatenate(rendered[1:]), np.concatenate(blocks[:-1]))
         assert "Running" in monitor.status() and monitor.latency_ms > 0
@@ -444,8 +445,12 @@ def test_pass_b_bad_input_device_status_and_processor_failure_are_safe():
         assert not out.any() and monitor.nonfinite == 1
         monitor.stream.pump(np.zeros((BLOCK, 2), np.float32),
                             SimpleNamespace(input_overflow=True, input_underflow=False))
+        assert monitor.recovery_attempts == 1 and not monitor.halt.is_set()
+        monitor.stream.pump(np.zeros((BLOCK, 2), np.float32),
+                            SimpleNamespace(input_overflow=True, input_underflow=False))
         wait_for(lambda: not monitor.running)
-        assert monitor.device_status == 1 and "discontinuity" in monitor.error
+        assert monitor.device_status == 2 and "discontinuity" in monitor.error
+        assert monitor.failed_recoveries == 1
     finally:
         monitor.stop()
     class Broken(PassThrough):
@@ -472,7 +477,9 @@ def test_native_startup_status_is_discarded_before_any_processing():
         monitor.stream.pump(np.zeros((BLOCK, 2), np.float32),
             SimpleNamespace(input_overflow=True, input_underflow=False))
         wait_for(lambda: not monitor.running)
-        assert "overflow=True" in monitor.error
+        assert "Repeated capture discontinuity" in monitor.error
+        assert monitor.input_overflows == WARMUP_BLOCKS + 1
+        assert monitor.recovery_attempts == 0
     finally:
         monitor.stop()
 

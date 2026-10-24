@@ -14,6 +14,7 @@ stop             Stop and reset to the beginning
 mode <name>      Select velvet, legato, or melt
 bypass           Select original audio for the active source
 devices          List input/output devices and channel counts
+setup audio      Guided LIVE setup: choose BlackHole input and physical output
 source system    Select LIVE system audio (BlackHole 2ch)
 source file      Return to the loaded-file player (stops LIVE)
 input <name|id>  Select the standalone BlackHole 2ch input
@@ -26,7 +27,7 @@ exit             Stop audio, release resources, and return to the shell"""
 
 
 class TerminalController:
-    def __init__(self, backend, preparation_factory=Preparation, live_backend=None):
+    def __init__(self, backend, preparation_factory=Preparation, live_backend=None, routing=None):
         self.player = BufferPlayer(backend)
         self.preparation_factory = preparation_factory
         self.job = None
@@ -36,6 +37,121 @@ class TerminalController:
         self.capture = "BlackHole 2ch"
         self.output = None
         self.live = LiveMonitor(live_backend if live_backend is not None else SystemCaptureBackend(backend))
+        self._setup_routing = routing
+        self._setup_stage = None
+        self._setup_inputs = []
+        self._setup_outputs = []
+        self._setup_input = None
+
+    @property
+    def setup_prompt(self):
+        if self._setup_stage == "input":
+            return "Select input (number/name or cancel): "
+        if self._setup_stage == "output":
+            return "Select output (number/name or cancel): "
+        return "isla> "
+
+    def _audio_setup_devices(self):
+        """Offer only individually verified Core Audio devices; do not guess on failure."""
+        from isla.coreaudio import CoreAudioRouting
+
+        if self._setup_routing is None:
+            self._setup_routing = CoreAudioRouting()
+        native, _ = self._setup_routing.snapshot()
+        portaudio = self.player.backend.devices()
+
+        def unique_native(name, direction):
+            found = [d for d in native if d["name"] == name and d["alive"] and d[direction]]
+            return found[0] if len(found) == 1 else None
+
+        captures = [d for d in portaudio if d["name"] == "BlackHole 2ch"
+                    and d["max_input_channels"] == 2]
+        blackhole = unique_native("BlackHole 2ch", "input")
+        if len(captures) != 1 or blackhole is None or blackhole["transport"] != "virt":
+            raise AudioError("Standalone BlackHole 2ch is missing or ambiguous. Check Audio MIDI Setup.")
+
+        outputs = []
+        for device in portaudio:
+            if device["max_output_channels"] < 2 or device["name"] == "BlackHole 2ch":
+                continue
+            if sum(d["name"] == device["name"] for d in portaudio) != 1:
+                continue
+            native_device = unique_native(device["name"], "output")
+            if native_device is not None and native_device["transport"] in CoreAudioRouting.PHYSICAL:
+                outputs.append(device)
+        if not outputs:
+            raise AudioError("No verified physical stereo output found. Reconnect speakers/headphones and retry.")
+        return captures, outputs
+
+    @staticmethod
+    def _audio_setup_menu(label, devices):
+        return label + "\n" + "\n".join(f"  [{d['index']}] {d['name']}" for d in devices)
+
+    def _cancel_audio_setup(self):
+        self._setup_stage = None
+        self._setup_inputs = []
+        self._setup_outputs = []
+        self._setup_input = None
+        return "Audio setup canceled; previous routing preserved."
+
+    def _begin_audio_setup(self):
+        if self.live.running or self.player.stream is not None:
+            raise ValueError("Stop LIVE monitoring or file playback before setup audio.")
+        captures, outputs = self._audio_setup_devices()
+        self._setup_inputs = captures
+        self._setup_outputs = outputs
+        self._setup_input = None
+        self._setup_stage = "input"
+        return ("ISLA — Audio Setup\n"
+                "Select BlackHole 2ch for capture, then a physical stereo output.\n"
+                "Type a listed number or exact name; type cancel to leave.\n"
+                + self._audio_setup_menu("Available capture inputs:", captures))
+
+    def _choose_audio_setup(self, line):
+        value = " ".join(shlex.split(line)).strip()
+        if value.casefold() == "cancel":
+            return self._cancel_audio_setup()
+        if value.casefold() == "help":
+            return "Choose a listed number or exact device name, or type cancel."
+        choices = self._setup_inputs if self._setup_stage == "input" else self._setup_outputs
+        matches = [d for d in choices if value == str(d["index"]) or value.casefold() == d["name"].casefold()]
+        if len(matches) != 1:
+            return ("Not an eligible " + ("input" if self._setup_stage == "input" else "physical stereo output")
+                    + ". Select a number/name shown below, or type cancel.\n"
+                    + self._audio_setup_menu("Available devices:", choices))
+        selected = matches[0]
+        if self._setup_stage == "input":
+            self._setup_input = selected
+            self._setup_stage = "output"
+            return (f"Capture selected: {selected['name']}\n"
+                    + self._audio_setup_menu("Available physical stereo outputs:", self._setup_outputs))
+
+        # Do not commit either selection until fresh devices have been validated.
+        if self.live.running or self.player.stream is not None:
+            self._cancel_audio_setup()
+            raise ValueError("Audio started while configuring; setup canceled. Stop audio and retry.")
+        try:
+            fresh_inputs, fresh_outputs = self._audio_setup_devices()
+            if not any(d["index"] == self._setup_input["index"] and d["name"] == self._setup_input["name"]
+                       for d in fresh_inputs):
+                raise AudioError("BlackHole device changed during setup. Retry.")
+            if not any(d["index"] == selected["index"] and d["name"] == selected["name"]
+                       for d in fresh_outputs):
+                raise AudioError("Output device changed during setup. Retry.")
+            # Only file playback state may be stopped; never start a live stream here.
+            self.player.stop()
+            self.output = self.player.backend.select_output(str(selected["index"]))
+            self.capture = self._setup_input["name"]
+            self.source = "system"
+        except Exception:
+            self._cancel_audio_setup()
+            raise
+        capture = self.capture
+        output = self.output
+        self._cancel_audio_setup()
+        return (f"Audio routing configured: {capture} -> {output}.\n"
+                "In macOS Sound > Output, manually choose BlackHole 2ch.\n"
+                'Then enter bypass and monitor start to listen (or status to inspect).')
 
     def poll(self):
         self.player.refresh()
@@ -60,6 +176,12 @@ class TerminalController:
         if command == "exit" and not values:
             self.close()
             return "Audio stopped.\nResources released.\nGoodbye from ISLA."
+        if self._setup_stage is not None:
+            return self._choose_audio_setup(line)
+        if command == "setup":
+            if values != ["audio"]:
+                raise ValueError("Usage: setup audio")
+            return self._begin_audio_setup()
         # A pending/failed file preparation must not prevent stopping LIVE.
         if self.source == "file":
             self.poll()
@@ -190,11 +312,12 @@ class TerminalController:
                     self.job.close()
                     self.job = None
                 self.closed = True
+                self._cancel_audio_setup()
 
 
-def run_terminal(input_fn=input, output_fn=print, backend=None):
+def run_terminal(input_fn=input, output_fn=print, backend=None, routing=None):
     try:
-        controller = TerminalController(backend if backend is not None else SoundDeviceBackend())
+        controller = TerminalController(backend if backend is not None else SoundDeviceBackend(), routing=routing)
     except AudioError as exc:
         output_fn(f"Error: {exc}")
         return 1
@@ -206,8 +329,14 @@ def run_terminal(input_fn=input, output_fn=print, backend=None):
             output_fn(f"Output unavailable: {exc}")
         while not controller.closed:
             try:
-                line = input_fn("isla> ")
-            except (EOFError, KeyboardInterrupt):
+                line = input_fn(controller.setup_prompt)
+            except KeyboardInterrupt:
+                if controller._setup_stage is not None:
+                    output_fn(controller._cancel_audio_setup())
+                    continue
+                output_fn(controller.execute("exit"))
+                break
+            except EOFError:
                 output_fn(controller.execute("exit"))
                 break
             try:

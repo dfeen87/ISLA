@@ -4,8 +4,8 @@ from drivers.http_server import app
 
 
 def test_package_version():
-    assert phased_music_notes.__version__ == isla.__version__ == "3.0.0"
+    assert phased_music_notes.__version__ == isla.__version__ == "3.1.0"
 
 
 def test_http_server_version():
-    assert app.version == "3.0.0"
+    assert app.version == "3.1.0"

@@ -10,6 +10,10 @@ from isla.local_preparation import prepare_file
 from isla.live import LiveMonitor, SystemCaptureBackend
 
 from isla.terminal_help import mode_name, next_step, render_help
+from isla.file_search import is_bare_filename
+from isla.search_preparation import SearchPreparation
+from isla.live_engine import LiveEngineFactory, LiveSettings, current_engine
+from isla.device_refresh import eligible_devices, refresh_portaudio
 
 
 class TerminalController:
@@ -22,7 +26,9 @@ class TerminalController:
         self.source = "file"
         self.capture = "BlackHole 2ch"
         self.output = None
-        self.live = LiveMonitor(live_backend if live_backend is not None else SystemCaptureBackend(backend, routing))
+        self.live_settings = LiveSettings()
+        self.live = LiveMonitor(live_backend if live_backend is not None else SystemCaptureBackend(backend, routing),
+                                processor_factory=LiveEngineFactory(self.live_settings))
         self._setup_routing = routing
         self._setup_stage = None
         self._setup_inputs = []
@@ -44,29 +50,12 @@ class TerminalController:
 
         if self._setup_routing is None:
             self._setup_routing = CoreAudioRouting()
+        refresh_portaudio(self)
         native, _ = self._setup_routing.snapshot()
         portaudio = self.player.backend.devices()
-
-        def unique_native(name, direction):
-            found = [d for d in native if d["name"] == name and d["alive"] and d[direction]]
-            return found[0] if len(found) == 1 else None
-
-        captures = [d for d in portaudio if d["name"] == "BlackHole 2ch"
-                    and d["max_input_channels"] == 2]
-        blackhole = unique_native("BlackHole 2ch", "input")
-        if len(captures) != 1 or blackhole is None or blackhole["transport"] != "virt":
+        captures,outputs = eligible_devices(native,portaudio)
+        if len(captures) != 1:
             raise AudioError("Standalone BlackHole 2ch is missing or ambiguous. Check Audio MIDI Setup.")
-        captures = [dict(captures[0], native_id=blackhole["id"])]
-
-        outputs = []
-        for device in portaudio:
-            if device["max_output_channels"] < 2 or device["name"] == "BlackHole 2ch":
-                continue
-            if sum(d["name"] == device["name"] for d in portaudio) != 1:
-                continue
-            native_device = unique_native(device["name"], "output")
-            if native_device is not None and native_device["transport"] in CoreAudioRouting.PHYSICAL:
-                outputs.append(dict(device, native_id=native_device["id"]))
         if not outputs:
             raise AudioError("No verified physical stereo output found. Reconnect speakers/headphones and retry.")
         return captures, outputs
@@ -290,6 +279,20 @@ class TerminalController:
                 return f"Capture selected: {self.capture}"
             self.output = self.player.backend.select_output(selector)
             return f"Output selected: {self.output}"
+        if command == 'engine':
+            if self.source != 'system':
+                raise ValueError('LIVE engine selection requires source system.')
+            if len(values) not in (1,2):
+                raise ValueError('Usage: engine production|remastered [0–100 in 5% steps]')
+            engine = current_engine(getattr(self.live,'processor',None))
+            if self.live.running and engine is None:
+                raise ValueError('Stop and restart LIVE with the standard engine before changing processing.')
+            try:
+                intensity = int(values[1]) if len(values) == 2 else self.live_settings.request.intensity
+            except ValueError as exc:
+                raise ValueError('Intensity must be an integer, 0–100 in 5% steps.') from exc
+            self.live_settings.set(values[0].lower(),intensity)
+            return f'LIVE engine requested: {values[0].title()}, {intensity}% permitted Remastered depth.'
         if command == "monitor":
             if len(values) in (1, 2) and values[0].lower() == "start":
                 if self.source != "system":
@@ -303,6 +306,8 @@ class TerminalController:
                     return ("LIVE monitoring is already active. Current mode: " + mode_name(self.live.mode)
                             + ".\nNEXT: Choose mode velvet, mode legato, mode melt, or bypass. "
                             "Use monitor stop before changing devices.")
+                if getattr(self,'_window_owner',None) is None:
+                    refresh_portaudio(self)
                 return self.live.start(self.capture, self.output, rate) + "\nNEXT: " + next_step(self)
             raise ValueError("Usage: monitor start [44100|48000] | monitor stop")
         if command == "load":
@@ -311,7 +316,15 @@ class TerminalController:
             if not values:
                 raise ValueError("Usage: load <path>")
             # Joining also accepts an unquoted pasted path containing spaces.
-            job = self.preparation_factory(" ".join(values))
+            requested = " ".join(values)
+            try:
+                job = self.preparation_factory(requested)
+            except ValueError as exc:
+                # Only a missing bare filename initiates discovery. Explicit
+                # paths and invalid/unsupported audio retain their exact errors.
+                if not is_bare_filename(requested) or not str(exc).startswith('Audio file not found:'):
+                    raise
+                job = SearchPreparation(requested,self.preparation_factory)
             try:
                 self.player.close()
                 if self.job is not None:
@@ -360,7 +373,10 @@ class TerminalController:
             return "Playback stopped."
         if command == "status":
             if self.source == "system":
-                return (self.live.status() + f"\nSelected input: {self.capture}\nSelected output: {self.output or 'None'}\nNEXT: " + next_step(self))
+                engine = current_engine(getattr(self.live,'processor',None))
+                return (self.live.status() + f"\nSelected input: {self.capture}\nSelected output: {self.output or 'None'}"
+                        + f"\nRequested LIVE engine: {self.live_settings.request.engine}, {self.live_settings.request.intensity}% permitted depth"
+                        + ('\n'+engine.diagnostics if engine is not None else '') + '\nNEXT: ' + next_step(self))
             try:
                 output = (self.player.output if self.player.stream is not None
                           else self.player.backend.output_name())

@@ -141,14 +141,17 @@ class CommandWorker:
                 elif action == 'poll':
                     state = self.service.poll()
                     now = time.monotonic()
-                    if now - self._last_device_refresh > 2:
+                    if self.service.devices_need_refresh or now - self._last_device_refresh > 2:
                         # CoreAudio/PortAudio enumeration can block in a native
                         # driver. Never do a background rescan while a stream is
                         # running: it delays Stop and competes with LIVE audio.
                         # The LIVE worker still validates its routing itself.
                         self._last_device_refresh = now
                         if not state.stream_active:
-                            self.service.refresh_devices()
+                            if self.service.devices_need_refresh:
+                                self.service.refresh_devices()
+                            else:
+                                self.service.refresh_devices(rescan=False)
                 else:
                     method = {'load': self.service.load_file, 'file': self.service.file_command,
                               'live_mode': self.service.live_mode, 'devices': self.service.select_devices,
@@ -156,7 +159,8 @@ class CommandWorker:
                               'refresh': self.service.refresh_devices, 'start': self.service.start_live,
                               'stop': self.service.stop_live, 'volume': self.service.set_monitor_volume,
                               'research': self.service.prepare_remastered,
-                              'cancel_research': self.service.cancel_remastered}[action]
+                              'cancel_research': self.service.cancel_remastered,
+                              'processing': self.service.set_live_processing}[action]
                     result = method(*args)
                     self.service.error = ''
                     if result:
@@ -387,6 +391,8 @@ class ControlWindow(QMainWindow):
         self.apply_devices = QPushButton('Apply LIVE Devices / Select LIVE Source')
         self.apply_devices.clicked.connect(lambda: self.submit('devices', self.capture.currentData(), self.output.currentData(), self.rate.currentData()))
         box.addWidget(self.apply_devices)
+        self.device_status = label('Device discovery pending.')
+        box.addWidget(self.device_status)
         box.addWidget(label('Step 3 — macOS Sound Routing'))
         self.routing = label('Routing has not been checked.')
         box.addWidget(self.routing)
@@ -412,6 +418,29 @@ class ControlWindow(QMainWindow):
         box.addLayout(row)
         # A single effect dropdown replaces four mode buttons. Start/Stop
         # remain explicit, independent actions for audio safety.
+        self.live_engine = QComboBox()
+        self.live_engine.setAccessibleName('LIVE processing engine')
+        self.live_engine.addItem('Original LIVE profiles','production')
+        self.live_engine.addItem('v4.0 Remastered LIVE','remastered')
+        self.live_engine.activated.connect(lambda index: self._apply_live_processing())
+        box.addWidget(self.live_engine)
+        self.live_intensity = QSlider(Qt.Orientation.Horizontal)
+        self.live_intensity.setAccessibleName('LIVE Remastered depth, 0 to 100 percent in 5 percent steps')
+        self.live_intensity.setRange(0,20)
+        self.live_intensity.setPageStep(1)
+        self.live_intensity.setValue(20)
+        self.live_intensity_value = label('100% Remastered permitted depth')
+        self.live_intensity.valueChanged.connect(lambda value: self.live_intensity_value.setText(
+            f'{value*5}% Remastered permitted depth'))
+        self.live_intensity.sliderReleased.connect(self._apply_live_processing)
+        box.addWidget(self.live_intensity)
+        box.addWidget(self.live_intensity_value)
+        self.apply_live_intensity = QPushButton('Apply LIVE Engine / Depth')
+        self.apply_live_intensity.clicked.connect(self._apply_live_processing)
+        box.addWidget(self.apply_live_intensity)
+        self.live_processing_status = label()
+        box.addWidget(self.live_processing_status)
+        box.addWidget(label('Remastered depth is independent of listening volume. 0% restores original audio; 100% uses the governed research depths. Research verdict: REVISE / INCONCLUSIVE.'))
         self.live_mode_choice = QComboBox()
         self.live_mode_choice.setAccessibleName('Step 4 LIVE sound effect')
         for name, mode in (('Original / Bypass', 'bypass'), ('Velvet', 'velvet'),
@@ -455,6 +484,11 @@ class ControlWindow(QMainWindow):
         self._dispatch_live_mode()
         self.apply_state()
         return True
+
+    def _apply_live_processing(self):
+        if not self.apply_live_intensity.isEnabled():
+            return False
+        return self.submit('processing',self.live_engine.currentData(),self.live_intensity.value()*5)
 
     def _dispatch_live_mode(self):
         # Only one command crosses the existing bounded worker queue at once.
@@ -594,7 +628,7 @@ class ControlWindow(QMainWindow):
         combo.clear()
         combo.addItem('Select a device…', None)
         for device in choices:
-            combo.addItem(device.name, device)
+            combo.addItem(device.name + (' (Bluetooth)' if device.transport in ('blue','blea') else ''), device)
         candidate = selected if committed_changed else old if old in choices else selected
         for i in range(combo.count()):
             if candidate == combo.itemData(i):
@@ -626,6 +660,9 @@ class ControlWindow(QMainWindow):
         for combo in (self.capture, self.output, self.file_output, self.rate):
             combo.setEnabled(bool(available and s.can_configure))
         self.monitor_volume.setEnabled(bool(available))
+        self.live_engine.setEnabled(bool(available and s.source == 'system'))
+        self.live_intensity.setEnabled(bool(available and s.source == 'system'))
+        self.apply_live_intensity.setEnabled(bool(available and s.source == 'system'))
         self.research_mode.setEnabled(bool(available and s.can_play))
         self.research_intensity.setEnabled(bool(available and s.can_play))
         self.apply_research.setEnabled(bool(available and s.can_play))
@@ -650,6 +687,14 @@ class ControlWindow(QMainWindow):
                 self.rate.setCurrentIndex(self.rate.findData(s.rate))
                 self._rate_initialized = True
         self.filename.setText(s.file_name or 'No file selected')
+        self.device_status.setText(s.device_status)
+        if not getattr(self,'_live_processing_initialized',False):
+            self.live_engine.setCurrentIndex(self.live_engine.findData(s.live_engine))
+            self.live_intensity.setValue(s.live_intensity//5)
+            self._live_processing_initialized = True
+        self.live_processing_status.setText(
+            f'Requested LIVE engine: {s.live_engine.title()} — {s.live_intensity}% Remastered depth.\n'
+            + (s.live_research_health if s.live_active else 'Applied on the next LIVE start; choose a sound effect after starting.'))
         if not getattr(self, '_research_initialized', False):
             if s.research_active:
                 self.research_mode.setCurrentIndex(self.research_mode.findData(s.research_mode))

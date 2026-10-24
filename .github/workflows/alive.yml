@@ -36,8 +36,13 @@ jobs:
       - name: Remastered intensity evidence (post-freeze engineering matrix)
         if: ${{ !cancelled() }}
         run: python -m tools.remastered_verify --output remastered-verification.json
+      - name: LIVE Remastered streaming equivalence and retained-state evidence
+        if: ${{ !cancelled() }}
+        run: python -m tools.remastered_live_verify --output remastered-live-verification.json
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: remastered-${{ matrix.os }}-python-${{ matrix.python }}
-          path: remastered-verification.json
+          path: |
+            remastered-verification.json
+            remastered-live-verification.json

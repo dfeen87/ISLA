@@ -1,5 +1,7 @@
 # ISLA — Let the Music Flow.
 
+**LIVE Remastered and easier setup:** the LIVE panel now offers **v4.0 Remastered LIVE** with 0–100% permitted depth. Paired Bluetooth outputs are labeled, and the device list refreshes after Stop. Bare song filenames can be found through Mac-wide Spotlight and media-folder search, including common `.ACC` / `.AAC` confusion. See [LIVE, Bluetooth routing and song discovery](docs/remastered/LIVE_AND_DISCOVERY.md).
+
 **ALIVE + LIVE · Velvet · Legato · Melt**
 
 [![Latest Release](https://img.shields.io/github/v/release/dfeen87/ISLA?display_name=tag&style=for-the-badge&logo=github&label=Release&color=8B5CF6)](https://github.com/dfeen87/ISLA/releases/latest)

@@ -24,7 +24,8 @@ from PySide6.QtWidgets import (
 
 from isla.control import ControlService, UIState
 from isla.audio_files import AUDIO_FILE_FILTER
-from isla.playback import ALIVE_GUI_PLAY_LEVEL_PERCENT, SoundDeviceBackend
+from isla.playback import SoundDeviceBackend
+from isla.alive_listening_gain import ALIVE_GUI_PLAY_LEVEL_PERCENT
 from isla.terminal import TerminalController
 
 SOUND_SETTINGS_URL = 'x-apple.systempreferences:com.apple.Sound-Settings.extension'

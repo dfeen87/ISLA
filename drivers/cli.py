@@ -20,6 +20,7 @@ def create_parser() -> argparse.ArgumentParser:
         epilog="""Examples:
   isla --input input.wav --output output.wav --mode velvet
   isla --input piano.wav --output piano_soft.wav --mode melt
+  isla window                 Open the optional desktop control center
         """,
     )
 
@@ -52,6 +53,9 @@ def main(argv=None) -> int:
     if not arguments:
         from isla.terminal import run_terminal
         return run_terminal()
+    if arguments == ["window"]:
+        from isla.window import run_window
+        return run_window()
     args = parser.parse_args(arguments)
     if not args.input or not args.output:
         parser.error("offline processing requires both --input and --output; use isla without arguments for ALIVE")

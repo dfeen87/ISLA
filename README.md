@@ -12,7 +12,7 @@
 
 **ISLA** is an open-source audio experiment exploring softer, more connected musical transitions through note smoothing and harmonic blending. It is for musicians, curious listeners, and developers who want to listen, compare, and help shape the sound.
 
-Listen to your Mac's audio through **LIVE**, or open a local recording in the **ALIVE** file player. Switch between **Velvet**, **Legato**, **Melt**, and the original sound with **Bypass**, all from the terminal.
+Listen to your Mac's audio through **LIVE**, or open a local recording in the **ALIVE** file player. Switch between **Velvet**, **Legato**, **Melt**, and the original sound with **Bypass**, from the terminal or the optional desktop control window.
 
 **Author:** Don Michael Feeney Jr. · **License:** [MIT](LICENSE)
 
@@ -24,7 +24,7 @@ Phased Music Notes was conceived to explore the hidden texture of classical pian
 
 > **Before you begin:** ALIVE and experimental LIVE are implemented on `main`. The checked-in package version is **3.1.1**, released as [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) following the published [v3.1.0 — DSP Stability & Hear the Difference](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0). These release tags preserve their respective historical commits. Recovery remains experimental and sustained native Mac acceptance is pending.
 
-**Start here:** [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
+**Start here:** [Graphical control center](#isla-control-center--graphical-interface) · [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
 
 **Explore:** [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
 
@@ -122,6 +122,76 @@ python -m pip show isla-audio
 You should see package information including `Name: isla-audio`. If the package is not found, check the output of `python -m pip install -e '.[playback]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA. A pip `[notice]` suggesting `pip install --upgrade pip` is optional and does not indicate an ISLA installation error.
 
 The environment must be activated in each new Terminal session. To use **local audio files only**, continue to [ALIVE](#alive-play-a-local-audio-file); BlackHole is unnecessary.
+
+## ISLA Control Center — Graphical Interface
+
+The optional **ISLA — Audio Control Center** provides clickable ALIVE playback and guided LIVE setup. The traditional terminal and offline exporter remain available. This is a development feature; physical macOS GUI/audio acceptance is pending. It does not integrate the research-only v4.0 algorithms.
+
+### Install and launch
+
+From your ISLA checkout, with your Python 3.10+ environment activated:
+
+~~~bash
+python -m pip install -e '.[gui]'
+isla window
+# Equivalent:
+python -m isla window
+~~~
+
+The `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and `sounddevice>=0.5,<0.6`. Qt is optional: existing base and `.[playback]` installations do not import or require it. PySide6 is the official Qt for Python binding; using its Essentials wheels avoids unrelated Qt modules. See the [Qt installation requirements](https://doc.qt.io/qtforpython-6/gettingstarted.html) and [dependency licenses](https://doc.qt.io/qtforpython-6/licenses.html). ISLA remains MIT licensed; Qt/PySide retain their own licenses and notices. No standalone bundled app or installer is supplied.
+
+Inside an existing `isla>` terminal, type **`window`**. It uses that same controller, file buffers and LIVE monitor; it does not spawn a second audio engine. Current playback/monitoring is preserved on entry. Finish or cancel a pending `setup audio` selection first. Closing the window stops audio and returns to the same terminal with an already prepared file retained. A pending preparation is canceled on close. From a shell-launched window, Close releases the session and returns to the shell.
+
+### ALIVE — play a WAV
+
+1. Click **Open WAV File…** and select a non-empty mono/stereo WAV. Preparation runs outside the window thread using the existing cancellable preparation process.
+2. Wait for **File ready**. Until then, Play and mode controls are disabled and the status explains what is happening.
+3. Click **Play**, **Pause**, or **Stop**. Position and duration update automatically. Select **Velvet**, **Legato**, **Melt**, or **Original / Bypass** to compare the existing prepared buffers and transitions.
+4. While stopped, choose an eligible listening output and click **Use Listening Output**. This output is shared with LIVE. On macOS, dropdown choices require verified physical stereo devices; the system default remains usable for ALIVE even when BlackHole is absent.
+
+Stop LIVE before opening a file. Stop file playback before changing devices or applying LIVE setup. There are no new gain, volume, slowdown or DSP parameters.
+
+### LIVE — guided Mac system audio
+
+Install standalone **BlackHole 2ch** separately using the [LIVE instructions below](#live-listen-to-your-mac). Then:
+
+1. **Capture Source:** choose **BlackHole 2ch**.
+2. **Physical Listening Device:** choose your verified stereo speakers/headphones, such as MacBook Pro Speakers or External Headphones when present. Select **44,100** or **48,000 Hz**, then click **Apply LIVE Devices / Select LIVE Source**. Virtual, Aggregate, Multi-Output, ambiguous and mono sinks are excluded.
+3. **macOS Sound Routing:** inspect the detected current system output. Click **Open Sound Settings**, then manually select **BlackHole 2ch** in macOS Sound → Output. Return and click **Recheck Audio Routing**. If the button cannot open the pane, use Apple menu → System Settings → Sound → Output.
+4. When ready, click **Start LIVE**. Compare the three existing modes and **Original / Bypass**. Click **Stop LIVE** when finished. Health details report the existing monitor state, latency estimate, counters and failures.
+
+Required arrangement:
+
+~~~text
+macOS Sound Output:     BlackHole 2ch
+ISLA Capture:           BlackHole 2ch
+ISLA Physical Playback: your selected physical speakers/headphones
+~~~
+
+System audio enters BlackHole, ISLA processes it, then ISLA plays it through your physical listening device. **Keep the physical device selected inside ISLA; select BlackHole as the macOS default during LIVE.** ISLA does not change macOS defaults or create a Multi-Output device. Start revalidates device identities, stereo/rate support, routing and actual opened stream handles even after a successful Recheck. The existing recovery limits, fail-closed routing and DSP safeguards remain active.
+
+### Readiness, troubleshooting and shutdown
+
+| Window message or condition | Next action |
+|---|---|
+| **Open an audio file to begin** | Open a WAV and wait for preparation; playback/mode buttons will then become available. |
+| **LIVE is not ready**, current output is External Headphones | Open Sound Settings, select **BlackHole 2ch**, return and Recheck. Keep the desired physical listening output inside ISLA. |
+| BlackHole missing, ambiguous, or no eligible output | Check Audio MIDI Setup, reconnect the device and click **Refresh Devices**. Apply a fresh selection. |
+| Device identity changed, stale PortAudio devices, or unplugged headphones | Stop audio, Refresh, select devices again and Recheck. If opened native IDs still disagree, close ISLA and relaunch to refresh PortAudio. |
+| Start LIVE disabled after switching back to ALIVE | Stop playback and click **Apply LIVE Devices / Select LIVE Source** again. |
+| Preparation fails | Read the adjacent error, choose a valid smaller mono/stereo WAV and retry. Close cancels preparation. |
+| Audio command takes over ten seconds | The window remains responsive and explains the delay. Close requests cleanup after the operation returns. Commands stay locked to prevent a competing engine. |
+| Cleanup reports a still-stopping audio worker | The window retains session ownership. Retry Close after it stops; it will not return a busy controller to the terminal. A permanently blocked native driver may require process termination; do not start another audio session. |
+
+After LIVE stops or the window closes, **restore your normal macOS Sound Output** if it still points to BlackHole; otherwise ordinary Mac audio can remain silent. Closing never rewrites system settings. A retained reminder is also shown in the LIVE panel. Use **Close Window / Return to CLI**, the native close control, or the desktop Quit action for cleanup. The window supports native keyboard focus/navigation, Open (Cmd+O on macOS) and Close (Cmd+W).
+
+For traditional operation, continue using `isla` or `python -m isla`. Existing offline export syntax remains:
+
+~~~bash
+isla --input input.wav --output output.wav --mode velvet
+~~~
+
+LIVE remains experimental and macOS-only, targeting macOS 13+ and a separate physical stereo output. Qt's platform support and the selected wheel also determine GUI OS compatibility. Linux offscreen tests and hosted macOS widget tests do not establish physical Mac, permission-dialog, listening or Bluetooth acceptance. Qt provides a possible future Windows UI boundary; **Windows LIVE capture/routing is not implemented**. See the [control mapping, verification and native checklist](docs/control-center/ACCEPTANCE.md).
 
 ## LIVE: Listen to your Mac
 
@@ -349,6 +419,7 @@ Use `velvet`, `legato`, or `melt`. The API is `smooth_file(input_path, output_pa
 | Command | File source (ALIVE) | System source (LIVE) |
 |---|---|---|
 | `help` / `devices` / `status` / `exit` | Supported | Supported |
+| `window` | Open the optional GUI using this session; close to return | Preserve the current monitor on entry; stop on close |
 | `source file` / `source system` | Switch to file or system source | Switch to file or system source |
 | `output "<name or index>"` | Select a device while stopped | Select a **physical** device while stopped |
 | `input "BlackHole 2ch"` | Configure capture for LIVE | Select standalone BlackHole 2ch (the default capture name) |
@@ -390,7 +461,7 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 - **Latency and buffers:** The LIVE DSP adds **32.00 ms at 48 kHz / 34.83 ms at 44.1 kHz**, plus queues and device latency. Native test sessions reported roughly **79–107 ms** in ADC/DAC timestamp estimates, not independent acoustic measurements. Bypass shares the processing delay; video sync can be affected. Fixed buffers can run dry and emit silence, while capture/ring failures can stop monitoring. Check `status` for counters and errors. There is no user-facing buffer-size command.
 - **Routing and recovery:** ISLA rejects virtual, Aggregate and Multi-Output sinks for LIVE, but cannot detect every other app's monitoring path. It does not change the Mac's system output or reconnect devices automatically. Stop monitoring before changing devices, and restore normal output in macOS when finished.
 - **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo is the guaranteed format; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
-- **Release status:** Python package, HTTP service and JUCE/CMake metadata are aligned at **3.1.1**. The [v3.0.0 — ALIVE + LIVE](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0), [v3.1.0 — DSP Stability](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) and [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) releases are published from separate pinned commits. Software checks alone do not establish native release acceptance of recovery. Longer-session, stress, physical-disconnect and broader hardware acceptance remain pending. Desktop GUI and mobile apps are future work; the JUCE plugin remains experimental.
+- **Release status:** Python package, HTTP service and JUCE/CMake metadata are aligned at **3.1.1**. The [v3.0.0 — ALIVE + LIVE](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0), [v3.1.0 — DSP Stability](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) and [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) releases are published from separate pinned commits. Software checks alone do not establish native release acceptance of recovery. Longer-session, stress, physical-disconnect and broader hardware acceptance remain pending. The optional desktop GUI requires separate native acceptance; mobile apps are future work; the JUCE plugin remains experimental.
 
 ## Engineering and evidence
 

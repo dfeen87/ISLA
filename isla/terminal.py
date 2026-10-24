@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import shlex
+import threading
 
 from isla.playback import AudioError, BufferPlayer, SoundDeviceBackend
 from isla.preparation import MODES, Preparation
@@ -22,8 +23,11 @@ output <name|id> Select speakers/headphones while audio is stopped
 monitor start [44100|48000]  Start LIVE; default 48000 Hz
 monitor stop     Stop LIVE and release the devices
 status           Show source, mode, file/monitor state, timing, and output
+window           Open the graphical controls for this session; close to return
 help             Show these commands
 exit             Stop audio, release resources, and return to the shell"""
+
+HELP += "\nLaunch from the shell: isla window or python -m isla window (optional .[gui] extra)."
 
 
 class TerminalController:
@@ -36,7 +40,7 @@ class TerminalController:
         self.source = "file"
         self.capture = "BlackHole 2ch"
         self.output = None
-        self.live = LiveMonitor(live_backend if live_backend is not None else SystemCaptureBackend(backend))
+        self.live = LiveMonitor(live_backend if live_backend is not None else SystemCaptureBackend(backend, routing))
         self._setup_routing = routing
         self._setup_stage = None
         self._setup_inputs = []
@@ -176,6 +180,16 @@ class TerminalController:
             return ""
         command, *values = args
         command = command.lower()
+        if (getattr(self, "_window_owner", None) is not None
+                and getattr(self, "_window_thread", None) != threading.get_ident()):
+            raise ValueError("The control window owns this session. Close it to return to terminal commands.")
+        if command == "window" and not values:
+            if self._setup_stage is not None:
+                raise ValueError("Finish setup audio or type cancel before opening window.")
+            from isla.window import run_window
+            code = run_window(controller=self)
+            return ("Control window closed; audio stopped. Terminal ready."
+                    if code == 0 else "Control window unavailable; terminal session preserved.")
         if command == "exit" and not values:
             self.close()
             return "Audio stopped.\nResources released.\nGoodbye from ISLA."

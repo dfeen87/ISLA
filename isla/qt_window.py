@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
     QSlider, QVBoxLayout, QWidget,
 )
 
-from isla.control import ControlService
+from isla.control import ControlService, UIState
 from isla.audio_files import AUDIO_FILE_FILTER
 from isla.playback import SoundDeviceBackend
 from isla.terminal import TerminalController
@@ -31,6 +31,50 @@ SOUND_SETTINGS_URL = 'x-apple.systempreferences:com.apple.Sound-Settings.extensi
 MANUAL_SETTINGS = 'Open Apple menu → System Settings → Sound → Output and select BlackHole 2ch. Keep physical speakers/headphones selected inside ISLA.'
 RESTORE_OUTPUT = 'After LIVE stops: if macOS still uses BlackHole, restore your normal speakers/headphones in System Settings → Sound → Output to hear ordinary Mac audio.'
 _application = None  # Reuse our Qt instance across terminal window/close cycles.
+
+
+def alive_next_step(state, *, busy=None):
+    """Give the operator an actionable ALIVE hint from the immutable UI snapshot.
+
+    This is presentation only: it must never start/stop a stream, alter routing,
+    or change whether playback, mode and research controls are enabled.
+    """
+    if state is None:
+        return 'Next: Open Audio File… to load a local recording.'
+
+    if busy == 'stop':
+        action = 'LIVE is stopping. ALIVE controls unlock after LIVE releases its audio stream.'
+    elif busy:
+        action = 'An audio operation is in progress. Controls unlock when it completes.'
+    elif state.live_active:
+        action = ('ALIVE is locked while LIVE is using the audio output. '
+                  'In the LIVE panel, click Stop LIVE; after it stops, return here '
+                  'to press Play or select Velvet, Legato, or Melt.')
+    elif state.file_state == UIState.PREPARING:
+        action = ('Preparing Original, Velvet, Legato and Melt. '
+                  'Play and mode buttons unlock when file preparation finishes.')
+    elif state.file_state == UIState.RECOVERABLE_ERROR:
+        action = ('File preparation needs attention. Read the error below, '
+                  'then choose Open Audio File… to retry.')
+    elif state.can_play:
+        if state.file_state == UIState.PLAYING:
+            action = ('ALIVE is playing. Compare Original / Bypass, Velvet, Legato '
+                      'and Melt, or use Pause / Stop.')
+        elif state.file_state == UIState.PAUSED:
+            action = 'ALIVE is paused. Press Play to resume; processing modes remain available.'
+        else:
+            action = 'ALIVE is ready. Press Play, then choose Original / Bypass, Velvet, Legato or Melt.'
+    elif not state.duration:
+        action = 'Next: Click Open Audio File… to select a local, DRM-free recording.'
+    else:
+        action = 'ALIVE is unavailable. Check the file status/error and wait for audio to stop.'
+
+    if state.duration > 30:
+        action += ('\nRemastered ALIVE preview: this %.2f-second recording exceeds the '
+                   '30-second research limit. Standard ALIVE playback supports the whole '
+                   'song once unlocked; use a shorter excerpt for Remastered ALIVE, '
+                   'or LIVE Remastered for continuous system audio.' % state.duration)
+    return action
 
 
 class AudioApplication(QApplication):
@@ -277,6 +321,12 @@ class ControlWindow(QMainWindow):
         self.file_status = label('Open an audio file to begin')
         box.addWidget(self.filename)
         box.addWidget(self.file_status)
+        guidance = QGroupBox('ALIVE — Next Step')
+        guidance_layout = QVBoxLayout(guidance)
+        self.file_next_step = label('Next: Open Audio File… to load a local recording.')
+        self.file_next_step.setAccessibleName('ALIVE next step')
+        guidance_layout.addWidget(self.file_next_step)
+        box.addWidget(guidance)
         self.file_error = label()
         box.addWidget(self.file_error)
         row = QHBoxLayout()
@@ -706,6 +756,7 @@ class ControlWindow(QMainWindow):
         self.research_summary.setText(s.research_summary)
         self.file_status.setText(s.preparation if s.file_state.value == 'File preparation in progress' else
                                  ('Open an audio file to begin' if not s.duration else s.file_state.value))
+        self.file_next_step.setText(alive_next_step(s, busy=self.busy))
         if self.cleanup_error:
             self.global_error.setText(self.cleanup_error)
         elif s.error:

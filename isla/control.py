@@ -12,7 +12,7 @@ from enum import Enum
 import shlex
 import threading
 
-from isla.playback import AudioError
+from isla.playback import ALIVE_GUI_PLAY_LEVEL_PERCENT, AudioError
 from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.streaming import StreamingDSP
 from isla.live_engine import LiveEngineFactory, current_engine
@@ -331,6 +331,11 @@ class ControlService:
             self.controller.execute('source file')
         if command in ('bypass', 'stop') or command.startswith('mode '):
             self.preview.cancel()
+        if command == 'play':
+            # Set output attenuation BEFORE PortAudio starts; also reassert on
+            # every resume/replay. This is local ALIVE only and never changes
+            # macOS volume, LIVE attenuation or the DSP/source buffers.
+            self.controller.player.set_output_level_percent(ALIVE_GUI_PLAY_LEVEL_PERCENT)
         result = self.controller.execute(command)
         if command in ('play', 'pause', 'stop'):
             self._file_touched = True

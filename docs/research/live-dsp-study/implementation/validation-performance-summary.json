@@ -1,0 +1,93 @@
+{
+  "current_process_peak_rss_bytes": 257867776,
+  "baseline_process_peak_rss_bytes": 260587520,
+  "total_measured_worker_hops": 25200,
+  "total_worker_body_budget_exceedances": 0,
+  "maximum_worker_body_ms": 0.6960830005482421,
+  "source_hashes": {
+    "isla/streaming.py": "221a99a03a7425595a79bb8d86460e3d0c43c4a1233ca9576d8431796983413f",
+    "isla/spectral.py": "4ec1939543a5770ee0bcecc4b52261b30c554eab6943fc94635f8c20ce214dc3"
+  },
+  "explicit_load_sources": "Ambient host baseline cells and two barrier-ready separate CPU competitors for loaded cells; each competitor runs repeated 4096x4 FFT roundtrips plus Python integer work. Matrix/test/safety jobs completed before timing. Ordinary host activity remains uncontrolled.",
+  "limitations": [
+    "native callback/GIL scheduling",
+    ".25s route inspection",
+    "devices",
+    "physical latency"
+  ],
+  "comparison_note": "Historical baseline is a separate earlier run on same reported platform. No paired statistical performance or faster-DSP claim; no native deadlines/latency guarantee.",
+  "stereo_cells": [
+    {
+      "rate": 44100,
+      "load": "ambient host",
+      "pace": "throughput",
+      "budget_ms": 11.609977324263038,
+      "current_p50_ms": 0.18597949974719086,
+      "current_p99_ms": 0.23721275026218783,
+      "current_max_ms": 0.5598750003628084,
+      "historical_p99_ms": 0.2515062496559038,
+      "historical_max_ms": 0.360584000191011,
+      "wakeup_lateness": null,
+      "paced_deadline_misses": null
+    },
+    {
+      "rate": 48000,
+      "load": "ambient host",
+      "pace": "throughput",
+      "budget_ms": 10.666666666666666,
+      "current_p50_ms": 0.18375000036030542,
+      "current_p99_ms": 0.2804041703257092,
+      "current_max_ms": 0.4436250001162989,
+      "historical_p99_ms": 0.2365029200291246,
+      "historical_max_ms": 0.2575419998720463,
+      "wakeup_lateness": null,
+      "paced_deadline_misses": null
+    },
+    {
+      "rate": 44100,
+      "load": "2 CPU competitor processes",
+      "pace": "throughput",
+      "budget_ms": 11.609977324263038,
+      "current_p50_ms": 0.19185449991709902,
+      "current_p99_ms": 0.2399999994031532,
+      "current_max_ms": 0.40208400059782434,
+      "historical_p99_ms": 0.24458650002998178,
+      "historical_max_ms": 0.32499999997526174,
+      "wakeup_lateness": null,
+      "paced_deadline_misses": null
+    },
+    {
+      "rate": 48000,
+      "load": "2 CPU competitor processes",
+      "pace": "throughput",
+      "budget_ms": 10.666666666666666,
+      "current_p50_ms": 0.19220800004404737,
+      "current_p99_ms": 0.26289582986464616,
+      "current_max_ms": 0.39058299989847,
+      "historical_p99_ms": 0.24645941020935425,
+      "historical_max_ms": 0.3376659997229581,
+      "wakeup_lateness": null,
+      "paced_deadline_misses": null
+    },
+    {
+      "rate": 48000,
+      "load": "2 CPU competitor processes",
+      "pace": "hop-clock",
+      "budget_ms": 10.666666666666666,
+      "current_p50_ms": 0.2197295002588362,
+      "current_p99_ms": 0.3672990801896958,
+      "current_max_ms": 0.6960830005482421,
+      "historical_p99_ms": 0.3912795801170432,
+      "historical_max_ms": 0.8905000004233443,
+      "wakeup_lateness": {
+        "count": 1200,
+        "p50_ms": 2.0932082397848717,
+        "p95_ms": 2.315179144989088,
+        "p99_ms": 2.547512500632365,
+        "p999_ms": 2.575648248478502,
+        "max_ms": 2.773083649117325
+      },
+      "paced_deadline_misses": 0
+    }
+  ]
+}

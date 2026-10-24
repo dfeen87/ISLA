@@ -1,0 +1,3 @@
+study/** linguist-generated=true
+implementation/*.json linguist-generated=true
+implementation/*.log linguist-generated=true

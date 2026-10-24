@@ -9,6 +9,7 @@ from __future__ import annotations
 import numpy as np
 
 from isla.harmonics import HarmonicBlender
+from isla.spectral import phase_reference, reconstruct_spectrum
 
 MODES = ("bypass", "velvet", "legato", "melt")
 
@@ -27,6 +28,11 @@ class StreamingDSP:
         self.history = np.zeros((self.window_size, channels))
         self.tails = np.zeros((3, self.window_size, channels))
         self.weights = np.zeros((self.window_size, 1))
+        # The three preceding analysis frames contain only virtual silence, but
+        # their synthesis weights still support the emitted prehistory. Without
+        # them, modified-frame leakage is divided by tiny startup weights.
+        for shift in range(self.hop, self.window_size, self.hop):
+            self.weights[:-shift] += self.window[shift:] ** 2
         self.dry = np.zeros((self.delay, channels), np.float32)
         # Reuse BEDROCK's spectral kernel without its offline framing/padding.
         # LIVE profiles deliberately omit offline note-boundary interpolation.
@@ -49,13 +55,15 @@ class StreamingDSP:
             block = np.zeros_like(block)
         self.history[:-self.hop] = self.history[self.hop:]
         self.history[-self.hop:] = block
-        spectrum = np.fft.rfft(self.history * self.window, axis=0)
+        windowed = self.history * self.window
+        spectrum = np.fft.rfft(windowed, axis=0)
         magnitude = np.abs(spectrum)
-        phase = np.exp(1j * np.angle(spectrum))
+        reference = phase_reference(spectrum, magnitude, windowed)
         self.weights += self.window ** 2
         for tail, blender in zip(self.tails, self.blenders):
             smooth = blender._smooth_harmonics(magnitude.T).T
-            tail += np.fft.irfft(smooth * phase, n=self.window_size, axis=0) * self.window
+            corrected = reconstruct_spectrum(spectrum, magnitude, smooth, reference)
+            tail += np.fft.irfft(corrected, n=self.window_size, axis=0) * self.window
         wet = self.tails[:, :self.hop] / np.maximum(self.weights[:self.hop], 1e-8)
         dry = self.dry[:self.hop].copy()
         self.dry[:-self.hop] = self.dry[self.hop:]

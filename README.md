@@ -12,7 +12,7 @@ Listen to your Mac's audio through **LIVE**, or open a local recording in the **
 
 > **Before you begin:** ALIVE and experimental LIVE are implemented on `main`. The checked-in package version is **3.0.0**, aligned for the planned **v3.0.0 — ALIVE + LIVE** release. A matching GitHub tag and published release are still pending. See [GitHub releases](https://github.com/dfeen87/ISLA/releases) for published versions.
 
-**Start here:** [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
+**Start here:** [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
 
 **Explore:** [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
 
@@ -39,7 +39,7 @@ ISLA was inspired by how slowing a piano recording can expose abrupt note attack
 | **Melt** | A more pronounced, flowing harmonic texture |
 | **Bypass** | The original input audio, without ISLA's smoothing |
 
-These are **creative goals**, not guarantees for every recording. The LIVE modes are distinct **continuous harmonic-processing profiles**, whereas the offline file processor also has look-ahead note-boundary processing. The two pipelines do **not** produce identical results. LIVE changes can sound subtle; compare against Bypass at similar loudness.
+These are **creative goals**, not guarantees for every recording. LIVE modes share a continuous harmonic-processing structure and differ by strength; the offline file processor also has look-ahead note-boundary processing. The two pipelines do **not** produce identical results. LIVE changes can sound subtle; compare against Bypass at similar loudness.
 
 Bypass keeps the decoded original in ALIVE and a time-aligned copy of the captured input in LIVE. It does not remove LIVE's monitoring delay. Processing is not loudness-normalized, so a louder mode is not necessarily a better one.
 
@@ -49,11 +49,21 @@ Bypass keeps the decoded original in ALIVE and a time-aligned copy of the captur
 
 ISLA began as **Phased-Music-Notes** and evolved through a regression-tested BEDROCK DSP foundation into a usable terminal player and experimental live-audio monitor.
 
-### Demos and listening evidence
+### Hear the Difference
 
-The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and [owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) document actual Mac sessions, including subtle mode differences and a preference for Melt. They are test records, not playable demos or broad musical-quality acceptance.
+Compare the same short **Emotional Piano** passage by **triangelx**, published under **CC0**, through the original LIVE DSP baseline. Play or download each FLAC and keep your playback volume fixed:
 
-No authentic terminal screenshots, ALIVE/LIVE demonstration GIF, or original-versus-processed audio pair is currently included in the repository or its published release assets. A useful next contribution is a real terminal capture showing the source, device, modes and `status`, a short GIF covering both listening paths, and a same-passage audio comparison from an original or permission-cleared recording. Label assets with the commit, mode, sample rate and any level adjustments; include descriptive image alt text and a written description for audio.
+| Original / Bypass | Velvet · 0.35 | Legato · 0.55 | Melt · 0.75 |
+|---|---|---|---|
+| [Listen / download](docs/audio/live-baseline/bypass.flac?raw=1) | [Listen / download](docs/audio/live-baseline/velvet.flac?raw=1) | [Listen / download](docs/audio/live-baseline/legato.flac?raw=1) | [Listen / download](docs/audio/live-baseline/melt.flac?raw=1) |
+
+These reference samples retain the original strengths. No mode tuning or audible improvement is claimed. The [source, license and render details](docs/audio/live-baseline/PROVENANCE.md) identify the baseline, passage and level adjustments; the source description does not establish how the instrument was recorded.
+
+The [controlled study](docs/research/live-dsp-study/README.md) found three intensities of one harmonic operation. Explore the [mathematics](docs/research/live-dsp-study/LIVE_DSP_BASELINE_ANALYSIS.md), [same-passage measurements](docs/research/live-dsp-study/MODE_DIFFERENTIATION_RESULTS.md) and [listening guide](docs/research/live-dsp-study/LISTENING_GUIDE.md). Numerical separation does not establish musical quality or preference.
+
+Separate [numerical robustness corrections and before/after evidence](docs/research/live-dsp-study/IMPLEMENTATION_REVIEW.md) are under review. They preserve the strengths and mode structure; no independent musical tuning or new release is advertised here.
+
+The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and [owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) document earlier Mac sessions, including subtle mode differences and a preference for Melt. That historical preference is separate from these samples. No terminal demo GIF or new native listening acceptance is claimed.
 
 ---
 
@@ -180,26 +190,26 @@ Output: External Headphones
 isla>
 ~~~
 
-**Important — two different prompts:**
-
-- **macOS Terminal / zsh:** `(.venv) (base) ... ISLA %` means you are still at your Mac's shell prompt. Running `devices` here produces `zsh: command not found: devices`.
-- **ISLA:** `isla>` means the app is running. **Only here** can you use ISLA commands such as `devices`, `source system`, `monitor start`, and `mode melt`.
-
-**Now, at the `isla>` prompt, type this command and press Return** (type only `devices`—do not type the prompt itself):
-
-~~~text
-devices
-~~~
-
-**Recommended: guided audio setup.** At `isla>`, enter:
+**First command inside ISLA: `setup audio`.** Once you see the `isla>` prompt, type this command and press Return (type only the command, **not** `isla>`):
 
 ~~~text
 setup audio
 ~~~
 
-ISLA will list **BlackHole 2ch** as the capture input and only verified **physical stereo outputs** as playback choices. Enter the listed number or exact device name at each prompt. For example, if BlackHole is `0` and External Headphones is `1`, enter `0` when asked for the **input**, then `1` when asked for the **output**. Device numbers vary by Mac. Type `cancel` to leave the wizard without changing your route. The wizard selects `source system`, input, and output, but **does not start monitoring or change macOS Sound settings**.
+The guided setup asks you to select **BlackHole 2ch** for capture and then **physical stereo speakers/headphones** for output. At its `Select input` and `Select output` prompts, enter a listed device number or exact name. For example, select `0` for BlackHole and `1` for External Headphones **only if those numbers appear in your own list**. Type `cancel` to leave without changing the route. The wizard selects `source system`, input and output, but **does not start monitoring or change macOS Sound settings**.
 
-**Manual alternative:** `devices` is a list, not a selection menu. From the normal `isla>` prompt, enter these commands one line at a time, replacing `External Headphones` with your own physical output (for example, `MacBook Pro Speakers`):
+**Important — two different prompts:**
+
+- **macOS Terminal / zsh:** `(.venv) (base) ... ISLA %` means you are still at your Mac's shell prompt. Running `devices` here produces `zsh: command not found: devices`.
+- **ISLA:** `isla>` means the app is running. **Only here** can you use ISLA commands such as `devices`, `source system`, `monitor start`, and `mode melt`.
+
+**Optional — manual device selection:** If you prefer the original commands instead of the wizard, type `devices` at the normal `isla>` prompt to view all devices:
+
+~~~text
+devices
+~~~
+
+The `devices` command **only displays a list; it does not open a selection menu**. From the normal `isla>` prompt, enter these commands one line at a time, replacing `External Headphones` with your own physical output (for example, `MacBook Pro Speakers`):
 
 ~~~text
 source system
@@ -368,6 +378,7 @@ The public Python package is `isla`, and the distribution is `isla-audio`. Legac
 These records preserve the versions and procedures used during their original tests, including the earlier `2.1.0` baseline. Use the onboarding above for current setup.
 
 - [ALIVE + LIVE implementation, native acceptance and remaining gates](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md)
+- [Controlled LIVE DSP study: baseline mathematics, same-passage comparisons and open acceptance gates](docs/research/live-dsp-study/README.md)
 - Native LIVE transcripts and measurements: [48 kHz](docs/alive/NATIVE_48000.json), [44.1 kHz](docs/alive/NATIVE_44100.json), [stream identity checks](docs/alive/NATIVE_STREAM_IDENTITY.json), and [initial unsuccessful attempts](docs/alive/NATIVE_INITIAL_ATTEMPTS.json)
 - [Latest owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) and [worker-only benchmark, not end-to-end latency](docs/alive/LIVE_BENCHMARK.json)
 - [BEDROCK invariant register](docs/bedrock/1.0/INVARIANT_REGISTER.md)

@@ -1,0 +1,88 @@
+.........................................EEEE.........x................. [ 45%]
+........................................................................ [ 91%]
+..............                                                           [100%]
+==================================== ERRORS ====================================
+_______________ ERROR at setup of test_grpc_smooth_block_stereo ________________
+
+    @pytest.fixture(scope="module")
+    def grpc_test_server():
+        """Fixture to start a test gRPC server in a background thread."""
+>       port = get_free_port()
+               ^^^^^^^^^^^^^^^
+
+tests/test_grpc_service.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def get_free_port():
+        """Finds a free port on localhost."""
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+>       s.bind(("", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/test_grpc_service.py:16: PermissionError
+________________ ERROR at setup of test_grpc_smooth_block_mono _________________
+
+    @pytest.fixture(scope="module")
+    def grpc_test_server():
+        """Fixture to start a test gRPC server in a background thread."""
+>       port = get_free_port()
+               ^^^^^^^^^^^^^^^
+
+tests/test_grpc_service.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def get_free_port():
+        """Finds a free port on localhost."""
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+>       s.bind(("", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/test_grpc_service.py:16: PermissionError
+_______________ ERROR at setup of test_grpc_smooth_stream_stereo _______________
+
+    @pytest.fixture(scope="module")
+    def grpc_test_server():
+        """Fixture to start a test gRPC server in a background thread."""
+>       port = get_free_port()
+               ^^^^^^^^^^^^^^^
+
+tests/test_grpc_service.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def get_free_port():
+        """Finds a free port on localhost."""
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+>       s.bind(("", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/test_grpc_service.py:16: PermissionError
+________________ ERROR at setup of test_grpc_smooth_stream_mono ________________
+
+    @pytest.fixture(scope="module")
+    def grpc_test_server():
+        """Fixture to start a test gRPC server in a background thread."""
+>       port = get_free_port()
+               ^^^^^^^^^^^^^^^
+
+tests/test_grpc_service.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def get_free_port():
+        """Finds a free port on localhost."""
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+>       s.bind(("", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/test_grpc_service.py:16: PermissionError
+=============================== warnings summary ===============================
+../../../../2026-10-23/isla-v3-0-0-alive-live/work/ISLA/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /Users/donfeeney/Documents/Codex/2026-10-23/isla-v3-0-0-alive-live/work/ISLA/.venv/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/test_grpc_service.py::test_grpc_smooth_block_stereo - PermissionE...
+ERROR tests/test_grpc_service.py::test_grpc_smooth_block_mono - PermissionErr...
+ERROR tests/test_grpc_service.py::test_grpc_smooth_stream_stereo - Permission...
+ERROR tests/test_grpc_service.py::test_grpc_smooth_stream_mono - PermissionEr...
+153 passed, 1 xfailed, 1 warning, 4 errors in 2.79s

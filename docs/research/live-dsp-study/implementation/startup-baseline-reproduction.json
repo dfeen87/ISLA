@@ -1,0 +1,38 @@
+[
+  {
+    "rate": 44100,
+    "channels": 1,
+    "input": "4096 immediate constant samples at +0.5; Melt selected before first hop; then 1536 zeros",
+    "peak": 1.2387566566467285,
+    "peak_frame": 7,
+    "peak_channel": 0,
+    "samples_over_fullscale": 3
+  },
+  {
+    "rate": 44100,
+    "channels": 2,
+    "input": "4096 immediate constant samples at +0.5; Melt selected before first hop; then 1536 zeros",
+    "peak": 1.2387566566467285,
+    "peak_frame": 7,
+    "peak_channel": 0,
+    "samples_over_fullscale": 6
+  },
+  {
+    "rate": 48000,
+    "channels": 1,
+    "input": "4096 immediate constant samples at +0.5; Melt selected before first hop; then 1536 zeros",
+    "peak": 1.1355268955230713,
+    "peak_frame": 7,
+    "peak_channel": 0,
+    "samples_over_fullscale": 1
+  },
+  {
+    "rate": 48000,
+    "channels": 2,
+    "input": "4096 immediate constant samples at +0.5; Melt selected before first hop; then 1536 zeros",
+    "peak": 1.1355268955230713,
+    "peak_frame": 7,
+    "peak_channel": 0,
+    "samples_over_fullscale": 2
+  }
+]

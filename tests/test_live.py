@@ -246,12 +246,19 @@ def batch_reference(audio, strength):
     window = .5 - .5 * np.cos(2 * np.pi * np.arange(size) / size)
     padded = np.pad(audio, ((size - hop, size), (0, 0)))
     frames = np.stack([padded[i:i + size] for i in range(0, len(padded) - size + 1, hop)])
-    spectrum = np.fft.rfft(frames * window[None, :, None], axis=1)
+    windowed = frames * window[None, :, None]
+    spectrum = np.fft.rfft(windowed, axis=1)
     mag = np.abs(spectrum)
     extended = np.pad(mag, ((0, 0), (1, 1), (0, 0)))
     smooth = .25 * extended[:, :-2] + .5 * extended[:, 1:-1] + .25 * extended[:, 2:]
-    result = np.fft.irfft(((1 - strength) * mag + strength * smooth) *
-                         np.exp(1j * np.angle(spectrum)), n=size, axis=1) * window[None, :, None]
+    # Independent expression of the intentional LIVE null-phase correction.
+    # The archived study/frozen baseline retains the previous phase formula.
+    # Numerical comparison tolerances below remain unchanged.
+    uncertainty = np.finfo(np.float32).eps * np.sum(np.abs(windowed), axis=1, keepdims=True)
+    uncertainty += .5 * float(np.finfo(np.float32).smallest_subnormal) * size
+    unit = spectrum / np.maximum(mag, uncertainty)
+    modified = spectrum + (((1 - strength) * mag + strength * smooth) - mag) * unit
+    result = np.fft.irfft(modified, n=size, axis=1) * window[None, :, None]
     total = np.zeros_like(padded, dtype=np.float64)
     weights = np.zeros(len(padded))
     for index, frame in enumerate(result):

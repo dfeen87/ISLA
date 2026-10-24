@@ -145,10 +145,23 @@ def test_live_listening_volume_attenuates_worker_output_without_changing_bypass(
     """The real worker scales its output queue, not the original capture input."""
     backend = FakeBackend()
     volume = MonitorVolume()
+    # The fake transport is pumped synchronously, unlike real PortAudio.
+    # Hold the DSP worker until AFTER the callback drains the previous output
+    # slot. Otherwise the synthetic worker can race ahead and collide with the
+    # one-slot ring, correctly tripping the real fail-closed overflow guard.
+    # This follows the established deterministic bypass transport test above.
+    gate = threading.Event()
+    gate.set()
+
+    class ScheduledPassThrough(PassThrough):
+        def process_block(self, block):
+            assert gate.wait(2), "test DSP worker was not released after callback"
+            return super().process_block(block)
+
     monitor = LiveMonitor(
         backend,
         processor_factory=lambda rate, channels: ListeningGainDSP(
-            rate, channels, volume, delegate_factory=PassThrough),
+            rate, channels, volume, delegate_factory=ScheduledPassThrough),
         monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
     )
     monitor.start("BlackHole 2ch", "Test speakers")
@@ -158,7 +171,11 @@ def test_live_listening_volume_attenuates_worker_output_without_changing_bypass(
     def render_blocks(count):
         rendered = []
         for _ in range(count):
-            rendered.append(monitor.stream.pump(signal))
+            gate.clear()
+            try:
+                rendered.append(monitor.stream.pump(signal))
+            finally:
+                gate.set()
             wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
             assert not monitor.halt.is_set(), monitor.error
         return rendered

@@ -149,9 +149,12 @@ class TerminalController:
         capture = self.capture
         output = self.output
         self._cancel_audio_setup()
-        return (f"Audio routing configured: {capture} -> {output}.\n"
-                "In macOS Sound > Output, manually choose BlackHole 2ch.\n"
-                'Then enter bypass and monitor start to listen (or status to inspect).')
+        return (f"ISLA devices selected: capture from {capture} -> playback to {output}.\n"
+                "macOS system audio routing is NOT changed or verified by setup audio.\n"
+                f"NEXT: Open macOS System Settings > Sound > Output and choose {capture} "
+                f"(NOT {output}). Keep {output} as the selected physical ISLA output.\n"
+                "After changing macOS Sound, enter bypass, then monitor start to listen "
+                "(or status to inspect).")
 
     def poll(self):
         self.player.refresh()

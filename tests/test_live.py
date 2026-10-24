@@ -175,8 +175,14 @@ def test_pass_a_reject_virtual_aggregate_and_unknown_outputs(transport):
 
 def test_pass_a_single_path_and_feedback_guards():
     assert fake_routing().validate("BlackHole 2ch", "Test speakers") == (10, 11)
-    with pytest.raises(AudioError, match="Single-path"):
+    with pytest.raises(AudioError, match="Single-path") as exc:
         fake_routing(default=11).validate("BlackHole 2ch", "Test speakers")
+    assert "currently 'Test speakers'" in str(exc.value)
+    assert "Keep 'Test speakers' as the physical output selected inside ISLA" in str(exc.value)
+    assert "System Settings > Sound > Output to BlackHole 2ch" in str(exc.value)
+    # An unidentified or unplugged macOS default must fail closed with usable guidance.
+    with pytest.raises(AudioError, match="currently 'Unknown device'"):
+        fake_routing(default=99).validate("BlackHole 2ch", "Test speakers")
     with pytest.raises(AudioError, match="physical"):
         fake_routing().validate("BlackHole 2ch", "BlackHole 2ch")
     with pytest.raises(AudioError, match="missing"):
@@ -651,7 +657,10 @@ def test_guided_audio_setup_lists_verified_devices_and_configures_without_starti
         assert "Not an eligible physical stereo output" in controller.execute("0")
         assert controller.source == "file" and controller.output is None
         result = controller.execute("1")
-        assert "Audio routing configured" in result
+        assert "ISLA devices selected: capture from BlackHole 2ch -> playback to Test speakers." in result
+        assert "NOT changed or verified" in result
+        assert "System Settings > Sound > Output" in result
+        assert "(NOT Test speakers)" in result
         assert "monitor start" in result
         assert controller.source == "system"
         assert controller.capture == "BlackHole 2ch"
@@ -723,7 +732,8 @@ def test_guided_audio_setup_interactive_prompt_and_ctrl_c_cancel():
     assert run_terminal(prompt_input, output.append, playback, routing=fake_routing()) == 0
     assert prompts[:4] == ["isla> ", "Select input (number/name or cancel): ",
                            "Select output (number/name or cancel): ", "isla> "]
-    assert any("Audio routing configured:" in message for message in output)
+    assert any("ISLA devices selected:" in message for message in output)
+    assert any("macOS system audio routing is NOT changed or verified" in message for message in output)
     assert any("Selected output: Test speakers" in message for message in output)
     assert any("Goodbye from ISLA" in message for message in output)
 

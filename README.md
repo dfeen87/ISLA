@@ -196,7 +196,7 @@ isla>
 setup audio
 ~~~
 
-The guided setup asks you to select **BlackHole 2ch** for capture and then **physical stereo speakers/headphones** for output. At its `Select input` and `Select output` prompts, enter a listed device number or exact name. For example, select `0` for BlackHole and `1` for External Headphones **only if those numbers appear in your own list**. Type `cancel` to leave without changing the route. The wizard selects `source system`, input and output, but **does not start monitoring or change macOS Sound settings**.
+The guided setup asks you to select **BlackHole 2ch** for capture and then **physical stereo speakers/headphones** for ISLA's playback output. At its `Select input` and `Select output` prompts, enter a listed device number or exact name. For example, select `0` for BlackHole and `1` for External Headphones **only if those numbers appear in your own list**. Type `cancel` to leave without changing the route. **Selecting the physical output inside ISLA is not the same as changing the Mac's system output.** The wizard saves `source system`, input and output inside ISLA, but **does not start monitoring or change macOS Sound settings**. To complete the route, manually select **BlackHole 2ch**, not your physical speakers, in macOS **System Settings → Sound → Output**; ISLA forwards the audio to your selected speakers. The LIVE guard rejects an unconfirmed single-path route rather than risking a duplicate/feedback path.
 
 **Important — two different prompts:**
 

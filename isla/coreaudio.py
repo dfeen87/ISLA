@@ -90,7 +90,14 @@ class CoreAudioRouting:
         if output["id"] == capture["id"] or output["transport"] not in self.PHYSICAL:
             raise AudioError("LIVE output must be physical speakers/headphones, never BlackHole, Aggregate, or Multi-Output.")
         if default != capture["id"]:
-            raise AudioError("Single-path routing required: manually set macOS Sound > Output to BlackHole 2ch (not Multi-Output). Restore speakers/headphones after LIVE.")
+            current = next((entry["name"] for entry in entries if entry["id"] == default), "Unknown device")
+            raise AudioError(
+                f"Single-path routing required: macOS Sound > Output is currently {current!r}, "
+                "not 'BlackHole 2ch'. "
+                f"Keep {output['name']!r} as the physical output selected inside ISLA, "
+                "but manually set macOS System Settings > Sound > Output to BlackHole 2ch "
+                "(not Multi-Output). Restore your normal system output after LIVE."
+            )
         identity = (capture["id"], output["id"])
         if expected is not None and identity != expected:
             raise AudioError("Audio device identity changed. Stop and select devices again.")

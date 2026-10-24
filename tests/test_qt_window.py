@@ -61,6 +61,16 @@ def click(app, w, button):
     wait_ui(app, lambda: not w.busy)
 
 
+def choose_live_mode(app, window, mode):
+    """Exercise dropdown activation, including choosing an effect twice."""
+    combo = window.live_mode_choice
+    index = combo.findData(mode)
+    assert index >= 0 and combo.isEnabled()
+    combo.setCurrentIndex(index)
+    combo.activated.emit(index)
+    wait_ui(app, lambda: not window.busy)
+
+
 def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkeypatch):
     w, c, live, files, *_ = window_session(app)
     try:
@@ -112,7 +122,7 @@ def test_mouse_guided_devices_mismatch_recheck_start_stop_and_modes(app):
         click(app, w, w.start_live)
         assert w.state.live_active and len(live.streams) == 1
         assert not w.start_live.isEnabled() and not w.capture.isEnabled()
-        click(app, w, w.live_modes['legato'])
+        choose_live_mode(app, w, 'legato')
         assert c.live.mode == 'legato'
         click(app, w, w.stop_live)
         assert not w.state.live_active and live.streams[0].closed
@@ -142,10 +152,10 @@ def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable
         for _ in range(8):
             stream.pump(np.zeros((512, 2), np.float32))
         for mode in ('velvet', 'legato', 'melt', 'bypass'):
-            click(app, w, w.live_modes[mode])
+            choose_live_mode(app, w, mode)
             assert c.live.running and c.live.mode == mode
-            assert w.live_modes[mode].isChecked()
-            assert sum(button.isChecked() for button in w.live_modes.values()) == 1
+            assert w.live_mode_choice.currentData() == mode
+            assert w.live_mode_choice.currentData() == mode
             stream.pump(np.full((512, 2), .12, np.float32))
             wait_ui(app, lambda: w.state.live_applied_mode == mode, timeout=5)
             assert c.live.processor.mode == mode
@@ -175,29 +185,29 @@ def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable
 
 
 def test_start_live_original_effect_toggle_and_listening_volume(app):
-    """Start always selects Bypass; a second click on an effect resets Original."""
+    """Start resets Bypass; reselecting an effect in the dropdown resets Original."""
     w, c, backend, _, _, _ = window_session(app)
     try:
         w.capture.setCurrentIndex(1)
         w.output.setCurrentIndex(1)
         wait_ui(app, lambda: w.apply_devices.isEnabled())
         click(app, w, w.apply_devices)
-        click(app, w, w.live_modes['melt'])
+        choose_live_mode(app, w, 'melt')
         assert c.live.mode == 'melt'
         click(app, w, w.start_live)
         assert c.live.mode == 'bypass'
-        assert w.live_modes['bypass'].isChecked()
+        assert w.live_mode_choice.currentData() == 'bypass'
         assert len(backend.streams) == 1
 
         for name in ('velvet', 'legato', 'melt'):
-            click(app, w, w.live_modes[name])
-            assert c.live.mode == name and w.live_modes[name].isChecked()
-            assert len([x for x in w.live_modes.values() if x.isChecked()]) == 1
-            click(app, w, w.live_modes[name])
-            assert c.live.mode == 'bypass' and w.live_modes['bypass'].isChecked()
-            assert len([x for x in w.live_modes.values() if x.isChecked()]) == 1
-        click(app, w, w.live_modes['velvet'])
-        click(app, w, w.live_modes['bypass'])
+            choose_live_mode(app, w, name)
+            assert c.live.mode == name and w.live_mode_choice.currentData() == name
+            assert w.live_mode_choice.count() == 4
+            choose_live_mode(app, w, name)
+            assert c.live.mode == 'bypass' and w.live_mode_choice.currentData() == 'bypass'
+            assert w.live_mode_choice.count() == 4
+        choose_live_mode(app, w, 'velvet')
+        choose_live_mode(app, w, 'bypass')
         assert c.live.mode == 'bypass'
 
         w.monitor_volume.setValue(35)

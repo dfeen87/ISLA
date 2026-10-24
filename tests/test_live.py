@@ -621,7 +621,7 @@ def test_terminal_live_commands_preserve_file_buffers_and_exit_closes_audio():
     assert all(stream.closed for stream in backend.streams)
 
 
-@pytest.mark.parametrize("command", ["source", "source mic", "monitor", "monitor start 8000", "monitor dance", "output", "input"])
+@pytest.mark.parametrize("command", ["source", "source mic", "monitor", "monitor start 8000", "monitor dance"])
 def test_terminal_invalid_live_commands(command):
     playback, _ = mock_playback()
     terminal = TerminalController(playback, live_backend=FakeBackend())

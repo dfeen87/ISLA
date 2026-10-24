@@ -354,7 +354,17 @@ class ControlWindow(QMainWindow):
         row.addWidget(self.start_live)
         row.addWidget(self.stop_live)
         box.addLayout(row)
-        self.live_modes = self._modes(box, 'live')
+        # A single effect dropdown replaces four mode buttons. Start/Stop
+        # remain explicit, independent actions for audio safety.
+        self.live_mode_choice = QComboBox()
+        self.live_mode_choice.setAccessibleName('Step 4 LIVE sound effect')
+        for name, mode in (('Original / Bypass', 'bypass'), ('Velvet', 'velvet'),
+                           ('Legato', 'legato'), ('Melt', 'melt')):
+            self.live_mode_choice.addItem(name, mode)
+        self.live_mode_choice.activated.connect(
+            lambda index: self._choose_live_mode(self.live_mode_choice.itemData(index)))
+        box.addWidget(label('LIVE sound effect — choose a mode; selecting it again returns to Original'))
+        box.addWidget(self.live_mode_choice)
         self.live_mode_status = label('Select a mode for LIVE monitoring.')
         box.addWidget(self.live_mode_status)
         self.live_status, self.live_error = label(), label()
@@ -507,8 +517,9 @@ class ControlWindow(QMainWindow):
         for combo in (self.capture, self.output, self.file_output, self.rate):
             combo.setEnabled(bool(available and s.can_configure))
         self.monitor_volume.setEnabled(bool(available))
-        for button in (*self.file_modes.values(), *self.live_modes.values()):
+        for button in self.file_modes.values():
             button.setEnabled(False)
+        self.live_mode_choice.setEnabled(False)
         if s is None:
             return
         self._choices(self.capture, s.captures, s.selected_capture)
@@ -552,11 +563,12 @@ class ControlWindow(QMainWindow):
             + ('(muted)' if s.monitor_volume == 0 else '(unity)' if s.monitor_volume == 100
                else '(ISLA output attenuation)'))
         self.mute_volume.setText('Unmute' if s.monitor_volume == 0 else 'Mute')
-        for mode, button in self.live_modes.items():
-            # Mode selection is allowed while LIVE is running; the worker
-            # updates the original StreamingDSP at the next processed hop.
-            button.setEnabled(bool(available and s.source == 'system'))
-            button.setChecked(mode == s.live_mode)
+        # Choosing a LIVE mode keeps the existing DSP worker and stream.
+        self.live_mode_choice.setEnabled(bool(available and s.source == 'system'))
+        if self.live_mode_choice.currentData() != s.live_mode:
+            self.live_mode_choice.blockSignals(True)
+            self.live_mode_choice.setCurrentIndex(self.live_mode_choice.findData(s.live_mode))
+            self.live_mode_choice.blockSignals(False)
         chosen = s.live_mode.title()
         if s.live_active:
             if s.live_applied_mode == s.live_mode:

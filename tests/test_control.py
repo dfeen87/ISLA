@@ -312,6 +312,59 @@ def test_shutdown_failure_retains_lease_and_retry_releases(monkeypatch):
     c.close()
 
 
+def test_terminal_numeric_input_output_pickers_filter_and_keep_legacy_commands():
+    c, _, _, _, _ = make_session()
+    try:
+        with pytest.raises(ValueError, match="source system"):
+            c.execute("output")
+        c.execute("source system")
+        assert "[0] BlackHole 2ch" in c.execute("input")
+        assert c.setup_prompt.startswith("Select input")
+        assert "Not an eligible input" in c.execute("2")
+        assert c.capture == "BlackHole 2ch"
+        assert "Capture selected: BlackHole 2ch" in c.execute("0")
+        assert c.setup_prompt == "isla> "
+
+        menu = c.execute("output")
+        assert "[1] Test speakers" in menu
+        assert "Microphone" not in menu and "BlackHole 2ch" not in menu
+        assert "Not an eligible physical stereo output" in c.execute("2")
+        assert c.output is None
+        assert "Output selected: Test speakers" in c.execute("1")
+        assert c.output == "Test speakers" and c.setup_prompt == "isla> "
+        with pytest.raises(ValueError, match="physical stereo output"):
+            c.execute("output 0")
+        with pytest.raises(ValueError, match="physical stereo output"):
+            c.execute("output 2")
+        # Exact names and direct indices remain supported when eligible.
+        assert "Output selected" in c.execute("output Test speakers")
+        assert "Capture selected" in c.execute("input 0")
+        assert "LIVE" in c.execute("monitor start") or c.live.running
+        c.execute("monitor stop")
+        c.execute("output")
+        assert "canceled" in c.execute("cancel")
+        assert c.output == "Test speakers"
+    finally:
+        c.close()
+
+
+def test_terminal_picker_refuses_stale_index_after_hotplug():
+    c, _, _, devices, _ = make_session()
+    try:
+        c.execute("source system")
+        assert "[1] Test speakers" in c.execute("output")
+        devices.insert(0, dict(name="New microphone", max_input_channels=1,
+                               max_output_channels=0))
+        with pytest.raises(AudioError, match="Device changed during selection"):
+            c.execute("1")
+        assert c.output is None and c.setup_prompt == "isla> "
+        # A fresh picker obtains the new PortAudio index; it never guesses.
+        assert "[2] Test speakers" in c.execute("output")
+        assert "Output selected: Test speakers" in c.execute("2")
+    finally:
+        c.close()
+
+
 def test_launch_dispatch_and_terminal_handoff_and_wizard_refusal(monkeypatch):
     seen = []
     monkeypatch.setattr('isla.window.run_window', lambda controller=None: seen.append(controller) or 0)

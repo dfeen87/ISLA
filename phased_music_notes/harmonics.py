@@ -81,9 +81,15 @@ class HarmonicBlender:
     # -------------------------------------------------------------
     def _blend_mono(self, audio: np.ndarray, sr: int) -> np.ndarray:
         win = self._hann_window(sr)
-        if win.size < 2:
+        win_samples = win.size
+        if win_samples < 2:
             raise ValueError("window_ms is too small for the sample rate.")
-        hop = max(1, win.size // 2)
+        hop = max(1, win_samples // 2)
+
+        # Pad for WOLA
+        pad_front = win_samples - hop
+        pad_back = win_samples
+        audio_padded = np.pad(audio, (pad_front, pad_back), mode='constant')
 
         # To avoid edge artifacts and properly reconstruct the beginning of the signal,
         # we pad the start with zeros. We pad the end to cover the last frame.
@@ -204,7 +210,9 @@ class HarmonicBlender:
     # -------------------------------------------------------------
     def _hann_window(self, sr: int) -> np.ndarray:
         win_samples = self._ms_to_samples(self.window_ms, sr)
-        return np.hanning(win_samples)
+        # Use periodic Hann window which sums to exactly 1.0 when overlapped by 50%
+        n = np.arange(win_samples)
+        return 0.5 - 0.5 * np.cos(2 * np.pi * n / win_samples)
 
     # -------------------------------------------------------------
     # Utility

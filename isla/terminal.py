@@ -261,10 +261,21 @@ class TerminalController:
             return "System audio selected. Type input/output for numbered menus, then monitor start." if source == "system" else "File source selected."
         if command in ("input", "output"):
             if not values:
-                raise ValueError(f"Usage: {command} <exact device name|id>")
+                return self._begin_device_picker(command)
             if self.live.running or self.player.stream is not None:
                 raise ValueError("Stop audio before changing devices.")
             selector = " ".join(values)
+            if self.source == "system":
+                captures, outputs = self._audio_setup_devices()
+                eligible = captures if command == "input" else outputs
+                # A numeric index or exact name must designate a verified
+                # capture or physical output, not a generic audio endpoint.
+                matches = [d for d in eligible if selector == str(d["index"])
+                           or selector.casefold() == d["name"].casefold()]
+                if len(matches) != 1:
+                    label = "BlackHole capture" if command == "input" else "physical stereo output"
+                    raise ValueError(f"Not an eligible {label}: {selector}. Type {command} to list valid numbers.")
+                selector = str(matches[0]["index"])
             if command == "input":
                 device = self.player.backend.resolve_device(selector, "input")
                 if device["name"] != "BlackHole 2ch":

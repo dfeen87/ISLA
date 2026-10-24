@@ -265,17 +265,24 @@ class TerminalController:
             if self.live.running or self.player.stream is not None:
                 raise ValueError("Stop audio before changing devices.")
             selector = " ".join(values)
-            if self.source == "system":
-                captures, outputs = self._audio_setup_devices()
-                eligible = captures if command == "input" else outputs
-                # A numeric index or exact name must designate a verified
-                # capture or physical output, not a generic audio endpoint.
-                matches = [d for d in eligible if selector == str(d["index"])
-                           or selector.casefold() == d["name"].casefold()]
-                if len(matches) != 1:
-                    label = "BlackHole capture" if command == "input" else "physical stereo output"
-                    raise ValueError(f"Not an eligible {label}: {selector}. Type {command} to list valid numbers.")
-                selector = str(matches[0]["index"])
+            if self.source == "system" and command == "output":
+                # Direct legacy commands remain usable without a native
+                # CoreAudio scan. The actual LIVE start still verifies routing
+                # and identities; guided pickers use stronger native filtering.
+                try:
+                    candidate = self.player.backend.resolve_device(selector, "output")
+                except AudioError as exc:
+                    raise ValueError(
+                        f"Not an eligible physical stereo output: {selector}. "
+                        "Type output to list verified numbers.") from exc
+                if (candidate["max_output_channels"] < 2
+                        or candidate["name"] == "BlackHole 2ch"
+                        or "aggregate" in candidate["name"].casefold()
+                        or "multi-output" in candidate["name"].casefold()):
+                    raise ValueError(
+                        f"Not an eligible physical stereo output: {selector}. "
+                        "Type output to list verified numbers.")
+                selector = str(candidate["index"])
             if command == "input":
                 device = self.player.backend.resolve_device(selector, "input")
                 if device["name"] != "BlackHole 2ch":

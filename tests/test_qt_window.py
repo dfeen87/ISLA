@@ -236,6 +236,51 @@ def test_mouse_guided_devices_mismatch_recheck_start_stop_and_modes(app):
 
 
 
+def test_live_remastered_diagnostics_do_not_move_sound_effect_controls(app):
+    """Growing LIVE counters stay inside their own stable, scrollable viewport."""
+    w, c, *_ = window_session(app)
+    try:
+        region = w.live_processing_view
+        selector = w.live_mode_choice
+        app.processEvents()
+        reserved_height = region.height()
+
+        # Exercise the normal state presentation path with changing diagnostics,
+        # not the audio worker or a fake widget-only replacement.
+        lines = (
+            'Remastered LIVE Velvet — 100% permitted depth; applied depth 0.0333',
+            'Remastered LIVE Velvet — 100% permitted depth; applied depth 0.0333; '
+            'vetoed 2740/16668 frames; sample peak 0.31589; '
+            '1536-sample DSP delay; REVISE / INCONCLUSIVE',
+            '\\n'.join(f'Frame {i}: vetoed {i * 217}, peak 0.{i:05d}, '
+                      'applied depth 0.0333; REVISE / INCONCLUSIVE' for i in range(25)),
+        )
+        positions = []
+        for update in (lines[0], lines[1], lines[2], lines[0]):
+            w.state = replace(w.state, live_active=True, live_engine='remastered',
+                              live_research_health=update)
+            w.apply_state()
+            app.processEvents()
+            assert region.height() == reserved_height
+            assert w.live_processing_status.text().endswith(update)
+            positions.append(selector.mapTo(w, QPoint(0, 0)).y())
+
+        assert all(y == positions[0] for y in positions)
+        scrollbar = region.verticalScrollBar()
+        w.state = replace(w.state, live_research_health=lines[2])
+        w.apply_state()
+        app.processEvents()
+        assert scrollbar.maximum() > 0, 'Long diagnostics must scroll, not clip.'
+        before = selector.mapTo(w, QPoint(0, 0)).y()
+        scrollbar.setValue(scrollbar.maximum())
+        app.processEvents()
+        assert selector.mapTo(w, QPoint(0, 0)).y() == before
+        assert w.live_processing_status.textInteractionFlags() & (
+            Qt.TextInteractionFlag.TextSelectableByMouse)
+    finally:
+        close_window(app, w, c)
+
+
 def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable(app):
     """UI switches Bypass/Velvet/Legato/Melt without stopping or creating streams."""
     import numpy as np

@@ -796,13 +796,15 @@ class ControlWindow(QMainWindow):
         self.live_intensity.setEnabled(bool(available and s.source == 'system'))
         self.apply_live_intensity.setEnabled(bool(available and s.source == 'system'))
         admitted, admission_note = remastered_readiness(s)
-        self.research_mode.setEnabled(bool(available and s.can_play and not s.research_pending))
-        self.research_intensity.setEnabled(bool(available and s.can_play and not s.research_pending))
-        self.apply_research.setEnabled(bool(available and admitted and not s.research_pending))
-        self.cancel_research.setEnabled(bool(available and s.research_pending))
+        pending = bool(s is not None and s.research_pending)
+        prepared = bool(available and s is not None and s.can_play)
+        self.research_mode.setEnabled(prepared and not pending)
+        self.research_intensity.setEnabled(prepared and not pending)
+        self.apply_research.setEnabled(bool(available and admitted and not pending))
+        self.cancel_research.setEnabled(bool(available and pending))
         self.research_admission.setText(admission_note)
-        self.research_progress.setVisible(bool(s.research_pending))
-        if s.research_pending:
+        self.research_progress.setVisible(pending)
+        if pending:
             self.research_progress.setRange(0, 0)  # Indeterminate, never a guessed %.
         else:
             self.research_progress.setRange(0, 1)

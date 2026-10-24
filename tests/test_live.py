@@ -100,8 +100,20 @@ def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
     # Tie watchdog time to its transport frames so runner scheduling cannot
     # masquerade as missing hardware callbacks. All production monitors and
     # disconnect tests retain the real wall-clock watchdog.
+    # A manually pumped fake callback is not a continuous hardware clock.
+    # Hold the worker's DSP completion until the callback returns, so the
+    # test exercises a deterministic one-hop pipeline rather than occasional
+    # concurrent nonblocking ring push/pop contention on a busy CI runner.
+    gate = threading.Event()
+    gate.set()
+
+    class ScheduledPassThrough(PassThrough):
+        def process_block(self, block):
+            assert gate.wait(2)
+            return super().process_block(block)
+
     monitor = LiveMonitor(
-        backend, processor_factory=PassThrough,
+        backend, processor_factory=ScheduledPassThrough,
         monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
     )
     monitor.start("BlackHole 2ch", "Test speakers")
@@ -111,7 +123,11 @@ def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
     rendered = []
     try:
         for block in blocks:
-            rendered.append(monitor.stream.pump(block))
+            gate.clear()
+            try:
+                rendered.append(monitor.stream.pump(block))
+            finally:
+                gate.set()
             wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
             assert not monitor.halt.is_set(), monitor.error
         # One transport block of delay; no smoothing, clipping or gain change.

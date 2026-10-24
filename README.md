@@ -1,5 +1,7 @@
 # ISLA — Let the Music Flow.
 
+**LIVE Remastered and easier setup:** the LIVE panel now offers **v4.0 Remastered LIVE** with 0–100% permitted depth. Paired Bluetooth outputs are labeled, and the device list refreshes after Stop. Bare song filenames can be found through Mac-wide Spotlight and media-folder search, including common `.ACC` / `.AAC` confusion. See [LIVE, Bluetooth routing and song discovery](docs/remastered/LIVE_AND_DISCOVERY.md).
+
 **ALIVE + LIVE · Velvet · Legato · Melt**
 
 [![Latest Release](https://img.shields.io/github/v/release/dfeen87/ISLA?display_name=tag&style=for-the-badge&logo=github&label=Release&color=8B5CF6)](https://github.com/dfeen87/ISLA/releases/latest)
@@ -22,13 +24,13 @@ Listen to your Mac's audio through **LIVE**, or open a local recording in the **
 
 Phased Music Notes was conceived to explore the hidden texture of classical piano recordings—slowing musical passages to reveal their resonance, harmonic vibrations, and decaying notes, then using phase-aware signal processing to create smoother, more connected musical transitions while preserving the instrument's expressive character.
 
-> **Source version: 4.0.0 — Remastered Research Preview.** Python package, HTTP API and JUCE/CMake metadata are aligned at 4.0.0. The codebase includes opt-in Experiment 02 Remastered ALIVE processing while retaining the existing production DSP, ALIVE/LIVE routing safeguards and established CLI. This is a **source version**, not a published v4.0.0 GitHub Release or completed native/creator listening acceptance. The [published v3.3.0 release](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0) remains a historical baseline.
+> **Source version: 4.0.0 — Remastered research candidate (not yet released).** Python package, HTTP API and JUCE/CMake metadata are aligned at 4.0.0. The source includes opt-in Experiment 02 Remastered modes for ALIVE and LIVE, DRM-free Apple-purchase import, Bluetooth-device improvements and local-song discovery. Existing production DSP, ALIVE/LIVE transport safeguards and frozen Experiment 02 research remain protected. **Native Mac/creator listening acceptance is pending.** The latest published GitHub Release remains [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0); a source-version change does not publish v4.0.0.
 
 **Start here:** [Graphical control center](#isla-control-center--graphical-interface) · [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
 
-**Explore:** [v4.0.0 Remastered implementation](docs/remastered/IMPLEMENTATION.md) · [v4.0.0 validation](docs/remastered/VALIDATION.md) · [Published v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0) · [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
+**Explore:** [v4.0.0 Remastered ALIVE preview](docs/remastered/IMPLEMENTATION.md) · [LIVE Remastered, Bluetooth and song discovery](docs/remastered/LIVE_AND_DISCOVERY.md) · [Published v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0) · [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
 
-**Opt-in v4.0 Remastered research preview:** the control window's **Show v4.0 Remastered Research Preview** panel prepares the frozen Experiment 02 governed modes at **0–100% permitted depth, in 5% steps**. It supports mono/stereo 44.1/48 kHz excerpts up to 30 seconds. This remains an engineering preview; the **REVISE / INCONCLUSIVE** scientific verdict and production DSP algorithms remain unchanged, and native listening acceptance is pending. See [usage, mathematical contract and verification](docs/remastered/IMPLEMENTATION.md).
+**Opt-in v4.0 Remastered research preview:** the control window's **Show v4.0 Remastered Research Preview** panel prepares the frozen Experiment 02 governed ALIVE modes at **0–100% permitted depth, in 5% steps**. ALIVE Remastered supports mono/stereo 44.1/48 kHz excerpts up to 30 seconds; **LIVE Remastered** uses separate bounded streaming processing without that excerpt limit. These are research adaptations, not a claim of perceptual superiority. The historical **REVISE / INCONCLUSIVE** research verdict and native listening acceptance remain outstanding. See the [ALIVE mathematical contract](docs/remastered/IMPLEMENTATION.md) and [LIVE technical contract](docs/remastered/LIVE_AND_DISCOVERY.md).
 
 ---
 
@@ -41,7 +43,7 @@ ISLA was inspired by how slowing a piano recording can expose abrupt note attack
 | Experience | What you hear | Additional setup |
 |---|---|---|
 | **LIVE — Mac system audio** | YouTube, browser audio, and other sound sent through ISLA to your speakers/headphones | **BlackHole 2ch** virtual audio device; macOS audio routing |
-| **ALIVE — Local file player** | Load a WAV recording, play/pause/stop, compare processing modes and Bypass | No BlackHole required |
+| **ALIVE — Local file player** | Load a local recording, including DRM-free Apple purchases on macOS, play/pause/stop, compare processing modes and Bypass | No BlackHole required |
 | **Offline export** | Process a file and save a new audio file using the existing CLI/Python API | No BlackHole required |
 
 **Three musical modes, plus Bypass**
@@ -179,9 +181,9 @@ Do not include the `isla>` prompt itself and do not type `python -m isla window`
 
 The optional `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and `sounddevice>=0.5,<0.6`. Existing base and `.[playback]` installations do not import or require Qt. See the [Qt installation requirements](https://doc.qt.io/qtforpython-6/gettingstarted.html) and [dependency licenses](https://doc.qt.io/qtforpython-6/licenses.html). ISLA remains MIT licensed; Qt/PySide retain their own licenses and notices. No standalone bundled Mac app or installer is supplied.
 
-### ALIVE — play a WAV
+### ALIVE — play a local audio file
 
-1. Click **Open WAV File…** and select a non-empty mono/stereo WAV. Preparation runs outside the window thread using the existing cancellable preparation process.
+1. Click **Open Audio File…** and select a non-empty mono/stereo recording (WAV, or a DRM-free purchased M4A / AAC or Apple Lossless file on macOS). Preparation runs outside the window thread using the existing cancellable preparation process.
 2. Wait for **File ready**. Until then, Play and mode controls are disabled and the status explains what is happening.
 3. Click **Play**, **Pause**, or **Stop**. Position and duration update automatically. Select **Velvet**, **Legato**, **Melt**, or **Original / Bypass** to compare the existing prepared buffers and transitions.
 4. While stopped, choose an eligible listening output and click **Use Listening Output**. This output is shared with LIVE. On macOS, dropdown choices require verified physical stereo devices; the system default remains usable for ALIVE even when BlackHole is absent.
@@ -211,12 +213,12 @@ System audio enters BlackHole, ISLA processes it, then ISLA plays it through you
 
 | Window message or condition | Next action |
 |---|---|
-| **Open an audio file to begin** | Open a WAV and wait for preparation; playback/mode buttons will then become available. |
+| **Open an audio file to begin** | Open a local audio file and wait for preparation; playback/mode buttons will then become available. |
 | **LIVE is not ready**, current output is External Headphones | Open Sound Settings, select **BlackHole 2ch**, return and Recheck. Keep the desired physical listening output inside ISLA. |
 | BlackHole missing, ambiguous, or no eligible output | Check Audio MIDI Setup, reconnect the device and click **Refresh Devices**. Apply a fresh selection. |
 | Device identity changed, stale PortAudio devices, or unplugged headphones | Stop audio, Refresh, select devices again and Recheck. If opened native IDs still disagree, close ISLA and relaunch to refresh PortAudio. |
 | Start LIVE disabled after switching back to ALIVE | Stop playback and click **Apply LIVE Devices / Select LIVE Source** again. |
-| Preparation fails | Read the adjacent error, choose a valid smaller mono/stereo WAV and retry. Close cancels preparation. |
+| Preparation fails | Read the adjacent error, choose a valid smaller mono/stereo audio file and retry. Close cancels preparation. |
 | Audio command takes over ten seconds | The window remains responsive and explains the delay. Close requests cleanup after the operation returns. Commands stay locked to prevent a competing engine. |
 | Cleanup reports a still-stopping audio worker | The window retains session ownership. Retry Close after it stops; it will not return a busy controller to the terminal. A permanently blocked native driver may require process termination; do not start another audio session. |
 
@@ -491,7 +493,9 @@ exit
 
 `play` resumes from pause or starts from the beginning after a stop or completed playback. `stop` resets position; `bypass` returns to the decoded original. Use a **real local file path** in place of the example. Quotes handle spaces, and `~` expands to your home directory.
 
-**Guaranteed format:** mono or stereo **WAV**. Other formats (such as FLAC/AIFF) depend on the installed libsndfile; MP3 is **not guaranteed**. Preparation of long files uses more time, working memory and temporary storage.
+**Local audio formats:** mono or stereo **WAV**, plus **DRM-free M4A / AAC and Apple Lossless (ALAC) on macOS**, decoded with the built-in macOS audio converter. No extra decoder installation is needed on Mac. FLAC, AIFF, OGG and MP3 depend on the installed libsndfile. On other systems, export AAC / ALAC to a DRM-free WAV, FLAC or AIFF first. Preparation of long files uses more time, working memory and temporary storage; decoding stays in the cancellable preparation process and preserves the source sample rate and channels.
+
+**Purchased music from Apple:** download the purchased track to your Mac in the Music app (iTunes Store purchases), then use **Show in Finder** to locate its local file. Open that `.m4a` file with **Open Audio File…**, or use `load "~/Music/path/to/Purchased Song.m4a"` at `isla>`. [Apple describes iTunes Plus purchases as DRM-free AAC](https://support.apple.com/en-ie/guide/music/mus3e2346c2/mac). The original file is left untouched. A cloud-only library entry must be downloaded first. Apple Music subscription downloads and older protected purchases (`.m4p` / `.movpkg`) cannot be imported into ALIVE; use a DRM-free purchased copy. This is local file playback; the offline export CLI retains its libsndfile format support.
 
 ### Export without the interactive player
 
@@ -523,7 +527,7 @@ At `isla>`, type `help` or `?` for the ASCII command center. It shows the curren
 | Topic | Guidance |
 |---|---|
 | `help live` | System capture, Start/Stop, modes and next steps |
-| `help file` (also `help alive`) | Prepare and play a local WAV |
+| `help file` (also `help alive`) | Prepare and play a local audio file |
 | `help devices` | Numbered pickers, BlackHole and physical outputs |
 | `help modes` | Processing selection, Bypass and window reset |
 | `help troubleshoot` | Mistaken commands, routing and recovery |
@@ -612,7 +616,7 @@ Commands are case-insensitive where appropriate; file and device names retain th
 | **Device missing or disconnected** | Run `monitor stop`, reconnect the device, then `devices`; relaunch ISLA if Core Audio/PortAudio holds stale device information. No silent device fallback is provided. |
 | **Crackling, glitches or noticeable delay** | Prefer built-in or wired speakers to Bluetooth, close busy apps, check matching 44.1/48 kHz device formats, and review `status` for underflows, overflows or device warnings. |
 | **`zsh: command not found: isla`** | At the Mac's shell prompt, run `cd ~/ISLA`, `source .venv/bin/activate`, and `python -m pip show isla-audio`. If the package is missing, rerun `python -m pip install -e '.[playback]'`. Start with `python -m isla` and enter `devices` **only after** the `isla>` prompt appears. |
-| **File won't load/play** | Use a valid WAV path, wait for `Preparation: Ready`, check the physical output device and sample-rate/channel support. |
+| **File won't load/play** | Use a valid local audio path (DRM-free for Apple purchases), wait for `Preparation: Ready`, check the physical output device and sample-rate/channel support. |
 
 For deeper device diagnostics inside the activated environment, try `python -m sounddevice`. See [ALIVE/LIVE implementation and acceptance](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) for native test details and unresolved risks.
 
@@ -624,8 +628,8 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 - **Experimental LIVE:** This Python/PortAudio implementation is not hard real-time. It targets macOS 13+ with standalone **BlackHole 2ch** and a **separate physical stereo output** at 44.1 or 48 kHz. Native evidence comes from one Apple Silicon Mac; it does not establish compatibility with every Mac, output device or OS version. Wired outputs avoid the extra delay associated with Bluetooth.
 - **Latency and buffers:** The LIVE DSP adds **32.00 ms at 48 kHz / 34.83 ms at 44.1 kHz**, plus queues and device latency. Native test sessions reported roughly **79–107 ms** in ADC/DAC timestamp estimates, not independent acoustic measurements. Bypass shares the processing delay; video sync can be affected. Fixed buffers can run dry and emit silence, while capture/ring failures can stop monitoring. Check `status` for counters and errors. There is no user-facing buffer-size command.
 - **Routing and recovery:** ISLA rejects virtual, Aggregate and Multi-Output sinks for LIVE, but cannot detect every other app's monitoring path. It does not change the Mac's system output or reconnect devices automatically. Stop monitoring before changing devices, and restore normal output in macOS when finished.
-- **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo is the guaranteed format; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
-- **Release status:** Package, HTTP and JUCE/CMake **source** metadata are aligned at **4.0.0** for the opt-in Remastered research preview. No v4.0.0 GitHub tag or Release is published by this version-only change, and numerical acceptance is not physical-Mac or creator-listening acceptance. The published [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0), [v3.2.0](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0), [v3.1.1](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1), [v3.1.0](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0), and [v3.0.0](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) releases remain separate historical baselines. Physical LIVE/GUI, long-session, hot-plug and broader hardware acceptance remain pending; mobile apps and production-grade plugin validation remain future work.
+- **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo and, on macOS, DRM-free M4A / AAC / ALAC are supported; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
+- **Release status:** Python package, HTTP and JUCE/CMake **source** metadata are aligned at **4.0.0** as an unreleased Remastered research candidate. No `v4.0.0` tag or GitHub Release is created by this version PR, and native Mac/Bluetooth/creator listening acceptance remains pending. The historical Experiment 02 freeze and its original-version source hashes remain authoritative; archived preservation reports apply to the original commits and are not refreshed or rewritten by a metadata version bump. The latest published release is [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0); older [v3.2.0](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0), [v3.1.1](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1), [v3.1.0](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) and [v3.0.0](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) tags remain immutable historical baselines. Wider hardware, long-session and real-time performance acceptance are still open.
 
 ## Engineering and evidence
 

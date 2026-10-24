@@ -1,17 +1,22 @@
 # v4.0 Remastered research preview
 
+For the subsequent continuous LIVE implementation, Bluetooth output discovery
+and local-song search, see [LIVE and discovery](LIVE_AND_DISCOVERY.md).
+
 This opt-in ALIVE preview connects the frozen Experiment 02 governed renderer
 to the existing file player. It adds independent processing-depth control for
-Velvet, Legato and Melt. This codebase's Python package, HTTP API and CMake/JUCE
-source version is 4.0.0. The published v3.3.0 release and existing production
-DSP/LIVE behavior remain unchanged. This version alignment does not constitute
-a published v4.0.0 GitHub Release, production promotion or native/creator
-listening acceptance. The historical Experiment 02 freeze and its original
-3.x-versioned file hashes remain pinned to their original source revisions.
+Velvet, Legato and Melt. The Python package, HTTP API and JUCE/CMake
+**source version is 4.0.0**, while the latest published release remains
+v3.3.0. This is an unreleased source-version alignment, not scientific
+promotion or completed physical-Mac/creator-listening acceptance. The frozen
+Experiment 02 core, protocol, parameters, historical evidence and original
+source hashes retain their authoritative pinned versions; the historical
+preservation manifests describe their original commits rather than this
+subsequent application-level metadata version change.
 
 ## Use the preview
 
-Install a checked-out v4.0.0 source candidate in a separate environment, then run:
+Install a checked-out source candidate in a separate environment, then run:
 
 ```bash
 python -m pip install -e '.[gui]'

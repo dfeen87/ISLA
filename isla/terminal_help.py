@@ -13,11 +13,13 @@ LIVE = (
     ('mode velvet', 'Select Velvet processing.'),
     ('mode legato', 'Select Legato processing.'),
     ('mode melt', 'Select Melt processing.'),
+    ('engine remastered [0-100]', 'LIVE research engine; permitted depth in 5% steps, not volume.'),
+    ('engine production', 'Use the original LIVE harmonic profiles.'),
     ('status', 'Show full LIVE diagnostics and recovery counters.'),
 )
 FILE = (
     ('source file', 'Select ALIVE file playback; stops LIVE.'),
-    ('load <path>', 'Prepare a local mono/stereo WAV; quote paths with spaces.'),
+    ('load <path>', 'Prepare local audio; missing bare filenames search this computer.'),
     ('play', 'Start or resume the prepared file.'),
     ('pause', 'Pause at the current position.'),
     ('stop', 'Stop the file and reset to the beginning.'),
@@ -33,7 +35,7 @@ DEVICES = (
 )
 OTHER = (
     ('help live', 'LIVE workflow and next steps.'),
-    ('help file', 'ALIVE WAV playback workflow.'),
+    ('help file', 'ALIVE local audio playback workflow.'),
     ('help devices', 'BlackHole and physical output setup.'),
     ('help modes', 'Processing selection and Original / Bypass.'),
     ('help troubleshoot', 'Common mistakes and recovery.'),
@@ -109,7 +111,7 @@ def render_help(controller, topic='', *, width=None):
     row('I S L A', center=True)
     row('AUDIO CONTROL COMMAND CENTER', center=True)
     row('CONTEXT : ' + ('LIVE SYSTEM AUDIO' if c.source == 'system' else 'ALIVE FILE PLAYBACK'))
-    row('SOURCE  : ' + ('SYSTEM AUDIO' if c.source == 'system' else 'LOCAL WAV FILE'))
+    row('SOURCE  : ' + ('SYSTEM AUDIO' if c.source == 'system' else 'LOCAL AUDIO FILE'))
     row('MONITOR : ' + ('RUNNING' if c.live.running else c.live.state.upper()))
     row('MODE    : ' + mode_name(c.live.mode if c.source == 'system' else c.player.mode).upper())
     config = c.live.config if c.live.running else None
@@ -133,17 +135,18 @@ def render_help(controller, topic='', *, width=None):
         section('EXAMPLES / TROUBLESHOOTING', paragraphs=(
             'LIVE: source system -> setup audio -> monitor start -> mode velvet -> bypass -> monitor stop',
             'ALIVE: source file -> load "example.wav" -> play -> pause -> stop',
-            'play is for WAV files. LIVE captures ongoing Mac application audio. See help troubleshoot.'))
+            'play is for local audio files. LIVE captures ongoing Mac application audio. See help troubleshoot.'))
     elif topic == 'live':
         section('LIVE AUDIO', LIVE, (
             'EXAMPLE: source system -> setup audio -> monitor start -> mode velvet -> bypass -> monitor stop',
-            'LIVE captures ongoing Mac application audio; start music in that app. play is only for ALIVE WAV files.',
+            'LIVE captures ongoing Mac application audio; start music in that app. play is only for ALIVE local audio files.',
             'monitor start [44100|48000] selects the rate when stopped; omit brackets when typing. An active start is idempotent.',
             'Bypass keeps monitoring active. Stop LIVE before changing devices.'))
     elif topic == 'file':
         section('ALIVE FILE', FILE, (
             'EXAMPLE: source file -> load "example.wav" -> status -> play -> pause -> stop',
-            'ALIVE uses a prepared local WAV and can use the default output without BlackHole. output <name|id> changes output while stopped.',))
+            'On macOS, load DRM-free purchased M4A / AAC or Apple Lossless as well as WAV. Protected Apple Music downloads cannot be imported.',
+            'ALIVE uses a prepared local audio file and can use the default output without BlackHole. output <name|id> changes output while stopped.',))
     elif topic == 'devices':
         section('DEVICE SETUP - STOP AUDIO FIRST', DEVICES, (
             'EXAMPLE: monitor stop -> source system -> input -> listed number -> output -> listed number -> monitor start',

@@ -111,6 +111,27 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
     assert all(stream.closed for stream in files.streams)
 
 
+def test_file_picker_accepts_purchased_m4a_with_spaces(app, monkeypatch):
+    w, c, live, files, *_ = window_session(app)
+    try:
+        def choose(*args):
+            assert args[1] == 'Open audio file'
+            assert all(pattern in args[3] for pattern in ('*.wav', '*.m4a', '*.M4A', '*.aac'))
+            return 'Purchased music/Piano café.m4a', ''
+
+        monkeypatch.setattr(QFileDialog, 'getOpenFileName', choose)
+        assert w.open_file.text() == 'Open Audio File…'
+        click(app, w, w.open_file)
+        assert str(c.job.path) == 'Purchased music/Piano café.m4a'
+        c.job.result = prepared_buffers(), 44100
+        wait_ui(app, lambda: w.state.file_state == UIState.READY)
+        click(app, w, w.play)
+        assert w.state.file_state == UIState.PLAYING
+    finally:
+        close_window(app, w, c)
+    assert all(stream.closed for stream in files.streams)
+
+
 def test_mouse_guided_devices_mismatch_recheck_start_stop_and_modes(app):
     w, c, live, _, _, routing = window_session(app)
     try:
@@ -240,7 +261,7 @@ def test_start_live_original_explicit_reset_and_listening_volume(app):
 
 
 def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
-    """No background CoreAudio scans while LIVE owns the stream; Stop is prompt."""
+    """No scan during LIVE/Stop; deferred refresh follows returned audio cleanup."""
     w, c, live, _, _, routing = window_session(app)
     try:
         w.capture.setCurrentIndex(1)
@@ -252,11 +273,23 @@ def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
         assert not w.refresh.isEnabled() and not w.recheck.isEnabled()
 
         rescans = []
+        stop_returned = threading.Event()
         service = w.worker.service
         original_scan = service.refresh_devices
-        def track_scan():
-            rescans.append('unexpected rescan')
-            return original_scan()
+        original_stop = service.stop_live
+        def track_stop():
+            result = original_stop()
+            stop_returned.set()
+            return result
+        def track_scan(*args,**kwargs):
+            # A post-Stop refresh may finish before this test thread consumes
+            # the Stop completion event. Prove causal ordering rather than
+            # assuming the GUI thread always wins that scheduling race.
+            assert stop_returned.is_set(), 'Rescan started inside/before Stop'
+            assert not c.live.running and live.streams[0].closed
+            rescans.append('after Stop returned and stream closed')
+            return original_scan(*args,**kwargs)
+        monkeypatch.setattr(service, 'stop_live', track_stop)
         monkeypatch.setattr(service, 'refresh_devices', track_scan)
         # Force the background two-second threshold without sleeping two
         # seconds: worker must skip it while LIVE is running.
@@ -265,9 +298,9 @@ def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
         assert not rescans
         click(app, w, w.stop_live)
         assert not c.live.running and live.streams[0].closed
-        assert not rescans, 'Stop LIVE must not enumerate native devices'
+        assert stop_returned.is_set()
+        wait_ui(app, lambda: bool(rescans) and w.state.routing_ready)
         assert w.refresh.isEnabled() and w.recheck.isEnabled()
-        assert not w.state.routing_ready
     finally:
         close_window(app, w, c)
 

@@ -1,0 +1,283 @@
+{
+  "base": "339fa59bbf1c9bb7e95ce972b48fa6e835917cc9",
+  "files": 46,
+  "all_byte_identical": true,
+  "results": [
+    {
+      "path": "docs/research/phase-governed-resonance-02/CONTROL_COMPARISON.md",
+      "baseline_sha256": "62ed772667afb6ce7a53224ca1a33300d37b1fc7f51983fc292bf58b055639b0",
+      "current_sha256": "62ed772667afb6ce7a53224ca1a33300d37b1fc7f51983fc292bf58b055639b0",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/ESTIMATOR_AUDIT.md",
+      "baseline_sha256": "9db3ebbd37353b72f353ca97eff2272d4a6e030ad40228c1480edb714016c096",
+      "current_sha256": "9db3ebbd37353b72f353ca97eff2272d4a6e030ad40228c1480edb714016c096",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/EVIDENCE_INDEX.md",
+      "baseline_sha256": "b62e6e3afdab69dea4d0fd1a30ddea25db9426e3f57c10bf7ceffb0db5d3713f",
+      "current_sha256": "b62e6e3afdab69dea4d0fd1a30ddea25db9426e3f57c10bf7ceffb0db5d3713f",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/FREEZE.json",
+      "baseline_sha256": "0d41467f483776a3ed4ac260d7c38068c9a52cc2b34deacb0b63c0f7b60ecd79",
+      "current_sha256": "0d41467f483776a3ed4ac260d7c38068c9a52cc2b34deacb0b63c0f7b60ecd79",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/LISTENING_GUIDE.md",
+      "baseline_sha256": "d9f832652b4cf53529da949901bf8987381e615fac26ce417e63e77e7672eb73",
+      "current_sha256": "d9f832652b4cf53529da949901bf8987381e615fac26ce417e63e77e7672eb73",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/PROTOCOL.md",
+      "baseline_sha256": "20cbda92d0691a236eebc831c8468e38aa8a38d8929b09dcd03152172c4547e1",
+      "current_sha256": "20cbda92d0691a236eebc831c8468e38aa8a38d8929b09dcd03152172c4547e1",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/README.md",
+      "baseline_sha256": "a4318ff30223f3c255e2292108cc16651c1949ad839ebd00a882b3562d317b41",
+      "current_sha256": "a4318ff30223f3c255e2292108cc16651c1949ad839ebd00a882b3562d317b41",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/REPRODUCE.md",
+      "baseline_sha256": "af669d319048b35cb38b91e05b645647628bf6d214ee540567e5ac8ac92b2267",
+      "current_sha256": "af669d319048b35cb38b91e05b645647628bf6d214ee540567e5ac8ac92b2267",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/RESEARCH_REPORT.md",
+      "baseline_sha256": "a0a6a65d882665043afe7b949a18f6bd583c93517380efdc2d12f56dbfc0d452",
+      "current_sha256": "a0a6a65d882665043afe7b949a18f6bd583c93517380efdc2d12f56dbfc0d452",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/SLOWDOWN.md",
+      "baseline_sha256": "4097958a8f9a2719047e3d784cb8cf48ca241fb37b3bbe1a91737f192e73cc16",
+      "current_sha256": "4097958a8f9a2719047e3d784cb8cf48ca241fb37b3bbe1a91737f192e73cc16",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/SLOWDOWN_AUDIT.md",
+      "baseline_sha256": "4bfde77550098fe3b9f177de0f9e42f89637eb4249864b17efb209c611460313",
+      "current_sha256": "4bfde77550098fe3b9f177de0f9e42f89637eb4249864b17efb209c611460313",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/SLOWDOWN_SUCCESSOR.md",
+      "baseline_sha256": "93cf3ece8226b1a74978329320ecbc2f51f0545cdfe2f8b63b528c8f292d5476",
+      "current_sha256": "93cf3ece8226b1a74978329320ecbc2f51f0545cdfe2f8b63b528c8f292d5476",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/SPECIFICATION.md",
+      "baseline_sha256": "9ca5b3bcdd9d8420db462abdbd98b8575d05a2a1b1b2fd3009bba7c4d14c407e",
+      "current_sha256": "9ca5b3bcdd9d8420db462abdbd98b8575d05a2a1b1b2fd3009bba7c4d14c407e",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/SUMMARY.json",
+      "baseline_sha256": "ade8743f14beaacbff3b0ba67ac11a7c44e3fcc8f7d5450d67ad96e2c5efa829",
+      "current_sha256": "ade8743f14beaacbff3b0ba67ac11a7c44e3fcc8f7d5450d67ad96e2c5efa829",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/UFO_PRIOR_ART.md",
+      "baseline_sha256": "6e1b22e27190804f19d52a2b0da9e9957c6b7bd995f253429739c33aeaca9576",
+      "current_sha256": "6e1b22e27190804f19d52a2b0da9e9957c6b7bd995f253429739c33aeaca9576",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/evidence/EXPERIMENT01_SHA256SUMS.json",
+      "baseline_sha256": "992c3c66fd184b0b48fb62348510148cdd9a65bdcc355d2f4aa04cdd2d26d429",
+      "current_sha256": "992c3c66fd184b0b48fb62348510148cdd9a65bdcc355d2f4aa04cdd2d26d429",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/evidence/EXPERIMENT02_SHA256SUMS.json",
+      "baseline_sha256": "f56de5f7b41a0300685edc0869d949af426a5b9681f57928c64a41bd75445a96",
+      "current_sha256": "f56de5f7b41a0300685edc0869d949af426a5b9681f57928c64a41bd75445a96",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/evidence/SLOWDOWN_SUCCESSOR_01.json",
+      "baseline_sha256": "da37288fd1e83217ee78eab54d7e94084d2824afd0b0f6436bdb49c4d6e66a45",
+      "current_sha256": "da37288fd1e83217ee78eab54d7e94084d2824afd0b0f6436bdb49c4d6e66a45",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/evidence/SOURCE_MANIFEST.json",
+      "baseline_sha256": "d1eab894f640509acfb1e6c81f6bc864433236fbb69239a273d81aced403ea68",
+      "current_sha256": "d1eab894f640509acfb1e6c81f6bc864433236fbb69239a273d81aced403ea68",
+      "byte_identical": true
+    },
+    {
+      "path": "docs/research/phase-governed-resonance-02/requirements.lock",
+      "baseline_sha256": "a813823e9309cbbe41fee09183897b530e84e1df2d2ea2c353ae68175495c489",
+      "current_sha256": "a813823e9309cbbe41fee09183897b530e84e1df2d2ea2c353ae68175495c489",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/__init__.py",
+      "baseline_sha256": "096d416ccfdf48f4c6fc6f0041cb207d7d96447f908112a8513908d1941d2895",
+      "current_sha256": "096d416ccfdf48f4c6fc6f0041cb207d7d96447f908112a8513908d1941d2895",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/attacks.py",
+      "baseline_sha256": "106f4ccefbd3c1ca4ae5544c8b8b8ce0b3a12d66edad18ee949b7f644da2ce96",
+      "current_sha256": "106f4ccefbd3c1ca4ae5544c8b8b8ce0b3a12d66edad18ee949b7f644da2ce96",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/core.py",
+      "baseline_sha256": "91a673b9c894d4af768ae966177d0f38c3f17d8e2b9e898e82e2082e083158a0",
+      "current_sha256": "91a673b9c894d4af768ae966177d0f38c3f17d8e2b9e898e82e2082e083158a0",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/corpus.py",
+      "baseline_sha256": "3a78c9141de224a6ca96976f57bd084a9f251219ace11d92c618c15c8f0f1ac7",
+      "current_sha256": "3a78c9141de224a6ca96976f57bd084a9f251219ace11d92c618c15c8f0f1ac7",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/estimator_audit.py",
+      "baseline_sha256": "e67df9e704f689476ca2eb6d163649976767d4ee4f3292648ee9470b5d21f7ac",
+      "current_sha256": "e67df9e704f689476ca2eb6d163649976767d4ee4f3292648ee9470b5d21f7ac",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/legacy01.py",
+      "baseline_sha256": "91fb20e0e2fcce30835b0816fbead6c1cc44b6510f9e941ec3f0a24074bc323b",
+      "current_sha256": "91fb20e0e2fcce30835b0816fbead6c1cc44b6510f9e941ec3f0a24074bc323b",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/measure.py",
+      "baseline_sha256": "5dcc58accaca131ef1bd9c5b368af58eab2be4c5f661b2f6f1fcc44146eb10ba",
+      "current_sha256": "5dcc58accaca131ef1bd9c5b368af58eab2be4c5f661b2f6f1fcc44146eb10ba",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/package.py",
+      "baseline_sha256": "9d2f8f33dbf42e41d202ce7fe0f5e48bed458de6fb7a04e34a36f5c8183d6f66",
+      "current_sha256": "9d2f8f33dbf42e41d202ce7fe0f5e48bed458de6fb7a04e34a36f5c8183d6f66",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/present.py",
+      "baseline_sha256": "3656da4ff5ecc305ba910fa1795a3359f5442b67024680a589e4b4b12f28f0bf",
+      "current_sha256": "3656da4ff5ecc305ba910fa1795a3359f5442b67024680a589e4b4b12f28f0bf",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/report.py",
+      "baseline_sha256": "5391337b472977e99f81c2842ca0b37a2732f54b178915c4e7469e8389a2d462",
+      "current_sha256": "5391337b472977e99f81c2842ca0b37a2732f54b178915c4e7469e8389a2d462",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/run.py",
+      "baseline_sha256": "87a177afd63fb81b4ec51aa5d99a4995415c8ee1e586440d50b2d518294e1051",
+      "current_sha256": "87a177afd63fb81b4ec51aa5d99a4995415c8ee1e586440d50b2d518294e1051",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/slowdown.py",
+      "baseline_sha256": "207e2de135960d9e65a4765e3a14cdf18cd7e0a5c6296e8b60d96cc6f0bed74b",
+      "current_sha256": "207e2de135960d9e65a4765e3a14cdf18cd7e0a5c6296e8b60d96cc6f0bed74b",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/slowdown_audit.py",
+      "baseline_sha256": "177de34188539a9f78e35b213c2da99ff7503bff56e9936f056bf8a161503cc5",
+      "current_sha256": "177de34188539a9f78e35b213c2da99ff7503bff56e9936f056bf8a161503cc5",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/slowdown_successor.py",
+      "baseline_sha256": "62c678423312a27bd954cc20069c86524ee1512970bd7379234ae5c42eb8865b",
+      "current_sha256": "62c678423312a27bd954cc20069c86524ee1512970bd7379234ae5c42eb8865b",
+      "byte_identical": true
+    },
+    {
+      "path": "tools/resonance02/slowdown_successor_audit.py",
+      "baseline_sha256": "59eb1b7805298664d6d4afe2be71e01d768def1fea375cd3d3bcf05fb100295f",
+      "current_sha256": "59eb1b7805298664d6d4afe2be71e01d768def1fea375cd3d3bcf05fb100295f",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/live.py",
+      "baseline_sha256": "029b5d5f06b100a9e5150626b84af76feeda9c1f1a65ab000d88abef568572a9",
+      "current_sha256": "029b5d5f06b100a9e5150626b84af76feeda9c1f1a65ab000d88abef568572a9",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/streaming.py",
+      "baseline_sha256": "221a99a03a7425595a79bb8d86460e3d0c43c4a1233ca9576d8431796983413f",
+      "current_sha256": "221a99a03a7425595a79bb8d86460e3d0c43c4a1233ca9576d8431796983413f",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/playback.py",
+      "baseline_sha256": "6f271d1212ee4fa5083ac3f6ddfdd49c26b001b251cc410d43e62f2887c396a3",
+      "current_sha256": "6f271d1212ee4fa5083ac3f6ddfdd49c26b001b251cc410d43e62f2887c396a3",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/preparation.py",
+      "baseline_sha256": "81ca46f28ecc50cd815e7fe43d020c6f8bd4e8cbbf8e4929b12292a7cf4dbd87",
+      "current_sha256": "81ca46f28ecc50cd815e7fe43d020c6f8bd4e8cbbf8e4929b12292a7cf4dbd87",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/harmonics.py",
+      "baseline_sha256": "9b25c6d9126766a69d482fb7e637a95de86d79884cb55ccec74b8a7cc58045e5",
+      "current_sha256": "9b25c6d9126766a69d482fb7e637a95de86d79884cb55ccec74b8a7cc58045e5",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/spectral.py",
+      "baseline_sha256": "4ec1939543a5770ee0bcecc4b52261b30c554eab6943fc94635f8c20ce214dc3",
+      "current_sha256": "4ec1939543a5770ee0bcecc4b52261b30c554eab6943fc94635f8c20ce214dc3",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/monitor_gain.py",
+      "baseline_sha256": "8761f6ea312cbf1922ad27cd10de8b7d8cf0e719ffda92e5de7e7d9f7d00aae6",
+      "current_sha256": "8761f6ea312cbf1922ad27cd10de8b7d8cf0e719ffda92e5de7e7d9f7d00aae6",
+      "byte_identical": true
+    },
+    {
+      "path": "isla/coreaudio.py",
+      "baseline_sha256": "088054f8e1f66aac7d016218d75c9a508a469b67ff9a00dfcd89e53a9cde0984",
+      "current_sha256": "088054f8e1f66aac7d016218d75c9a508a469b67ff9a00dfcd89e53a9cde0984",
+      "byte_identical": true
+    },
+    {
+      "path": "drivers/api.py",
+      "baseline_sha256": "fb95aafc6b156a64862603d9b0e339fe29784a2ad0221f3f5d87cf9b5f30c0a6",
+      "current_sha256": "fb95aafc6b156a64862603d9b0e339fe29784a2ad0221f3f5d87cf9b5f30c0a6",
+      "byte_identical": true
+    },
+    {
+      "path": "pyproject.toml",
+      "baseline_sha256": "a33db88ab54b46a3e9f75f8518432326009f4e4234b6d6131c29bfb4d172935b",
+      "current_sha256": "a33db88ab54b46a3e9f75f8518432326009f4e4234b6d6131c29bfb4d172935b",
+      "byte_identical": true
+    },
+    {
+      "path": "CMakeLists.txt",
+      "baseline_sha256": "e7e0e91ce5e9807a37fa77d13670774ad5fefdfd80c9c2581f14dfabdc0814b8",
+      "current_sha256": "e7e0e91ce5e9807a37fa77d13670774ad5fefdfd80c9c2581f14dfabdc0814b8",
+      "byte_identical": true
+    }
+  ]
+}

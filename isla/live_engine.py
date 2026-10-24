@@ -1,0 +1,108 @@
+"""Atomic UI requests and worker-only production/Remastered engine selection."""
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import numpy as np
+
+from isla.remastered import RenderRequest
+from isla.streaming import StreamingDSP
+
+
+@dataclass(frozen=True)
+class LiveRequest:
+    engine: str = 'production'
+    intensity: int = 100
+
+    def __post_init__(self):
+        if self.engine not in ('production','remastered'):
+            raise ValueError('Choose production or remastered LIVE processing.')
+        RenderRequest('velvet',self.intensity)
+
+
+class LiveSettings:
+    def __init__(self):
+        self.request = LiveRequest()
+
+    def set(self, engine, intensity):
+        self.request = LiveRequest(engine,intensity)
+
+
+@dataclass(frozen=True)
+class LiveEngineFactory:
+    settings: LiveSettings
+    production_factory: object = StreamingDSP
+
+    def __call__(self,rate,channels):
+        return LiveEngineDSP(rate,channels,self.settings,production_factory=self.production_factory)
+
+
+def current_engine(processor):
+    if isinstance(processor,LiveEngineDSP):
+        return processor
+    candidate = getattr(processor,'delegate',None)
+    return candidate if isinstance(candidate,LiveEngineDSP) else None
+
+
+class LiveEngineDSP:
+    def __init__(self, rate, channels, settings, *, production_factory=StreamingDSP):
+        self.production = production_factory(rate,channels)
+        self.settings, self.rate, self.channels = settings,rate,channels
+        self.research = None
+        self._research_hops = 0
+        self._mix = 0.
+        self.applied = LiveRequest()
+        self.diagnostics = 'Production LIVE harmonic profiles'
+
+    @property
+    def delay(self):
+        return self.production.delay
+
+    @property
+    def mode(self):
+        return self.production.mode
+
+    def select(self, mode):
+        self.production.select(mode)
+        if self.research is not None:
+            self.research.select(mode)
+
+    def process_block(self, block):
+        request = self.settings.request
+        old = self.production.process_block(block)
+        if request.engine == 'remastered' and self.research is None:
+            from isla.remastered_streaming import RemasteredStreamingDSP
+            if self.delay != RemasteredStreamingDSP.delay:
+                raise ValueError('LIVE engines must have the same delay before switching.')
+            self.research = RemasteredStreamingDSP(self.rate,self.channels,request.intensity)
+            self.research.select(self.mode)
+        new = None
+        if self.research is not None:
+            if self.research.intensity != request.intensity:
+                self.research.set_intensity(request.intensity)
+            new = self.research.process_block(block)
+            self._research_hops += 1
+        ready = self.research is not None and self._research_hops > self.research.delay//self.research.hop
+        target = float(request.engine == 'remastered' and ready)
+        if target == self._mix:
+            result = new if target else old
+        else:
+            n = min(len(old),max(2,round(self.rate*.005)))
+            ramp = np.linspace(self._mix,target,n,dtype=np.float32)[:,None]
+            result = (new if target else old).copy()
+            result[:n] = old[:n]*(1-ramp)+new[:n]*ramp
+        if ((target or self._mix) and self.mode != 'bypass' and request.intensity > 0
+                and np.max(np.abs(result)) > 1.):
+            raise ValueError('Remastered LIVE exceeded full scale; lower the source app volume and restart.')
+        self._mix = target
+        self.applied = request if target else LiveRequest('production',request.intensity)
+        if target:
+            d = self.research
+            index = d.modes.index(self.mode) if self.mode != 'bypass' else 0
+            self.diagnostics = (f'Remastered LIVE {self.mode.title()} — {request.intensity}% permitted depth; '
+                f'applied depth {d.control[index]:.4f}; vetoed {d.vetoed}/{d.frames} frames; '
+                f'sample peak {d.peak:.5f}; 1536-sample DSP delay; REVISE / INCONCLUSIVE')
+        else:
+            self.diagnostics = ('Preparing Remastered LIVE history…' if request.engine == 'remastered'
+                                else 'Production LIVE harmonic profiles')
+        return result

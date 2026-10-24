@@ -110,7 +110,8 @@ class HarmonicBlender:
         # ISTFT
         # We need to multiply by the window again in the synthesis stage for
         # proper overlap-add reconstruction with a Hann window
-        frames_out = np.fft.irfft(spectrum_blended, axis=1) * win
+        # Explicitly pass n=win.size to handle odd-length windows correctly.
+        frames_out = np.fft.irfft(spectrum_blended, n=win.size, axis=1) * win
 
         # Calculate weights for normalization
         win_sq = win ** 2

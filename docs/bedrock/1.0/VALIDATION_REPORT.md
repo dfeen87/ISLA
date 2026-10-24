@@ -4,12 +4,12 @@
 Validation was run across all modules within the standard Python testing environment.
 
 * **Executed Commands:** `python -m pytest -v tests/`
-* **Test Counts:** 53 total tests executed. 53 Passed, 0 Failed, 0 Skipped.
+* **Test Counts:** 55 total tests executed. 54 Passed, 1 XFailed (expected failure due to known architectural limitation), 0 Failed, 0 Skipped.
 
 ## Measured Results
-* **Identity Divergence:** Peak absolute difference across a fully overlapping window boundary is strictly `< 1e-5`.
-* **Discontinuity Detection:** When evaluated continuously with `block_size=32`, peak discontinuity divergence measured `~0.999`. (See Residual Risks).
-* **Speed:** The entire 53 test suite executes in `~3.5` seconds on standard runner hardware, respecting the < 100ms per test average.
+* **Identity Divergence:** Peak absolute difference across a fully overlapping window boundary is strictly `< 1e-5` when `strength=0.0`, ensuring exact identity preservation even across varying chunk sizes and odd window lengths (10ms, 30ms).
+* **Discontinuity Detection (Non-zero strength):** When evaluated continuously with non-zero strength, peak discontinuity divergence demonstrates the limit of lack of retained state between blocks. This limitation is explicitly codified in `test_harmonic_blender_streaming_nonzero_strength` which is marked as `XFAIL`. (See Residual Risks).
+* **Speed:** The entire 55 test suite executes in `~4.0` seconds on standard runner hardware, respecting the < 100ms per test average.
 
 ## Environment Limitations
 * Validation focused heavily on Python deterministic offline processing.

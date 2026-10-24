@@ -113,8 +113,8 @@ def test_harmonic_blender_identity():
     # Assert
     assert np.allclose(audio, audio_out, atol=1e-5)
 
-@pytest.mark.xfail(reason="Streaming continuity lacks retained state across chunks (Residual Risk #1)")
 def test_harmonic_blender_streaming_continuity():
+    """When strength is 0, the chunked output should exactly match the full output."""
     sr = 44100
     duration = 1.0
     t = np.linspace(0, duration, int(sr * duration), endpoint=False)
@@ -132,8 +132,45 @@ def test_harmonic_blender_streaming_continuity():
             chunk = audio[i:i+block_size]
             out_chunked[i:i+len(chunk)] = blender_chunked.blend(chunk, sr)
 
-        # We expect this to fail due to no retained state / normalization issues,
-        # but it captures the continuity requirement.
         diff = np.abs(out_full - out_chunked)
         max_diff = np.max(diff)
-        assert max_diff > 0.1, f"Streaming continuity check behaves unexpectedly. Block size {block_size}."
+        assert max_diff < 1e-4, f"Streaming continuity failed for block size {block_size}. Max diff: {max_diff}"
+
+@pytest.mark.xfail(reason="Streaming continuity lacks retained state across chunks for non-zero strength (Residual Risk #1)")
+def test_harmonic_blender_streaming_nonzero_strength():
+    """When strength > 0, the lack of overlap-add state retention between chunks causes discontinuities."""
+    sr = 44100
+    duration = 1.0
+    t = np.linspace(0, duration, int(sr * duration), endpoint=False)
+    audio = np.sin(2 * np.pi * 440 * t)
+
+    blender_full = HarmonicBlender(strength=0.5)
+    out_full = blender_full.blend(audio, sr)
+
+    block_size = 512
+    out_chunked = np.zeros_like(audio)
+    blender_chunked = HarmonicBlender(strength=0.5)
+
+    for i in range(0, len(audio), block_size):
+        chunk = audio[i:i+block_size]
+        out_chunked[i:i+len(chunk)] = blender_chunked.blend(chunk, sr)
+
+    diff = np.abs(out_full - out_chunked)
+    max_diff = np.max(diff)
+    assert max_diff < 1e-4, f"Streaming continuity should ideally hold even for non-zero strength. Max diff: {max_diff}"
+
+def test_harmonic_blender_odd_windows():
+    sr = 44100
+    duration = 0.5
+    t = np.linspace(0, duration, int(sr * duration), endpoint=False)
+    audio = np.sin(2 * np.pi * 440 * t)
+
+    # 10ms at 44100Hz is 441 samples (odd)
+    blender_10 = HarmonicBlender(strength=0.0, window_ms=10)
+    out_10 = blender_10.blend(audio, sr)
+    assert np.allclose(audio, out_10, atol=1e-5), "Failed identity test with odd window (10ms)"
+
+    # 30ms at 44100Hz is 1323 samples (odd)
+    blender_30 = HarmonicBlender(strength=0.0, window_ms=30)
+    out_30 = blender_30.blend(audio, sr)
+    assert np.allclose(audio, out_30, atol=1e-5), "Failed identity test with odd window (30ms)"

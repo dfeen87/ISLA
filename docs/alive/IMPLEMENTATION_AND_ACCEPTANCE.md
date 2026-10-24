@@ -410,7 +410,7 @@ to restore normal Mac routing. It never changes the system default or saves audi
 - [x] Deterministic mono/stereo + 44.1/48 kHz continuity and lifecycle tests.
 - [x] Root README onboarding, both source command references and restoration steps.
 - [x] Native stop/exit and normal physical-route restoration observed.
-- [ ] Musical quality accepted by owner: **pending; owner reports subtle differences / quality needs work**.
+- [x] Guided owner listening confirmed subtle differences are appreciated; **Melt preferred**. See follow-up below. Full release acceptance is still pending.
 - [ ] Long-session, stress, physical disconnect, all-device/OS coverage and explicit
       detailed echo/glitch acceptance: pending.
 - [ ] Final-head CI/reviews: recorded in the follow-up PR, not inferred from local tests.
@@ -425,3 +425,29 @@ one run; regular package installation restored installed-entrypoint validation.
 This environment issue is not hidden as a DSP test failure. The README editable install was also verified in a fresh temporary environment,
 launched from outside the checkout, with only `.[playback]` dependencies.
 CI separately checks it on Linux/macOS Python 3.10/3.13.
+
+## Guided owner listening follow-up — latest result
+
+After the initial runs, the owner requested another guided comparison while CI
+ran. The actual installed `isla` terminal (code commit `f1d7b47`, including the
+pre-start native stream-ID guard) monitored BlackHole to the plugged-in
+**External Headphones** sound system at **44.1 kHz**. The owner confirmed solo
+piano was playing clearly. Velvet, Legato and Melt were each held for about
+20 seconds, with roughly 6 seconds of Bypass between them, then returned to Bypass.
+
+The owner then asked to keep **Melt** and BlackHole active, saying **“I like this
+one best”** and that the subtle differences across the modes were appreciated.
+This supersedes the earlier uncertain mode-quality feedback as the latest
+listening preference. It does not authorize a merge, release or claim long-session
+reliability. The guided session showed Running, 3 output-ring underflows,
+0 ring overflows and 0 device status events; its timestamp latency estimate was
+**107.1 ms**, extending the observed native range to approximately **79–107 ms**.
+
+The bounded guided test was stopped/exited normally. A fresh production terminal
+session was then left in **Melt**, with no test timeout, at the owner's explicit
+request. BlackHole remains the system output; the sound system remains the
+physical ISLA output. This deliberate ongoing session supersedes the earlier
+end-of-test restoration state. Selecting External Headphones in macOS Sound
+restores direct normal audio and causes the routing guard to stop LIVE. No audio
+was recorded and no volume was changed by ISLA. Scalar/state observations and
+the owner's preference are retained in [follow-up evidence](OWNER_LISTENING_FOLLOWUP.json).

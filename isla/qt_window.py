@@ -875,7 +875,9 @@ def launch(controller=None):
     window = ControlWindow(worker)
     app.window = window
     worker.start()
-    window.show()
+    # Terminal-launched Control Center opens in native full-screen mode.
+    # Users can return to a normal window with the system full-screen toggle.
+    window.showFullScreen()
     app.exec()
     # Normal window closure only occurs after worker-confirmed resource release.
     if not window.closed_cleanly and not window.failed_initialize:

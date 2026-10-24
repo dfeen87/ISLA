@@ -127,20 +127,47 @@ The environment must be activated in each new Terminal session. To use **local a
 
 The optional **ISLA — Audio Control Center** provides clickable ALIVE playback and guided LIVE setup. The traditional terminal and offline exporter remain available. This is an optional experimental desktop feature; physical macOS GUI/audio acceptance is pending. It does not integrate the research-only v4.0 algorithms.
 
-### Install and launch
+### Install and launch: which prompt are you using?
 
-From your ISLA checkout, with your Python 3.10+ environment activated:
+**macOS Terminal and ISLA's interactive terminal accept different commands.** Look at the prompt before typing or pasting:
+
+| Prompt you see | Where you are | What to type |
+|---|---|---|
+| `(.venv) ... ISLA %` (or a shell prompt ending in `%` / `$`) | **macOS Terminal (shell)** | `python -m pip install -e '.[gui]'`, `python -m isla window`, or `isla window` |
+| `isla>` | **Inside the ISLA application** | **`window`** (one word), or `exit` to return to macOS Terminal |
+
+**Do not paste a shell command such as `python -m isla window`, `isla window`, `python -m pip ...`, or `git pull` after `isla>`.** ISLA interprets those as its own audio commands, resulting in errors such as `Unexpected arguments for python`. Likewise, do not paste command examples' `#` comment lines or the printed prompt (`isla>`) as commands.
+
+#### Option 1 — Launch the GUI from macOS Terminal
+
+At your Mac's **shell prompt** (`ISLA %`, **not** `isla>`), enter these commands one line at a time. This example assumes you cloned ISLA to `~/ISLA` and created `.venv` as instructed above:
 
 ~~~bash
+cd ~/ISLA
+git switch main
+git pull --ff-only
+source .venv/bin/activate
 python -m pip install -e '.[gui]'
-isla window
-# Equivalent:
 python -m isla window
 ~~~
 
-The `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and `sounddevice>=0.5,<0.6`. Qt is optional: existing base and `.[playback]` installations do not import or require it. PySide6 is the official Qt for Python binding; using its Essentials wheels avoids unrelated Qt modules. See the [Qt installation requirements](https://doc.qt.io/qtforpython-6/gettingstarted.html) and [dependency licenses](https://doc.qt.io/qtforpython-6/licenses.html). ISLA remains MIT licensed; Qt/PySide retain their own licenses and notices. No standalone bundled app or installer is supplied.
+The `git pull --ff-only` step obtains the latest merged Control Center code; if Git reports uncommitted local changes or a pull conflict, resolve or preserve your changes before proceeding. If your checkout lives elsewhere, change the `cd` path accordingly. If you already updated the repository and installed `.[gui]`, you can skip the update/install steps and simply launch.
 
-Inside an existing `isla>` terminal, type **`window`**. It uses that same controller, file buffers and LIVE monitor; it does not spawn a second audio engine. Current playback/monitoring is preserved on entry. Finish or cancel a pending `setup audio` selection first. Closing the window stops audio and returns to the same terminal with an already prepared file retained. A pending preparation is canceled on close. From a shell-launched window, Close releases the session and returns to the shell.
+**Alternative shell launch:** `isla window` opens the same GUI after installation. Choose **either** `isla window` **or** `python -m isla window`; you do not need to run both. A shell-launched window closes back to the macOS shell.
+
+#### Option 2 — You already see `isla>`
+
+Inside an existing ISLA session, type **only** this command, then press Return:
+
+~~~text
+window
+~~~
+
+Do not include the `isla>` prompt itself and do not type `python -m isla window`. The window borrows the **existing controller, prepared buffers and LIVE monitor**, rather than starting a second audio engine. Finish or cancel a pending `setup audio` device-choice prompt first. Current playback/monitoring is preserved when entering the window; closing it stops audio and returns to `isla>` with any already prepared file retained. Pending file preparation is canceled on close.
+
+**If `window` is not recognized or the optional GUI dependency is missing:** type `exit` to leave ISLA. Once you see your Mac's shell prompt again, run the update and `.[gui]` installation commands from Option 1, then launch the window. Run `exit` at `isla>`—not a shell `python`, `git`, or `pip` command.
+
+The optional `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and `sounddevice>=0.5,<0.6`. Existing base and `.[playback]` installations do not import or require Qt. See the [Qt installation requirements](https://doc.qt.io/qtforpython-6/gettingstarted.html) and [dependency licenses](https://doc.qt.io/qtforpython-6/licenses.html). ISLA remains MIT licensed; Qt/PySide retain their own licenses and notices. No standalone bundled Mac app or installer is supplied.
 
 ### ALIVE — play a WAV
 
@@ -431,6 +458,8 @@ Use `velvet`, `legato`, or `melt`. The API is `smooth_file(input_path, output_pa
 | `mode velvet` / `mode legato` / `mode melt` | Select prepared file processing | Select LIVE harmonic profile |
 | `bypass` | Decoded original audio | Original captured system audio, time-aligned |
 
+**The table above lists commands for the `isla>` prompt, not macOS shell commands.** For installation and GUI launch, see [which prompt are you using?](#install-and-launch-which-prompt-are-you-using). Shell commands such as `python -m isla window` belong at the Mac's `%` / `$` prompt.
+
 Commands are case-insensitive where appropriate; file and device names retain their case. `Ctrl-C` or `Ctrl-D` at the terminal prompt also initiates cleanup. Switch devices **only while playback/monitoring is stopped**.
 
 ---
@@ -439,6 +468,7 @@ Commands are case-insensitive where appropriate; file and device names retain th
 
 | Symptom | What to check |
 |---|---|
+| **`Unexpected arguments for python`, `isla`, or `#`** | You probably pasted macOS shell commands inside `isla>`. Type `window` there, or type `exit` and run the install/launch commands at your Mac's shell prompt; see [the two prompts](#install-and-launch-which-prompt-are-you-using). |
 | **`brew: command not found`** | Install Homebrew from [brew.sh](https://brew.sh/) and follow its post-install shell-path instructions. |
 | **BlackHole already installed** | Homebrew's `Not upgrading blackhole-2ch, the latest version is already installed` message is informational. Continue to the audio-device setup. |
 | **BlackHole not found** | Install the **2ch** cask, restart macOS, and confirm the device appears in **Audio MIDI Setup**. Run `devices` again in a freshly launched ISLA terminal. |

@@ -35,6 +35,9 @@ Find a feature, set up an audio path, or jump straight to the engineering histor
 - [What ISLA does](#what-isla-does)
   - [Remastered research: ALIVE and LIVE](#remastered-research-alive-and-live)
   - [Why this exists](#why-this-exists)
+- [Remastered listening showcase](#remastered-listening-showcase)
+  - [Mozart: Lacrimosa](#mozart-lacrimosa)
+  - [Saint-Saëns: Organ Symphony finale](#saint-saëns-organ-symphony-finale)
 - [Get started on macOS](#get-started-on-macos)
   - [1. Clone ISLA](#1-clone-isla)
   - [2. Prepare the Python environment](#2-prepare-the-python-environment)
@@ -122,6 +125,42 @@ The frozen research verdict remains **REVISE / INCONCLUSIVE**. Numerical equival
 
 ISLA began as **Phased-Music-Notes** and evolved through a regression-tested BEDROCK DSP foundation into a usable terminal player and experimental live-audio monitor.
 
+
+## Remastered listening showcase
+
+**Two classical performances. Three Remastered modes. Two listening speeds.** Compare **Velvet**, **Legato**, and **Melt** against **Original / Bypass** using the same passage from each recording. All processed examples use the current **v4.0 Remastered governed engine at 100% research depth**.
+
+**Start with your listening volume low.** Each link opens or downloads a **24-bit FLAC**; if your browser downloads it, open it in your audio player. Compare one row at a time, then return to Original. The four modes at both speeds are matched to the same integrated loudness **within each work**, so keep your playback volume fixed.
+
+**100% speed** gives an **18-second** excerpt; **60% speed (0.60×)** expands the same passage to **30 seconds**, with pitch preserved. The slower source is prepared **before** each model runs, letting its state-aware processing respond to the slower attacks, sustains, and decays. Listening speed and research depth are separate settings.
+
+### Mozart: Lacrimosa
+
+**Wolfgang Amadeus Mozart — Requiem in D minor, K. 626, “Lacrimosa.”** Piano transcription by **Sigismund Thalberg**, performed by **Lệ Xuân**. This piano arrangement offers note attacks, overlapping resonance, and decaying chords to explore. Passage: **00:12–00:30** of the source recording.
+
+| Mode | Normal · 100% speed · 18 s | Slowed · 60% speed · 30 s |
+|---|---|---|
+| **Original / Bypass** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-bypass.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-bypass.flac?raw=1) |
+| **Velvet Remastered** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-velvet.flac?raw=1) |
+| **Legato Remastered** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-legato.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-legato.flac?raw=1) |
+| **Melt Remastered** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-melt.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-melt.flac?raw=1) |
+
+Recording and adapted audio: **[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**. [Original recording and performer credit](https://commons.wikimedia.org/wiki/File:Mozart,_Requiem_in_D_minor,_%27Lacrimosa%27_%E2%80%93_piano_arrangement.ogg).
+
+### Saint-Saëns: Organ Symphony finale
+
+**Camille Saint-Saëns — Symphony No. 3 in C minor, Op. 78, “Organ,” Maestoso finale** (often tracked as the **4th movement**). **Stellar Brass of the United States Air Force Academy Band** performs **Gary Poffenbarger’s brass-and-organ arrangement**, from *Fireworks for Brass and Organ* (2007). Explore the opening’s sustained organ sonority and brass texture. Passage: **00:00–00:18** of the source track.
+
+| Mode | Normal · 100% speed · 18 s | Slowed · 60% speed · 30 s |
+|---|---|---|
+| **Original / Bypass** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-bypass.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-bypass.flac?raw=1) |
+| **Velvet Remastered** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-velvet.flac?raw=1) |
+| **Legato Remastered** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-legato.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-legato.flac?raw=1) |
+| **Melt Remastered** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-melt.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-melt.flac?raw=1) |
+
+[Source recording, arrangement and U.S. public-domain notice](https://commons.wikimedia.org/wiki/File:Symphony_No._3_in_C_Minor_-_II._Maestoso_-_Stellar_Brass_-_United_States_Air_Force_Academy_Band.mp3). Performer credit identifies the source; no endorsement is implied.
+
+These are **offline Remastered listening examples**; the frozen research verdict remains **REVISE / INCONCLUSIVE**. Differences may be subtle, and preference is yours to assess. FLAC avoids further lossy encoding; the supplied recordings were already compressed. See the [credits, exact method and reproduction instructions](docs/audio/CLASSICAL_SHOWCASE.md), plus measured [Mozart](docs/audio/mozart-remastered/PROVENANCE.json) and [Saint-Saëns](docs/audio/saint-saens-remastered/PROVENANCE.json) render reports.
 
 ## Get started on macOS
 

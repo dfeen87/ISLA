@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from isla.live import (BLOCK, CAPACITY, MAX_RECOVERIES, RECOVERY_BLOCKS,
-                       RECOVERY_QUIET_SECONDS, LiveMonitor)
+                       RECOVERY_QUIET_SECONDS, WARMUP_BLOCKS, LiveMonitor)
 from isla.streaming import MODES, StreamingDSP
 from test_live import FakeBackend, PassThrough, wait_for, warmup
 
@@ -20,7 +20,7 @@ def flags(**values):
 
 
 @contextmanager
-def session(factory=StreamingDSP, rate=48000):
+def session(factory=StreamingDSP, rate=48000, startup_gaps=()):
     backend = FakeBackend()
     gate = threading.Event()
     gate.set()
@@ -32,8 +32,9 @@ def session(factory=StreamingDSP, rate=48000):
         monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.)
     monitor._test_process_gate = gate
     monitor.start("BlackHole 2ch", "Test speakers", rate)
-    warmup(monitor)
     try:
+        for callback in range(1, WARMUP_BLOCKS + 1):
+            assert not monitor.stream.pump(ZERO, GAP if callback in startup_gaps else None).any()
         yield monitor, backend.streams[-1]
     finally:
         monitor.stop()
@@ -59,6 +60,53 @@ def recover(monitor, stream, status=GAP):
     assert monitor.state == "Recovering" and not monitor.halt.is_set()
     wait_for(lambda: monitor._recovery_ready or monitor.halt.is_set())
     assert not monitor.halt.is_set(), monitor.error
+
+
+@pytest.mark.parametrize("rate", [44100, 48000])
+@pytest.mark.parametrize("startup_gaps", [(1, 4), (7, 8)])
+def test_startup_loss_does_not_spend_later_isolated_recovery(rate, startup_gaps):
+    with session(PassThrough, rate, startup_gaps) as (monitor, stream):
+        assert monitor.capture_discontinuities == monitor.device_status == 2
+        assert monitor.recovery_attempts == monitor.recoveries == monitor.failed_recoveries == 0
+        assert monitor.recovery_state == "Startup loss reported"
+        # Actual accepted capture/output separates startup loss from the next
+        # interruption. This is well inside the old startup-derived 10s veto.
+        for _ in range(4):
+            pump(monitor, stream, np.full_like(ZERO, -.25))
+        recover(monitor, stream)
+        assert not pump(monitor, stream, np.full_like(ZERO, .125)).any()
+        np.testing.assert_array_equal(pump(monitor, stream, np.full_like(ZERO, .125)), np.full_like(ZERO, .125))
+        assert monitor.capture_discontinuities == monitor.input_overflows == 3
+        assert monitor.recovery_attempts == monitor.recoveries == 1
+        assert monitor.failed_recoveries == monitor.ring_failures == 0
+        assert monitor.state == "Running" and not monitor.error
+        assert len(monitor.backend.streams) == 1  # same owned stream, no restart
+        # Startup history must not relax subsequent active-loss safeguards.
+        # Retain the last signal measurements alongside the actual fatal reason.
+        assert not stream.pump(ZERO, GAP).any()
+        wait_for(lambda: not monitor.running)
+        assert "quiet interval" in monitor.error
+        assert monitor.failed_recoveries == 1 and monitor.recoveries == 1
+        assert monitor.input_rms == monitor.output_rms == .125
+        monitor.stop()
+        assert monitor.input_rms == monitor.output_rms == .125
+        assert "Monitor: Failed" in monitor.status() and stream.closed
+
+
+@pytest.mark.parametrize("rate", [44100, 48000])
+def test_capture_loss_continuing_across_startup_boundary_is_rejected(rate):
+    with session(PassThrough, rate, (7, 8)) as (monitor, stream):
+        assert not stream.pump(ZERO, GAP).any()
+        wait_for(lambda: not monitor.running)
+        assert monitor.capture_discontinuities == 3
+        assert monitor.recovery_attempts == monitor.recoveries == 0
+        assert monitor.failed_recoveries == monitor.fatal_device_errors == 1
+        assert "continuing beyond startup" in monitor.error
+        assert "budget exhausted" not in monitor.error
+        assert monitor.error in monitor.status() and stream.closed
+        before = monitor.status()
+        monitor.stop()
+        assert monitor.status() == before  # retain exact failure diagnostics
 
 
 @pytest.mark.parametrize("rate", [44100, 48000])
@@ -112,6 +160,8 @@ def test_repeated_or_persistent_capture_loss_fails_closed(persistent):
         wait_for(lambda: not monitor.running)
         assert monitor.failed_recoveries == 1 and monitor.fatal_device_errors == 1
         assert "Repeated capture discontinuity" in monitor.error
+        assert ("during recovery" if persistent else "quiet interval") in monitor.error
+        assert "budget exhausted" not in monitor.error
         assert stream.closed and monitor.recovery_attempts == 1
 
 
@@ -130,6 +180,7 @@ def test_quiet_window_and_lifetime_attempt_budget_are_bounded():
         stream.pump(ZERO, GAP)
         wait_for(lambda: not monitor.running)
         assert monitor.recovery_attempts == MAX_RECOVERIES and monitor.failed_recoveries == 1
+        assert "session recovery budget exhausted" in monitor.error
 
 
 def test_inflight_and_queued_old_audio_never_escape_after_reset():

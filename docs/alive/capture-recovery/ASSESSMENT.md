@@ -1,5 +1,10 @@
 # LIVE capture discontinuity recovery — proposed, native acceptance pending
 
+Historical initial policy: the startup-derived quiet-window rule below is
+superseded by the [2026-10-24 startup admission investigation](STARTUP_FAILURE_2026-10-24.md).
+That report distinguishes the reproduced shutdown cause from unresolved native
+overflow causes and records the pending Bluetooth/built-in A/B acceptance.
+
 ## Baseline and evidence
 
 Authoritative `main`: `6a732e03c3f0adc3f555e0ecb002e365b7e3385f`,

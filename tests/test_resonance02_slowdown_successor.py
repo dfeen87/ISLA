@@ -1,4 +1,5 @@
 """Post-freeze engineering checks; no recorded-source research gate is replaced."""
+import ast
 import hashlib
 import json
 import re
@@ -148,15 +149,77 @@ def test_release_version_exception_rejects_nonversion_changes():
         _neutralize_release_version(b'from .dsl import SmoothPhase\n')
 
 
+def _neutralize_live_recovery_policy(content):
+    """Ignore admission policy only; retain callback safety and DSP dispatch."""
+    tree = ast.parse(content)
+    replaced = set()
+
+    def attribute(node, name):
+        return (isinstance(node, ast.Attribute) and node.attr == name and
+                isinstance(node.value, ast.Name) and node.value.id == "self")
+
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef) and node.name == "LiveMonitor":
+            for method in node.body:
+                if not isinstance(method, ast.FunctionDef):
+                    continue
+                if method.name == "_reset_session":
+                    # The sole new session field starts with no startup flag.
+                    method.body = [s for s in method.body if not (
+                        isinstance(s, ast.Assign) and len(s.targets) == 1 and
+                        attribute(s.targets[0], "_last_startup_gap") and
+                        isinstance(s.value, ast.Constant) and s.value.value is None)]
+                elif method.name == "_callback":
+                    for statement in method.body:
+                        if not (isinstance(statement, ast.If) and
+                                isinstance(statement.test, ast.Name) and statement.test.id == "capture_gap"):
+                            continue
+                        for index, item in enumerate(statement.body):
+                            if isinstance(item, ast.AugAssign) and attribute(item.target, "recovery_attempts"):
+                                # Keep the last-interruption assignment, admitted
+                                # attempt bookkeeping and the entire reset path.
+                                # Only the rejection policy between them differs.
+                                statement.body[1:index] = [ast.Pass()]
+                                replaced.add("admission")
+                                break
+                    for item in ast.walk(method):
+                        if attribute(item, "_last_startup_gap"):
+                            item.attr = "_last_recovery"
+    assert replaced == {"admission"}, "expected the reviewed capture admission block"
+    return ast.dump(tree, include_attributes=False)
+
+
+def test_live_recovery_exception_retains_constants_worker_and_backend():
+    original = b'''CAPACITY = 8
+class LiveMonitor:
+    def _reset_session(self): self.error = ""
+    def _callback(self):
+        outdata.fill(0)
+        if capture_gap:
+            self.last_interruption = "Capture loss"
+            if old_policy: return
+            self.recovery_attempts += 1
+        if invalid_timestamps: stop()
+    def _work(self): return "unchanged DSP dispatch"
+'''
+    changed_policy = original.replace(b'old_policy', b'new_policy')
+    assert _neutralize_live_recovery_policy(original) == _neutralize_live_recovery_policy(changed_policy)
+    for changed in (original.replace(b'CAPACITY = 8', b'CAPACITY = 16'),
+                    original.replace(b'invalid_timestamps', b'False'),
+                    original.replace(b'"unchanged DSP dispatch"', b'"different processing"')):
+        assert _neutralize_live_recovery_policy(original) != _neutralize_live_recovery_policy(changed)
+
+
 def test_all_original_freeze_hashes_remain_intact():
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "docs/research/phase-governed-resonance-02/FREEZE.json").read_text())
 
-    # Post-freeze application work legitimately changed these two production
+    # Post-freeze application work legitimately changed these production
     # entry points: terminal.py gained the GUI launcher; the legacy package
     # initializer changed its public release-number literal for v3.2.0.
+    # live.py gained the targeted startup recovery admission correction.
     # Verify their ORIGINAL bytes against the immutable freeze baseline.
-    historical_paths = {"isla/terminal.py", "phased_music_notes/__init__.py"}
+    historical_paths = {"isla/terminal.py", "phased_music_notes/__init__.py", "isla/live.py"}
     for name, expected in manifest["code_and_protocol"].items():
         if name in historical_paths:
             content = subprocess.check_output(
@@ -167,6 +230,13 @@ def test_all_original_freeze_hashes_remain_intact():
             # its original hash in the CURRENT working tree.
             content = (root / name).read_bytes()
         assert hashlib.sha256(content).hexdigest() == expected, name
+
+        if name == "isla/live.py":
+            # Constants, backend/routing, rings, callback safety checks,
+            # worker/DSP dispatch, ownership and status remain pinned.
+            # Functional tests cover the changed admission/failure policy.
+            assert _neutralize_live_recovery_policy((root / name).read_bytes()) == _neutralize_live_recovery_policy(content), \
+                "LIVE changed beyond reviewed startup recovery methods"
 
         if name == "phased_music_notes/__init__.py":
             # A release bump is allowed, not an arbitrary edit to legacy API

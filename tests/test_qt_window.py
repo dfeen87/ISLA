@@ -325,6 +325,35 @@ def test_monitor_safety_stop_displays_exact_reason(app):
     finally:
         close_window(app, w, c)
 
+
+def test_startup_capture_rejection_reaches_control_center_with_retained_counters(app):
+    """Real monitor callbacks -> control snapshot -> widgets, no native device."""
+    from types import SimpleNamespace
+    import numpy as np
+    from isla.live import BLOCK, WARMUP_BLOCKS
+
+    w, c, live, *_ = window_session(app)
+    try:
+        prepare_live(app, w)
+        stream = live.streams[0]
+        gap = SimpleNamespace(input_overflow=True)
+        block = np.zeros((BLOCK, 2), np.float32)
+        for callback in range(1, WARMUP_BLOCKS + 2):
+            assert not stream.pump(block, gap if callback >= WARMUP_BLOCKS - 1 else None).any()
+        wait_ui(app, lambda: not w.state.live_active and 'continuing beyond startup' in w.live_error.text())
+        assert w.state.live_state == UIState.FATAL_ERROR
+        assert c.live.error == w.state.live_failure_reason
+        assert 'budget exhausted' not in w.live_error.text()
+        assert 'LIVE stopped safely' in w.live_error.text()
+        assert 'Monitor: Failed' in w.health.toPlainText()
+        assert 'Recovery attempts/completed/failed: 0 / 0 / 1' in w.health.toPlainText()
+        assert 'Capture discontinuities (including startup): 3' in w.health.toPlainText()
+        assert stream.closed and len(live.streams) == 1
+        c.live.stop()
+        assert 'continuing beyond startup' in c.live.status()
+    finally:
+        close_window(app, w, c)
+
 def test_preparation_failure_recovers_with_error_visible_and_close_works(app):
     w, c, *_ = window_session(app)
     try:

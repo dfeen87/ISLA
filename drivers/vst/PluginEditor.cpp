@@ -4,7 +4,7 @@
 // ==============================================================================
 // Constructor
 // ==============================================================================
-PhasedNotesAudioProcessorEditor::PhasedNotesAudioProcessorEditor(PhasedNotesAudioProcessor& p)
+IslaAudioProcessorEditor::IslaAudioProcessorEditor(IslaAudioProcessor& p)
     : AudioProcessorEditor(&p), processorRef(p)
 {
     // Mode selector
@@ -35,20 +35,20 @@ PhasedNotesAudioProcessorEditor::PhasedNotesAudioProcessorEditor(PhasedNotesAudi
 }
 
 // ==============================================================================
-PhasedNotesAudioProcessorEditor::~PhasedNotesAudioProcessorEditor() {}
+IslaAudioProcessorEditor::~IslaAudioProcessorEditor() {}
 
 // ==============================================================================
-void PhasedNotesAudioProcessorEditor::paint(juce::Graphics& g)
+void IslaAudioProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(juce::Colours::black);
 
     g.setColour(juce::Colours::white);
     g.setFont(18.0f);
-    g.drawText("Phased Notes", getLocalBounds(), juce::Justification::centredTop);
+    g.drawText("ISLA", getLocalBounds(), juce::Justification::centredTop);
 }
 
 // ==============================================================================
-void PhasedNotesAudioProcessorEditor::resized()
+void IslaAudioProcessorEditor::resized()
 {
     modeBox.setBounds(50, 50, 200, 30);
     modeLabel.setBounds(50, 90, 200, 30);

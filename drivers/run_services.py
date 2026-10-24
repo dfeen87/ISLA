@@ -41,7 +41,7 @@ if __name__ == "__main__":
     p1.start()
     p2.start()
 
-    logging.info("Both Phased-Music-Notes services started successfully.")
+    logging.info("Both ISLA services started successfully.")
 
     try:
         while True:

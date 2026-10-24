@@ -1,5 +1,5 @@
 """
-gRPC Server for Phased-Music-Notes.
+gRPC Server for ISLA.
 
 Provides:
   - SmoothBlock: Processes a full audio block.
@@ -19,7 +19,7 @@ import numpy as np
 # Import generated classes
 from phased_music_notes.proto import audio_processor_pb2
 from phased_music_notes.proto import audio_processor_pb2_grpc
-from drivers.api import PhasedNotesBuffer
+from drivers.api import IslaBuffer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -51,7 +51,7 @@ class AudioProcessorServicer(audio_processor_pb2_grpc.AudioProcessorServicer):
                 return audio_processor_pb2.SmoothBlockResponse()
 
             # Initialize DSP Buffer engine
-            buffer_processor = PhasedNotesBuffer(mode=request.mode, sr=request.sample_rate)
+            buffer_processor = IslaBuffer(mode=request.mode, sr=request.sample_rate)
             processed_stereo = buffer_processor.process_buffer(stereo)
 
             if request.channels == 1:
@@ -94,7 +94,7 @@ class AudioProcessorServicer(audio_processor_pb2_grpc.AudioProcessorServicer):
                 # Get or initialize the processor
                 key = (chunk.mode, chunk.sample_rate)
                 if key not in buffer_processors:
-                    buffer_processors[key] = PhasedNotesBuffer(mode=chunk.mode, sr=chunk.sample_rate)
+                    buffer_processors[key] = IslaBuffer(mode=chunk.mode, sr=chunk.sample_rate)
                 processor = buffer_processors[key]
 
                 # Upmix/convert to stereo
@@ -154,7 +154,7 @@ def serve(port: int = 50051) -> grpc.Server:
     bound_port = server.add_insecure_port(f"[::]:{port}")
     if bound_port == 0:
         raise RuntimeError(f"Failed to bind gRPC server to port {port}")
-    logging.info(f"Starting Phased-Music-Notes gRPC server on port {bound_port}...")
+    logging.info(f"Starting ISLA gRPC server on port {bound_port}...")
     server.start()
     return server
 

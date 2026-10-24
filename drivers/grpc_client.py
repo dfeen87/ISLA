@@ -1,5 +1,5 @@
 """
-Lightweight test client for Phased-Music-Notes gRPC service.
+Lightweight test client for ISLA gRPC service.
 Allows developers to query SmoothBlock or stream data via SmoothAudioStream.
 """
 

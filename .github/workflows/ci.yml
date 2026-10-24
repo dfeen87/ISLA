@@ -98,5 +98,5 @@ jobs:
       - name: Upload Linux VST3 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PhasedNotes-linux-VST3
-          path: build/PhasedNotes_artefacts/VST3/PhasedNotes.vst3
+          name: ISLA-linux-VST3
+          path: build/ISLA_artefacts/VST3/ISLA.vst3

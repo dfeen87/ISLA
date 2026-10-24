@@ -148,6 +148,7 @@ def test_live_start_stop_mode_duplicate_conflict_and_cleanup():
         for mode in ('velvet', 'legato', 'melt', 'bypass'):
             s.live_mode(mode)
             assert c.live.mode == mode
+            assert s.snapshot().live_mode == mode
         assert len(live.streams) == 1 and not files.streams
         s.stop_live()
         assert not s.snapshot().live_active and live.streams[0].closed

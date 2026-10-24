@@ -28,6 +28,49 @@ Choose **Original / Bypass**, the established **Velvet / Legato / Melt** profile
 
 **Research and release status:** `main` identifies itself as source version **4.0.0**, but the latest published GitHub release is **v3.3.0**. Remastered remains an opt-in engineering preview with native listening acceptance outstanding and the frozen Experiment 02 verdict **REVISE / INCONCLUSIVE**. See the [current feature guide](#remastered-research-alive-and-live) before interpreting historical v3.x audio comparisons.
 
+## Table of contents
+
+Find a feature, set up an audio path, or jump straight to the engineering history. Every link targets a section in this README.
+
+- [What ISLA does](#what-isla-does)
+  - [Remastered research: ALIVE and LIVE](#remastered-research-alive-and-live)
+  - [Why this exists](#why-this-exists)
+- [Get started on macOS](#get-started-on-macos)
+  - [1. Clone ISLA](#1-clone-isla)
+  - [2. Prepare the Python environment](#2-prepare-the-python-environment)
+- [User Interface](#user-interface)
+- [ISLA Control Center — Graphical Interface](#isla-control-center--graphical-interface)
+  - [Install and launch: which prompt are you using?](#install-and-launch-which-prompt-are-you-using)
+    - [Option 1 — Launch the GUI from macOS Terminal](#option-1--launch-the-gui-from-macos-terminal)
+    - [Option 2 — You already see `isla>`](#option-2--you-already-see-isla)
+  - [ALIVE — play a local audio file](#alive--play-a-local-audio-file)
+  - [LIVE — guided Mac system audio](#live--guided-mac-system-audio)
+  - [Readiness, troubleshooting and shutdown](#readiness-troubleshooting-and-shutdown)
+- [LIVE: Listen to your Mac](#live-listen-to-your-mac)
+  - [1. Install Homebrew if needed, then BlackHole 2ch](#1-install-homebrew-if-needed-then-blackhole-2ch)
+  - [2. Set up the physical output and BlackHole routing](#2-set-up-the-physical-output-and-blackhole-routing)
+    - [BlackHole 2ch and macOS output volume — read before using 100%](#blackhole-2ch-and-macos-output-volume--read-before-using-100)
+  - [Visual guide — BlackHole at unity, Mac speaker volume kept low](#visual-guide--blackhole-at-unity-mac-speaker-volume-kept-low)
+  - [Bluetooth stereo speakers / headphones (experimental)](#bluetooth-stereo-speakers--headphones-experimental)
+  - [3. Launch ISLA and confirm Bypass](#3-launch-isla-and-confirm-bypass)
+  - [Built-in Terminal help — ISLA Audio Control Command Center](#built-in-terminal-help--isla-audio-control-command-center)
+  - [4. Compare Velvet, Legato, Melt and Bypass](#4-compare-velvet-legato-melt-and-bypass)
+  - [5. Exit and restore normal Mac audio](#5-exit-and-restore-normal-mac-audio)
+- [ALIVE: Play a local audio file](#alive-play-a-local-audio-file)
+  - [Export without the interactive player](#export-without-the-interactive-player)
+- [Professional terminal help](#professional-terminal-help)
+- [Terminal command reference](#terminal-command-reference)
+- [Troubleshooting](#troubleshooting)
+- [Privacy and practical limits](#privacy-and-practical-limits)
+- [Engineering and evidence](#engineering-and-evidence)
+  - [Inspiration](#inspiration)
+  - [Hear the Difference](#hear-the-difference)
+  - [Current acceptance, roadmap and historical milestones](#current-acceptance-roadmap-and-historical-milestones)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
+- [🙏 Acknowledgements](#-acknowledgements)
+  - [🎹 A Special Night for ISLA — October 23, 2026](#-a-special-night-for-isla--october-23-2026)
+
 ---
 
 ## What ISLA does

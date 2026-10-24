@@ -1,0 +1,37 @@
+name: Control Center Qt Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  qt-acceptance:
+    name: Qt offscreen / ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.10', '3.13']
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install Linux Qt and PortAudio runtime libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libportaudio2 libegl1 libopengl0
+      - name: Install optional GUI and test dependencies
+        run: python -m pip install -e '.[gui]' -r requirements.txt
+      - name: GUI coordination and real Qt widgets (no physical audio claims)
+        run: python -m pytest -q tests/test_control.py tests/test_qt_window.py
+      - name: Complete Python suite with optional GUI installed
+        if: ${{ !cancelled() }}
+        run: python -m pytest -q tests

@@ -220,6 +220,18 @@ The JUCE/C++ Python bridge can allocate memory and acquire the GIL in the audio 
 
 `isla` is the new public Python import name, while `phased_music_notes`, `PhasedNotes`, `PhasedNotesBuffer`, and `PhasedMusicEngine` remain available for backward compatibility. The Python distribution is `isla-audio`. The gRPC protobuf wire service and JUCE plugin identity codes remain unchanged to reduce integration breakage.
 
+### 8.1 Optional desktop control boundary
+
+`drivers.cli` dispatches the exact `window` argument before the existing offline parser. `isla.window` imports Qt lazily; the `gui` extra adds only PySide6 Essentials and the existing playback dependency. Bare module/console launches still enter the traditional terminal.
+
+`isla.qt_window` contains Qt presentation and a single serialized command worker. The event thread handles widgets and immutable `ControlState` snapshots; preparation, enumeration, routing inspection, audio commands and cleanup run outside it. Whole-file DSP remains in the existing `Preparation` process and LIVE DSP remains in the existing monitor worker.
+
+`isla.control.ControlService` leases one `TerminalController`, which already owns one `BufferPlayer` and one `LiveMonitor`. Terminal input is synchronously suspended while the window runs; the lease rejects a second window and commands from a foreign thread. The GUI preserves an existing stream on handoff, prevents conflicting starts/device switches, and stops audio before returning ownership. Prepared buffers survive a borrowed-session close; pending preparation is canceled. Cleanup failures retain the lease for retry. A delayed native operation never permits another engine to start through this window.
+
+LIVE dropdowns reuse the terminal's CoreAudio-verified setup filter. Selection tokens retain names, PortAudio indices and native IDs. Refresh detects missing/replaced devices; readiness uses existing read-only CoreAudio validation. Start re-enumerates and revalidates before delegating to `LiveMonitor.start`, whose independent rate/channel, native stream identity, ongoing routing, latency and bounded recovery safeguards remain authoritative. No routing property, DSP algorithm, gain parameter or research-only control is added.
+
+The [control mapping and native acceptance checklist](docs/control-center/ACCEPTANCE.md) distinguish offscreen/mocked checks from physical macOS acceptance. The original Experiment 02 manifest is unchanged; its historical terminal bytes are checked at the manifest's pinned Git baseline, while every other frozen file still uses its original worktree hash assertion.
+
 ---
 
 ## **9. Acknowledgements**

@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 app = FastAPI(
     title="ISLA API",
     description="HTTP API for local in-memory audio smoothing with phase alignment.",
-    version="3.0.0"
+    version="3.1.0"
 )
 
 

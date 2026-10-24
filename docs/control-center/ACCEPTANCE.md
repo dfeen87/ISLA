@@ -65,3 +65,11 @@ A native call stuck permanently in an OS driver cannot be safely killed from Pyt
 - Automated checks must switch all four modes during a single running fake transport, observe the worker's DSP mode, verify only one stream, test both top/bottom scroll preservation, and exercise LIVE stop/cleanup. These are software correctness checks, **not native macOS listening acceptance**.
 - Native owner review: while playing real system audio through BlackHole, click each mode and compare to Bypass at similar loudness. Processing may sound subtle; numerical mode selection does not establish audible preference. Scroll the diagnostics pane during active monitoring and inspect recovery, overflow and latency counters without the view jumping. Use both trackpad and scrollbar where possible.
 - No change to the frozen research manifest, `isla/live.py`, `isla/streaming.py`, audio callback, safety thresholds or production DSP.
+
+## LIVE stop responsiveness and fault visibility follow-up
+
+- The GUI command worker skips periodic full CoreAudio/PortAudio re-enumeration while any audio stream is active. Native LIVE routing validation remains on the audio worker unchanged; skipping UI discovery never skips stream safeguards.
+- Refresh Devices and Recheck Routing are disabled while audio owns a stream. An explicit Stop LIVE releases the live worker and stream without synchronously re-enumerating devices; routing readiness is reset and device checks can resume when idle.
+- Unexpected monitor failure is reported adjacent to the LIVE controls using the underlying `LiveMonitor.error` string and remains recorded in the full diagnostic readout. Normal Stop is not described as a fault. No audio callback, recovery threshold, data-buffer capacity or DSP algorithm is modified.
+- Test with a fake stalled/unavailable enumeration path: active LIVE must not trigger it, Stop must succeed independently, and the old device status must be marked unverified after stopping.
+- Native operator acceptance: start LIVE, verify modes/diagnostics, press Stop LIVE and confirm response/cleanup; then reconnect/recheck a physical output. If LIVE stops by itself, capture the exact visible reason, diagnostic counters, macOS output selection and which headphones/device were used. Hardware conditions cannot be proven from mocked CI.

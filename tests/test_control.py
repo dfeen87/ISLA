@@ -157,6 +157,22 @@ def test_live_start_stop_mode_duplicate_conflict_and_cleanup():
         c.close()
 
 
+
+def test_stop_live_is_independent_of_expensive_device_enumeration(monkeypatch):
+    service, c, live, *_ = selected_service()
+    try:
+        service.start_live()
+        def forbidden_scan():
+            raise RuntimeError("CoreAudio device scan blocked")
+        monkeypatch.setattr(service, 'refresh_devices', forbidden_scan)
+        assert 'stopped' in service.stop_live().lower()
+        assert not live.running and not service.snapshot().routing_ready
+        assert 'Recheck audio routing' in service.snapshot().routing_message
+    finally:
+        service.shutdown()
+        c.close()
+
+
 @pytest.mark.parametrize('change', ['missing_blackhole', 'unplug_output', 'rename_output', 'reindex', 'aggregate', 'ambiguous'])
 def test_device_refresh_and_start_fail_closed(change):
     s, c, live, _, devices, routing = selected_service()

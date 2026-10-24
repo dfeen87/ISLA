@@ -1,6 +1,6 @@
 [project]
 name = "isla-audio"
-version = "3.0.0"
+version = "3.1.0"
 description = "ISLA: offline-first phase-aligned musical note smoothing DSP (formerly Phased-Music-Notes)"
 requires-python = ">=3.10"
 dependencies = ["numpy", "scipy", "soundfile>=0.12"]

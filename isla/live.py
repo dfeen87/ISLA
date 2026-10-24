@@ -121,9 +121,12 @@ class SystemCaptureBackend:
 
 
 class LiveMonitor:
-    def __init__(self, backend, processor_factory=None):
+    def __init__(self, backend, processor_factory=None, monotonic_clock=None):
         self.backend = backend
         self.processor_factory = processor_factory
+        # Inject a virtual device clock in manually pumped tests. Native LIVE
+        # continues to use the real monotonic watchdog clock.
+        self._monotonic_clock = monotonic_clock or time.monotonic
         self.stream = self.worker = None
         self.config = None
         self.mode = "bypass"
@@ -221,11 +224,11 @@ class LiveMonitor:
 
     def _work(self):
         block = np.empty((BLOCK, self.config.channels), np.float32)
-        checked = time.monotonic()
+        checked = self._monotonic_clock()
         callback_count = self._callbacks
         try:
             while not self.halt.is_set():
-                now = time.monotonic()
+                now = self._monotonic_clock()
                 if now - checked >= .25:
                     if not self.stream.active or self._callbacks == callback_count:
                         raise AudioError("Audio device disconnected or callbacks stopped. Reconnect and monitor start.")

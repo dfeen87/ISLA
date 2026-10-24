@@ -91,6 +91,7 @@ class ControlState:
     live_applied_engine: str = ''
     live_research_health: str = ''
     device_status: str = ''
+    file_sample_rate: int = 0
 
 
 class ControlService:
@@ -427,7 +428,8 @@ class ControlService:
             self.preview.summary, p.mode.startswith('remastered_'),
             self._live_settings.request.engine,self._live_settings.request.intensity,
             getattr(getattr(engine,'applied',None),'engine','') if live_active else '',
-            getattr(engine,'diagnostics','') if live_active else '',self.device_status)
+            getattr(engine,'diagnostics','') if live_active else '',self.device_status,
+            p.sr if p.buffers else 0)
 
     def shutdown(self):
         self._enter()

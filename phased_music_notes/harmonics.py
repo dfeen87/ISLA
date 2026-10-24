@@ -91,8 +91,18 @@ class HarmonicBlender:
         pad_back = win_samples
         audio_padded = np.pad(audio, (pad_front, pad_back), mode='constant')
 
+        # To avoid edge artifacts and properly reconstruct the beginning of the signal,
+        # we pad the start with zeros. We pad the end to cover the last frame.
+        pad_front = win.size - hop
+        # Calculate padding needed to cover the last frame
+        num_samples = len(audio)
+        num_frames = int(np.ceil((num_samples + pad_front) / hop))
+        pad_back = num_frames * hop + win.size - hop - num_samples - pad_front
+
+        padded_audio = np.pad(audio, (pad_front, pad_back), mode='constant')
+
         # STFT
-        frames = self._frame_audio(audio_padded, hop, win_samples)
+        frames = self._frame_audio(padded_audio, hop, win.size)
         spectrum = np.fft.rfft(frames * win, axis=1)
         mag = np.abs(spectrum)
         phase = np.angle(spectrum)
@@ -103,30 +113,25 @@ class HarmonicBlender:
         # Reconstruct spectrum
         spectrum_blended = mag_smooth * np.exp(1j * phase)
 
-        # ISTFT (WOLA applies synthesis window)
-        frames_out = np.fft.irfft(spectrum_blended, axis=1)
-        frames_out *= win
-        audio_out = self._overlap_add(frames_out, hop)
+        # ISTFT
+        # We need to multiply by the window again in the synthesis stage for
+        # proper overlap-add reconstruction with a Hann window
+        # Explicitly pass n=win.size to handle odd-length windows correctly.
+        frames_out = np.fft.irfft(spectrum_blended, n=win.size, axis=1) * win
 
-        # Normalize envelope (sum of squares of window for WOLA)
-        out_len = len(audio_out)
-        envelope = np.zeros(out_len, dtype=np.float32)
-        win_sq = win**2
-        for i in range(len(frames_out)):
-            start = i * hop
-            envelope[start:start + win_samples] += win_sq
+        # Calculate weights for normalization
+        win_sq = win ** 2
+        weights_frames = np.tile(win_sq, (frames_out.shape[0], 1))
 
-        envelope[envelope < 1e-7] = 1.0
-        audio_out = audio_out / envelope
+        out_padded, weights_padded = self._overlap_add_with_weights(frames_out, weights_frames, hop)
 
-        # Strip the padding
-        audio_out = audio_out[pad_front:pad_front + len(audio)]
+        # Normalization to avoid dividing by 0
+        eps = 1e-8
+        audio_out_padded = out_padded / (weights_padded + eps)
 
-        # Pad or truncate to match original length exactly
-        if len(audio_out) < len(audio):
-            pad_len = len(audio) - len(audio_out)
-            audio_out = np.pad(audio_out, (0, pad_len))
-        return audio_out[: len(audio)]
+        # Strip the padding we added at the front and crop to original length
+        audio_out = audio_out_padded[pad_front : pad_front + len(audio)]
+        return audio_out
 
     # -------------------------------------------------------------
     # Stereo processing
@@ -185,6 +190,20 @@ class HarmonicBlender:
             out[start:start + win] += frame
 
         return out
+
+    @staticmethod
+    def _overlap_add_with_weights(frames: np.ndarray, weights_frames: np.ndarray, hop: int) -> tuple[np.ndarray, np.ndarray]:
+        win = frames.shape[1]
+        out_len = hop * (frames.shape[0] - 1) + win
+        out = np.zeros(out_len, dtype=np.float32)
+        weights_out = np.zeros(out_len, dtype=np.float32)
+
+        for i, (frame, w_frame) in enumerate(zip(frames, weights_frames)):
+            start = i * hop
+            out[start:start + win] += frame
+            weights_out[start:start + win] += w_frame
+
+        return out, weights_out
 
     # -------------------------------------------------------------
     # Window generator

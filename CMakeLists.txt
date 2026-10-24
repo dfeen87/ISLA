@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(PhasedNotes VERSION 2.1.0)
+project(ISLA VERSION 2.1.0)
 
 # ================================================================
 # Disable VST2 BEFORE JUCE is added
@@ -26,29 +26,30 @@ endif()
 # ================================================================
 # Plugin target
 # ================================================================
-juce_add_plugin(PhasedNotes
-    COMPANY_NAME "PhasedMusic"
+juce_add_plugin(ISLA
+    COMPANY_NAME "ISLA Audio"
+    # Existing bundle ID and plugin codes are retained to preserve DAW host identity.
     BUNDLE_ID    "com.phasedmusic.notes"
     PLUGIN_MANUFACTURER_CODE PMus
     PLUGIN_CODE PNts
     FORMATS ${PLUGIN_FORMATS}
-    PRODUCT_NAME "PhasedNotes"
+    PRODUCT_NAME "ISLA"
     VST3_CAN_REPLACE_VST2 FALSE
 )
 
 # ================================================================
 # Enumerate JUCE targets manually (bulletproof)
 # ================================================================
-set(PMN_TARGETS PhasedNotes_VST3)
+set(ISLA_TARGETS ISLA_VST3)
 
 if(APPLE)
-    list(APPEND PMN_TARGETS PhasedNotes_AU)
+    list(APPEND ISLA_TARGETS ISLA_AU)
 endif()
 
 # ================================================================
 # Attach sources to ALL plugin targets
 # ================================================================
-foreach(target ${PMN_TARGETS})
+foreach(target ${ISLA_TARGETS})
     target_sources(${target} PRIVATE
         drivers/vst/PluginProcessor.cpp
         drivers/vst/PluginProcessor.h

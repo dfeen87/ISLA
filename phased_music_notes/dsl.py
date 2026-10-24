@@ -1,7 +1,7 @@
 """
 SmoothPhase DSL
 ---------------
-A musical, expressive interface for Phased-Music-Notes.
+A musical, expressive Python interface for ISLA.
 
 Goals:
     - Provide a soft, human-friendly API
@@ -35,13 +35,13 @@ class SmoothPhase:
     VALID_MODES = {"velvet", "legato", "melt"}
 
     def __init__(self, mode: str = "velvet"):
-        from src.main import PhasedMusicEngine
+        from src.main import IslaMusicEngine
         mode = mode.lower()
         if mode not in self.VALID_MODES:
             raise ValueError(f"Unknown SmoothPhase mode: {mode}")
 
         self.mode = mode
-        self.engine = PhasedMusicEngine(mode=mode)
+        self.engine = IslaMusicEngine(mode=mode)
 
     # -------------------------------------------------------------
     # File-based smoothing
@@ -68,13 +68,13 @@ class SmoothPhase:
         """
         Change smoothing mode dynamically.
         """
-        from src.main import PhasedMusicEngine
+        from src.main import IslaMusicEngine
         mode = mode.lower()
         if mode not in self.VALID_MODES:
             raise ValueError(f"Unknown SmoothPhase mode: {mode}")
 
         self.mode = mode
-        self.engine = PhasedMusicEngine(mode=mode)
+        self.engine = IslaMusicEngine(mode=mode)
 
     # -------------------------------------------------------------
     # Future DSL expansion hooks

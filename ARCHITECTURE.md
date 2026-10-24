@@ -1,12 +1,12 @@
-# **PHASED‑MUSIC‑NOTES — Architecture & DSP Design Overview**  
-*A production‑grade audio engine designed by Don Feeney, in collaboration with Microsoft Copilot.*
+# **ISLA — Architecture & DSP Design Overview**  
+*An evolving audio DSP research engine designed by Don Feeney, in collaboration with Microsoft Copilot.*
 
 ---
 
 ## **1. Introduction**
 
-Phased‑Music‑Notes is a deterministic, buffer‑based DSP engine designed to smooth, blend, and harmonically stabilize musical notes in both offline and real‑time contexts.  
-It is built for production use, with a focus on:
+ISLA (formerly Phased-Music-Notes) is a buffer-based DSP research engine exploring note smoothing, harmonic blending, and musical transitions. The supported development focus is offline Python DSP; the JUCE real-time pathway remains experimental and requires additional validation.  
+Engineering goals include:
 
 - deterministic DSP  
 - phase‑preserving transformations  
@@ -212,16 +212,13 @@ Examples are dependency‑minimal (NumPy only).
 
 ---
 
-## **8. Production Status**
+## **8. Engineering Status**
 
-Phased‑Music‑Notes is **production software**, validated through:
+ISLA is an evolving offline-first DSP project. Python regression tests and Linux CI provide valuable evidence for tested numerical behavior and build integration, but they do not establish production readiness for professional real-time audio.
 
-- multi‑OS CI  
-- deterministic DSP  
-- plugin builds  
-- test coverage  
-- architectural invariants  
-- cross‑language consistency  
+The JUCE/C++ Python bridge can allocate memory and acquire the GIL in the audio callback. Streaming with nonzero smoothing strength can differ across independently processed blocks. Both are documented risks requiring future engineering before any live-use claims.
+
+`isla` is the new public Python import name, while `phased_music_notes`, `PhasedNotes`, `PhasedNotesBuffer`, and `PhasedMusicEngine` remain available for backward compatibility. The Python distribution is `isla-audio`. The gRPC protobuf wire service and JUCE plugin identity codes remain unchanged to reduce integration breakage.
 
 ---
 
@@ -238,8 +235,7 @@ human creativity, AI‑accelerated development, and shared momentum.
 
 ## **10. Closing**
 
-Phased‑Music‑Notes is a deterministic, phase‑preserving, production‑grade DSP engine designed for musicians, producers, and developers who need smooth, stable, expressive audio transformations.
+ISLA is an offline-first DSP project exploring phase-aware, expressive musical transitions for musicians, producers, and developers.
 
 This document serves as the architectural foundation for the entire repository.
 
-Just tell me the direction you want to go next.

@@ -1,5 +1,5 @@
 """
-FastAPI HTTP server for Phased-Music-Notes.
+FastAPI HTTP server for ISLA.
 
 Provides:
   - GET /health or /ping: Service discovery health endpoints.
@@ -17,7 +17,7 @@ from drivers.api import smooth
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 app = FastAPI(
-    title="Phased-Music-Notes API",
+    title="ISLA API",
     description="HTTP API for local in-memory audio smoothing with phase alignment.",
     version="2.1.0"
 )
@@ -27,7 +27,7 @@ app = FastAPI(
 @app.get("/ping", status_code=status.HTTP_200_OK)
 def health_check():
     """Service discovery health probe endpoint."""
-    return {"status": "SERVING", "service": "phased-music-notes"}
+    return {"status": "SERVING", "service": "isla"}
 
 
 @app.post("/smooth")

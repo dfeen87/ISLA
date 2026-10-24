@@ -1,21 +1,24 @@
-# Phased‑Music‑Notes Repository for ISLA
-## ISLA Audio Engineering focus is to Smooth Audio Notes with phase‑aligned transitions for cleaner, more natural musical flow.
+# ISLA
+### Phase-aligned musical note smoothing · an offline-first audio DSP project
+
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Status](https://img.shields.io/badge/Status-Production--Ready-white)
-![Status](https://img.shields.io/badge/Status-Hardened-success)
-![Status](https://img.shields.io/badge/Status-DSP--Optimized-purple)
-[![CI](https://github.com/dfeen87/Phased-Music-Notes/actions/workflows/ci.yml/badge.svg)](https://github.com/dfeen87/Phased-Music-Notes/actions/workflows/ci.yml)
+![Status](https://img.shields.io/badge/Status-BEDROCK--baseline-blue)
+[![CI](https://github.com/dfeen87/ISLA/actions/workflows/ci.yml/badge.svg)](https://github.com/dfeen87/ISLA/actions/workflows/ci.yml)
 
+**ISLA** is the new name for **Phased-Music-Notes**: an experimental audio engineering project exploring smoother transitions between musical notes with phase-aware analysis, transient smoothing, and harmonic blending.
+
+**Dedicated to Isla, the creator's niece.** The name celebrates the idea that music and thoughtful engineering can make expressive moments feel a little softer.
+
+**Current scope:** Offline Python DSP and regression testing. The JUCE plugin integration remains experimental and is not validated for professional real-time audio. The playable desktop experience and mobile app are future goals, not shipped features.
 
 ---
 
-## 🎧 Smooth Audio Notes  
-Phased‑Music‑Notes is a lightweight Python DSP engine that creates **phase‑aligned, gradual transitions between musical notes**. It analyzes note boundaries, blends harmonic structure, and softens abrupt changes to produce smoother, more expressive continuity in any audio track.
+## 🎧 What ISLA Does
 
-This project is MIT‑licensed, clone‑friendly, and designed for producers, sound designers, and developers who want a simple, innovative tool for **gentle note transitions** and **soft harmonic movement**.
+ISLA explores phase-aligned musical transitions and harmonic smoothing. It detects note boundaries and processes audio through a Python DSP pipeline designed for experimentation and offline workflows.
 
-ISLA is a baby girl recently born in Los Angeles. Don Feeney creator of this Repo is now an Uncle. For all that want to contribute meaningfully to dedicate this specific sound engineering to be called: ISLA
+The available smoothing modes are **Velvet**, **Legato**, and **Melt**. Their musical character is a creative goal; measurable output quality and real-time performance require listening tests and continued validation.
 
 ---
 
@@ -31,39 +34,56 @@ ISLA is a baby girl recently born in Los Angeles. Don Feeney creator of this Rep
 ---
 
 ## 🧠 Why This Exists  
-Slowed audio often reveals harsh discontinuities in acoustic instruments—especially piano—where note transitions become abrupt, metallic, or overly resonant. Phased‑Music‑Notes introduces a **continuity layer** that gently smooths these transitions without altering tempo or performance feel.
+Slowed audio often reveals harsh discontinuities in acoustic instruments—especially piano—where note transitions become abrupt, metallic, or overly resonant. ISLA explores a **continuity layer** that gently smooths these transitions without altering tempo or performance feel.
 
 This project explores a new idea:  
 > *What if musical notes could transition with engineered softness, even in instruments that don’t naturally provide it?*
 
 ---
 
-## 📦 Installation  
+## 📦 Installation
+
+Requires Python 3.10+ and the project dependencies. From a local checkout:
+
 ```bash
-pip install -e .
+python -m pip install -e .
 ```
 
-This installs the Python DSP utilities and the pybind11 bridge directly from the repository.
+**Codebase identity:** The editable distribution is `isla-audio` and the public Python import is `isla`. The original `phased_music_notes` modules and legacy Python class names remain available for existing integrations. The JUCE build target and plugin product display are now `ISLA`, while original plugin identity codes and protobuf/gRPC wire service identifiers stay unchanged for compatibility. The GitHub repository is now `dfeen87/ISLA`.
 
 ---
 
-## 🐍 Example Usage  
-A simple Python DSL for soft note transitions:
+## 🐍 Offline Audio Example
+
+Process a local WAV file using the existing `SmoothPhase` interface:
 
 ```python
-from phased_music_notes import SmoothPhase
+from isla import SmoothPhase
 
 engine = SmoothPhase(mode="velvet")
-
-output = engine.smooth("input.wav")
-output.save("output_smooth.wav")
+engine.smooth_file("input.wav", "output_isla.wav")
 ```
 
-Modes you might implement:
+Choose `"velvet"`, `"legato"`, or `"melt"` to explore different transition treatments. Use files you own or have permission to process.
 
-- `"velvet"` — softens transients  
-- `"legato"` — glides pitch transitions  
-- `"melt"` — blends harmonic overtones  
+**Implementation note:** `SmoothPhase` exposes `smooth_file(input_path, output_path)`, not `.smooth(...)`; the example above matches the existing code.
+
+---
+
+From the command line, you can also use `isla --input input.wav --output output_isla.wav --mode velvet` after installation, or `python -m isla` with the same arguments.
+
+---
+
+**Engineering note:** Existing `phased_music_notes` source files remain the authoritative DSP implementation behind the new `isla` entry points. This avoids duplicating or rewriting BEDROCK-tested audio algorithms. New service discovery reports `isla`; deployments relying on the previous Docker Compose service or HTTP health response must update their configuration.
+
+---
+
+## 🧭 Roadmap (Proposed — Not Yet Released)
+
+- **BEDROCK 1.0:** Established a regression-tested offline DSP foundation and documented outstanding streaming/real-time risks.
+- **ISLA v3.0.0 — ALIVE:** Explore a Mac-friendly offline audio interface with import, playback, A/B comparison, and export after BEDROCK acceptance.
+- **ISLA Mobile / Pocket:** Research a future phone experience; no mobile application is available yet.
+- **Real-time plugin:** Requires a separate architectural validation effort and should not be represented as production-ready.
 
 ---
 

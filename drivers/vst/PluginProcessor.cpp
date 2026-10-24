@@ -11,7 +11,7 @@ extern void shutdown_python();
 // ==============================================================================
 // Constructor
 // ==============================================================================
-PhasedNotesAudioProcessor::PhasedNotesAudioProcessor()
+IslaAudioProcessor::IslaAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor(BusesProperties()
          .withInput("Input",  juce::AudioChannelSet::stereo(), true)
@@ -21,18 +21,18 @@ PhasedNotesAudioProcessor::PhasedNotesAudioProcessor()
 }
 
 // ==============================================================================
-PhasedNotesAudioProcessor::~PhasedNotesAudioProcessor()
+IslaAudioProcessor::~IslaAudioProcessor()
 {
     shutdown_python();
 }
 
 // ==============================================================================
-const juce::String PhasedNotesAudioProcessor::getName() const
+const juce::String IslaAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool PhasedNotesAudioProcessor::acceptsMidi() const
+bool IslaAudioProcessor::acceptsMidi() const
 {
 #if JucePlugin_WantsMidiInput
     return true;
@@ -41,7 +41,7 @@ bool PhasedNotesAudioProcessor::acceptsMidi() const
 #endif
 }
 
-bool PhasedNotesAudioProcessor::producesMidi() const
+bool IslaAudioProcessor::producesMidi() const
 {
 #if JucePlugin_ProducesMidiOutput
     return true;
@@ -50,13 +50,13 @@ bool PhasedNotesAudioProcessor::producesMidi() const
 #endif
 }
 
-double PhasedNotesAudioProcessor::getTailLengthSeconds() const
+double IslaAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
 // ==============================================================================
-void PhasedNotesAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+void IslaAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::ignoreUnused(samplesPerBlock);
 
@@ -65,13 +65,13 @@ void PhasedNotesAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 }
 
 // ==============================================================================
-void PhasedNotesAudioProcessor::releaseResources()
+void IslaAudioProcessor::releaseResources()
 {
 #if JUCE_DEBUG
     if (totalBlocksProcessed > 0)
     {
         double avg = (double)totalProcessingTimeMicroseconds / totalBlocksProcessed;
-        juce::Logger::writeToLog("PhasedNotes Profiling: Average DSP time per block: " + juce::String(avg) + " microseconds.");
+        juce::Logger::writeToLog("ISLA Profiling: Average DSP time per block: " + juce::String(avg) + " microseconds.");
     }
 #endif
 
@@ -79,7 +79,7 @@ void PhasedNotesAudioProcessor::releaseResources()
 }
 
 // ==============================================================================
-bool PhasedNotesAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+bool IslaAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
     // Only stereo supported for now
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
@@ -89,7 +89,7 @@ bool PhasedNotesAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout
 }
 
 // ==============================================================================
-void PhasedNotesAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
+void IslaAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
                                              juce::MidiBuffer&)
 {
     const int numSamples  = buffer.getNumSamples();
@@ -148,29 +148,29 @@ void PhasedNotesAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
 }
 
 // ==============================================================================
-juce::AudioProcessorEditor* PhasedNotesAudioProcessor::createEditor()
+juce::AudioProcessorEditor* IslaAudioProcessor::createEditor()
 {
-    return new PhasedNotesAudioProcessorEditor(*this);
+    return new IslaAudioProcessorEditor(*this);
 }
 
-bool PhasedNotesAudioProcessor::hasEditor() const
+bool IslaAudioProcessor::hasEditor() const
 {
     return true;
 }
 
 // ==============================================================================
-void PhasedNotesAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+void IslaAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     juce::ignoreUnused(destData);
 }
 
-void PhasedNotesAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+void IslaAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     juce::ignoreUnused(data, sizeInBytes);
 }
 
 // ==============================================================================
-void PhasedNotesAudioProcessor::setMode(const std::string& mode)
+void IslaAudioProcessor::setMode(const std::string& mode)
 {
     currentMode = mode;
     update_python_mode(mode);
@@ -179,5 +179,5 @@ void PhasedNotesAudioProcessor::setMode(const std::string& mode)
 // ==============================================================================
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new PhasedNotesAudioProcessor();
+    return new IslaAudioProcessor();
 }

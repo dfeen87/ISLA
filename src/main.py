@@ -1,6 +1,6 @@
 """
-Phased-Music-Notes
-Smooth Audio Notes with phase-aligned transitions.
+ISLA
+Smooth audio notes with phase-aligned transitions.
 
 This engine mirrors the deterministic architecture of AeroCam:
 Analyzer → Smoother → Harmonic Blender → Output.
@@ -9,12 +9,12 @@ MIT License
 """
 
 import soundfile as sf
-from phased_music_notes.analyzer import NoteAnalyzer
-from phased_music_notes.smoother import PhaseSmoother
-from phased_music_notes.harmonics import HarmonicBlender
+from isla.analyzer import NoteAnalyzer
+from isla.smoother import PhaseSmoother
+from isla.harmonics import HarmonicBlender
 
 
-class PhasedMusicEngine:
+class IslaMusicEngine:
     """
     Static-style engine inspired by AeroCam's main.cpp.
     Modules are initialized once, mirroring embedded-style determinism.
@@ -50,7 +50,7 @@ class PhasedMusicEngine:
         else:
             sf.write(output_path, final_output, sr)
 
-        print(f"[Phased-Music-Notes] Mode '{self.mode}' applied.")
+        print(f"[ISLA] Mode '{self.mode}' applied.")
         if hasattr(output_path, "name"):
             print(f"Output saved to {output_path.name}")
         elif isinstance(output_path, str):
@@ -59,6 +59,9 @@ class PhasedMusicEngine:
             print(f"Output saved to memory buffer.")
 
 
+PhasedMusicEngine = IslaMusicEngine  # Backward-compatible alias.
+
+
 if __name__ == "__main__":
-    engine = PhasedMusicEngine(mode="velvet")
+    engine = IslaMusicEngine(mode="velvet")
     engine.smooth_file("input.wav", "output_smooth.wav")

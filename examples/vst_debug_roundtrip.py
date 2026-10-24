@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from drivers.api import PhasedNotesBuffer
+from drivers.api import IslaBuffer
 
 def main():
     print("--- VST Debug Roundtrip Example ---")
@@ -28,7 +28,7 @@ def main():
     print(f"RMS before: {rms_before:.6f}")
 
     # Initialize processor
-    pnb = PhasedNotesBuffer(mode="velvet", sr=sr)
+    pnb = IslaBuffer(mode="velvet", sr=sr)
 
     # Validate round-trip (mimicking processBlock iteration)
     # We'll just process the whole buffer for simplicity, or block-by-block to be more like a VST
@@ -37,7 +37,7 @@ def main():
     start_time = time.time()
 
     # In a real VST, this would happen block by block
-    # However, PhasedNotesBuffer expects the whole buffer or handles boundaries internally
+    # However, IslaBuffer expects the whole buffer or handles boundaries internally
     # For this example, we'll process the full buffer at once to simulate passing the buffer from DAW to plugin
     output_buffer = pnb.process_buffer(stereo_buffer)
 

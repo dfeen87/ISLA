@@ -1,5 +1,5 @@
 // python_bridge.cpp
-// Production-ready bridge between C++ VST/AU plugin and Phased-Music-Notes (Python)
+// Experimental C++/Python bridge for ISLA (not validated as real-time safe)
 
 #include <pybind11/embed.h>
 #include <pybind11/numpy.h>
@@ -10,7 +10,7 @@ static bool g_python_initialized = false;
 static py::object g_engine;
 
 // -------------------------------------------------------------
-// Initialize Python + PhasedNotesBuffer
+// Initialize Python + IslaBuffer
 // -------------------------------------------------------------
 void init_python(int sampleRate, const std::string& mode = "velvet")
 {
@@ -24,7 +24,7 @@ void init_python(int sampleRate, const std::string& mode = "velvet")
         py::module api = py::module::import("drivers.api");
 
         // Get the buffer-based DSP class
-        py::object BufferClass = api.attr("PhasedNotesBuffer");
+        py::object BufferClass = api.attr("IslaBuffer");
 
         // Instantiate engine with mode + sample rate
         g_engine = BufferClass(mode, sampleRate);

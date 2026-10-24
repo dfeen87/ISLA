@@ -12,12 +12,12 @@ def test_health_and_ping():
     # Test GET /health
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "SERVING", "service": "phased-music-notes"}
+    assert response.json() == {"status": "SERVING", "service": "isla"}
 
     # Test GET /ping
     response = client.get("/ping")
     assert response.status_code == 200
-    assert response.json() == {"status": "SERVING", "service": "phased-music-notes"}
+    assert response.json() == {"status": "SERVING", "service": "isla"}
 
 
 def test_smooth_endpoint():

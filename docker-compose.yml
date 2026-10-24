@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  phased-music-notes:
+  isla:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: phased-music-notes-service
+    container_name: isla-audio-service
     ports:
       - "8080:8080"
       - "50051:50051"

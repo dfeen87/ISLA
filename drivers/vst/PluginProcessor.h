@@ -8,11 +8,11 @@ void init_python(int sampleRate, const std::string& mode = "velvet");
 void shutdown_python();
 void process_audio(float* audioData, int numSamples, int numChannels);
 
-class PhasedNotesAudioProcessor : public juce::AudioProcessor
+class IslaAudioProcessor : public juce::AudioProcessor
 {
 public:
-    PhasedNotesAudioProcessor();
-    ~PhasedNotesAudioProcessor() override;
+    IslaAudioProcessor();
+    ~IslaAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -54,5 +54,5 @@ private:
     long long totalProcessingTimeMicroseconds = 0;
     long long totalBlocksProcessed = 0;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PhasedNotesAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(IslaAudioProcessor)
 };

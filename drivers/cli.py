@@ -1,25 +1,25 @@
 """
-CLI driver for Phased-Music-Notes.
+CLI driver for ISLA.
 
 Smooth Audio Notes from the command line:
-    phased-notes --input input.wav --output output.wav --mode velvet
+    isla --input input.wav --output output.wav --mode velvet
 """
 
 import argparse
 import sys
 from pathlib import Path
 
-from src.main import PhasedMusicEngine  # adjust import if needed
+from src.main import IslaMusicEngine  # adjust import if needed
 
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="phased-notes",
+        prog="isla",
         description="Smooth Audio Notes with phase-aligned transitions.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""Examples:
-  phased-notes --input input.wav --output output.wav --mode velvet
-  phased-notes --input piano.wav --output piano_soft.wav --mode melt
+  isla --input input.wav --output output.wav --mode velvet
+  isla --input piano.wav --output piano_soft.wav --mode melt
         """,
     )
 
@@ -60,7 +60,7 @@ def main() -> int:
         return 1
 
     try:
-        engine = PhasedMusicEngine(mode=args.mode)
+        engine = IslaMusicEngine(mode=args.mode)
         engine.smooth_file(str(input_path), str(output_path))
     except Exception as e:
         print(f"Error during processing: {e}", file=sys.stderr)

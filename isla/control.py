@@ -12,7 +12,8 @@ from enum import Enum
 import shlex
 import threading
 
-from isla.playback import ALIVE_GUI_PLAY_LEVEL_PERCENT, AudioError
+from isla.playback import AudioError
+from isla.alive_listening_gain import AttenuatedALIVEBackend
 from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.streaming import StreamingDSP
 from isla.live_engine import LiveEngineFactory, current_engine
@@ -102,6 +103,10 @@ class ControlService:
         if controller._setup_stage is not None:
             raise AudioError("Finish setup audio or type cancel before opening window.")
         self.controller = controller
+        # GUI-only output adapter: the frozen BufferPlayer and the borrowed
+        # terminal backend must remain intact and be restored on handoff.
+        self._original_file_backend = controller.player.backend
+        self._alive_gui_backend = AttenuatedALIVEBackend(self._original_file_backend)
         from isla.remastered_session import RemasteredSession
         if not hasattr(controller, '_remastered'):
             controller._remastered = RemasteredSession(controller)
@@ -332,10 +337,10 @@ class ControlService:
         if command in ('bypass', 'stop') or command.startswith('mode '):
             self.preview.cancel()
         if command == 'play':
-            # Set output attenuation BEFORE PortAudio starts; also reassert on
-            # every resume/replay. This is local ALIVE only and never changes
-            # macOS volume, LIVE attenuation or the DSP/source buffers.
-            self.controller.player.set_output_level_percent(ALIVE_GUI_PLAY_LEVEL_PERCENT)
+            # Install the GUI-only output wrapper before stream creation on
+            # every Play/resume. It scales final PCM without modifying the
+            # byte-frozen BufferPlayer or any source/research buffers.
+            self.controller.player.backend = self._alive_gui_backend
         result = self.controller.execute(command)
         if command in ('play', 'pause', 'stop'):
             self._file_touched = True
@@ -440,7 +445,9 @@ class ControlService:
                 c.job.close()
                 c.job = None
                 c.path = None
-        # Restore the exact original factory for a borrowed CLI session.
+        # Restore both original backends only AFTER all audio streams stop.
+        # Borrowed terminal sessions must not inherit GUI attenuation.
+        c.player.backend = self._original_file_backend
         c.live.processor_factory = self._original_live_factory
         self.closed = True
         c._window_owner = c._window_thread = None

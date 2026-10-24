@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 from src.main import IslaMusicEngine
+from isla import __version__ as ISLA_VERSION
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -23,6 +24,8 @@ def create_parser() -> argparse.ArgumentParser:
   isla window                 Open the optional desktop control center
         """,
     )
+
+    parser.add_argument("--version", action="version", version=f"%(prog)s {ISLA_VERSION}")
 
     # Required together for offline processing; no arguments opens ALIVE.
     parser.add_argument(

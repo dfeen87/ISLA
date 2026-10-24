@@ -17,7 +17,8 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QFileDialog
 
 from isla.control import UIState
-from isla.qt_window import CommandWorker, ControlWindow, alive_next_step, open_sound_settings
+from isla.qt_window import (CommandWorker, ControlWindow, alive_next_step,
+                            audio_diagnostics, remastered_readiness, open_sound_settings)
 from test_alive import PendingPreparation
 from test_control import make_session, prepared_buffers
 
@@ -230,6 +231,85 @@ def test_alive_next_step_explains_long_song_without_disabling_standard_playback(
     finally:
         close_window(app, w, c)
 
+
+
+def test_remastered_preflight_blocks_full_songs_but_keeps_production_modes(app):
+    """303-second M4A cannot enter the 30-second research renderer from the GUI."""
+    w, c, *_ = window_session(app)
+    try:
+        # The source file is loaded and regular ALIVE playback remains usable.
+        long_song = replace(w.state, file_state=UIState.PLAYING, can_play=True,
+                            duration=303.71, file_sample_rate=48000,
+                            file_mode='legato')
+        admitted, note = remastered_readiness(long_song)
+        assert not admitted and '30-second' in note
+        w.state = long_song
+        w.apply_state()
+        assert not w.apply_research.isEnabled()
+        assert not w.cancel_research.isEnabled()
+        assert w.file_modes['velvet'].isEnabled()
+        assert '303.71-second' in w.research_admission.text()
+        assert 'Remastered availability' in w.health.toPlainText()
+        assert 'Legato' in w.health.toPlainText() or 'legato' in w.health.toPlainText()
+
+        # Eligibility is independent from the conventional ALIVE transport.
+        good = replace(long_song, duration=12.0, file_sample_rate=48000)
+        assert remastered_readiness(good)[0]
+        w.state = good
+        w.apply_state()
+        assert w.apply_research.isEnabled()
+        assert 'Eligible local excerpt' in w.research_admission.text()
+
+        bad_rate = replace(good, file_sample_rate=32000)
+        assert not remastered_readiness(bad_rate)[0]
+        w.state = bad_rate
+        w.apply_state()
+        assert not w.apply_research.isEnabled()
+        assert w.file_modes['melt'].isEnabled()
+    finally:
+        close_window(app, w, c)
+
+
+def test_remastered_preparation_indicator_and_unified_diagnostics(app):
+    """The loading bar is indeterminate and reports active vs requested safely."""
+    w, c, *_ = window_session(app)
+    try:
+        current = replace(w.state, file_state=UIState.PLAYING, can_play=True,
+                          duration=12.0, file_sample_rate=44100,
+                          file_mode='legato', research_pending=True,
+                          research_status='Rendering Velvet in a separate process…',
+                          research_active=False)
+        w.state = current
+        w.apply_state()
+        assert w.research_progress.minimum() == 0
+        assert w.research_progress.maximum() == 0
+        assert not w.apply_research.isEnabled()
+        assert w.cancel_research.isEnabled()
+        assert 'Now playing: Legato' in w.research_status.text()
+        assert 'Preparing separately' in w.research_status.text()
+        assert 'NOT YET APPLIED' in w.health.toPlainText()
+        assert 'Rendering Velvet' in w.health.toPlainText()
+        assert 'Existing playback continues' in w.health.toPlainText()
+
+        applied = replace(current, research_pending=False,
+                          file_mode='remastered_velvet',
+                          research_active=True, research_mode='velvet',
+                          research_intensity=60,
+                          research_summary='verified peak 0.42; vetoed 15 frames')
+        w.state = applied
+        w.apply_state()
+        assert w.research_progress.maximum() == 1
+        assert not w.research_progress.isVisible()
+        assert 'Remastered — 60%' in w.research_status.text()
+        assert 'verified peak 0.42' in w.health.toPlainText()
+        assert w.apply_research.isEnabled()
+        assert not w.cancel_research.isEnabled()
+
+        canceled = replace(current, research_pending=False,
+                           research_status='Research preparation canceled; active audio preserved.')
+        assert 'Last preparation: Research preparation canceled' in audio_diagnostics(canceled)
+    finally:
+        close_window(app, w, c)
 
 
 def test_file_picker_accepts_purchased_m4a_with_spaces(app, monkeypatch):

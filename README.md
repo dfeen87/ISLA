@@ -142,7 +142,7 @@ ISLA deliberately **does not change the macOS default sound output automatically
 
 ### 3. Launch ISLA and confirm Bypass
 
-Reopen Terminal after the restart, if needed:
+**First, run these commands in macOS Terminal** (where your shell prompt usually ends in `%` or `$`). Reopen Terminal after the BlackHole restart, if needed:
 
 ~~~bash
 cd ~/ISLA
@@ -150,7 +150,25 @@ source .venv/bin/activate
 isla
 ~~~
 
-`python -m isla` is an equivalent launch command. At the **`isla>` prompt**, first run:
+You can replace the last command with `python -m isla`; **both launch the interactive ISLA application** from the activated Python environment.
+
+When ISLA starts successfully, you'll see a message similar to this (your output-device name may differ):
+
+~~~text
+ISLA — ALIVE + LIVE
+Audio Engine: Ready
+Status: Idle
+Type help for commands.
+Output: External Headphones
+isla>
+~~~
+
+**Important — two different prompts:**
+
+- **macOS Terminal / zsh:** `(.venv) (base) ... ISLA %` means you are still at your Mac's shell prompt. Running `devices` here produces `zsh: command not found: devices`.
+- **ISLA:** `isla>` means the app is running. **Only here** can you use ISLA commands such as `devices`, `source system`, `monitor start`, and `mode melt`.
+
+**Now, at the `isla>` prompt, type this command and press Return** (type only `devices`—do not type the prompt itself):
 
 ~~~text
 devices

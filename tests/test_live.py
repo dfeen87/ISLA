@@ -572,3 +572,133 @@ def test_failed_native_identity_check_closes_inactive_stream():
     with pytest.raises(AudioError, match="stale native IDs"):
         backend.open(config, None)
     assert stream.closed and not stream.active
+
+
+def test_guided_audio_setup_lists_verified_devices_and_configures_without_starting():
+    """A numeric wizard selection must not select an input-only/virtual output."""
+    from isla.terminal import run_terminal
+
+    playback, devices = mock_playback()
+    devices.append(dict(name="Microsoft Teams Audio", max_input_channels=1, max_output_channels=2))
+    devices.append(dict(name="Mono speaker", max_input_channels=0, max_output_channels=1))
+    routing = fake_routing()
+    backend = FakeBackend()
+    controller = TerminalController(playback, live_backend=backend, routing=routing)
+    try:
+        options = controller.execute("setup audio")
+        assert "Available capture inputs:" in options and "[0] BlackHole 2ch" in options
+        assert "BlackHole 2ch" in controller.execute("0")
+        assert controller.setup_prompt.startswith("Select output")
+        prompt = controller._audio_setup_menu("Outputs:", controller._setup_outputs)
+        assert "[1] Test speakers" in prompt
+        assert "BlackHole" not in prompt
+        assert "Microsoft Teams" not in prompt
+        assert "Mono speaker" not in prompt
+        assert "Microphone" not in prompt
+        assert "Not an eligible physical stereo output" in controller.execute("2")
+        assert "Not an eligible physical stereo output" in controller.execute("0")
+        assert controller.source == "file" and controller.output is None
+        result = controller.execute("1")
+        assert "Audio routing configured" in result
+        assert "monitor start" in result
+        assert controller.source == "system"
+        assert controller.capture == "BlackHole 2ch"
+        assert controller.output == "Test speakers"
+        assert not controller.live.running and not backend.streams
+        assert controller.setup_prompt == "isla> "
+        assert "Selected output: Test speakers" in controller.execute("status")
+        # Backward-compatible manual device commands remain supported.
+        assert "Test speakers" in controller.execute("output 1")
+    finally:
+        controller.close()
+
+
+def test_guided_audio_setup_cancel_and_invalid_choices_preserve_state():
+    playback, _ = mock_playback()
+    controller = TerminalController(playback, live_backend=FakeBackend(), routing=fake_routing())
+    try:
+        controller.execute("setup audio")
+        assert "Not an eligible input" in controller.execute("2")
+        assert controller._setup_stage == "input"
+        assert "canceled" in controller.execute("cancel")
+        assert controller.source == "file" and controller.output is None
+        controller.execute("setup audio")
+        controller.execute('"BlackHole 2ch"')
+        assert "Not an eligible physical stereo output" in controller.execute("1:")
+        assert "Test speakers" in controller.execute('"Test speakers"')
+        assert controller.source == "system"
+    finally:
+        controller.close()
+
+
+def test_guided_audio_setup_fails_closed_on_unknown_routing_and_hotplug():
+    playback, devices = mock_playback()
+    def unavailable():
+        raise AudioError("Core Audio inspection failed")
+    controller = TerminalController(playback, live_backend=FakeBackend(),
+                                    routing=SimpleNamespace(snapshot=unavailable))
+    try:
+        with pytest.raises(AudioError, match="inspection failed"):
+            controller.execute("setup audio")
+        assert controller.setup_prompt == "isla> "
+        assert controller.source == "file" and controller.output is None
+    finally:
+        controller.close()
+
+    controller = TerminalController(playback, live_backend=FakeBackend(), routing=fake_routing())
+    try:
+        controller.execute("setup audio")
+        controller.execute("0")
+        devices[1]["name"] = "Renamed headphones"  # Stale PortAudio mapping: fail, never silently reroute.
+        with pytest.raises(AudioError):
+            controller.execute("1")
+        assert controller.source == "file" and controller.output is None
+        assert controller.setup_prompt == "isla> "
+    finally:
+        controller.close()
+
+
+def test_guided_audio_setup_interactive_prompt_and_ctrl_c_cancel():
+    from isla.terminal import run_terminal
+
+    playback, _ = mock_playback()
+    prompts = []
+    answers = iter(["setup audio", "0", "1", "status", "exit"])
+    def prompt_input(prompt):
+        prompts.append(prompt)
+        return next(answers)
+    output = []
+    assert run_terminal(prompt_input, output.append, playback, routing=fake_routing()) == 0
+    assert prompts[:4] == ["isla> ", "Select input (number/name or cancel): ",
+                           "Select output (number/name or cancel): ", "isla> "]
+    assert any("Audio routing configured:" in message for message in output)
+    assert any("Selected output: Test speakers" in message for message in output)
+    assert any("Goodbye from ISLA" in message for message in output)
+
+    playback, _ = mock_playback()
+    prompts, output = [], []
+    answers = iter(["setup audio", KeyboardInterrupt(), "help", "exit"])
+    def cancel_input(prompt):
+        prompts.append(prompt)
+        answer = next(answers)
+        if isinstance(answer, KeyboardInterrupt):
+            raise answer
+        return answer
+    assert run_terminal(cancel_input, output.append, playback, routing=fake_routing()) == 0
+    assert prompts == ["isla> ", "Select input (number/name or cancel): ", "isla> ", "isla> "]
+    assert any("setup canceled" in message for message in output)
+    assert any("setup audio" in message for message in output)
+
+
+def test_guided_audio_setup_rejects_started_audio():
+    playback, _ = mock_playback()
+    controller = TerminalController(playback, live_backend=FakeBackend(), routing=fake_routing())
+    # Simulate a currently owned file-playback stream without opening physical hardware.
+    controller.player.stream = object()
+    try:
+        with pytest.raises(ValueError, match="Stop LIVE monitoring"):
+            controller.execute("setup audio")
+        assert controller.setup_prompt == "isla> "
+    finally:
+        controller.player.stream = None
+        controller.close()

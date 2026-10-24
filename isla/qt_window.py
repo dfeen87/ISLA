@@ -281,6 +281,11 @@ def audio_diagnostics(state):
         lines.append('No active LIVE monitoring stream.')
         if state.live_failure_reason:
             lines.append('Last safety stop: ' + state.live_failure_reason)
+        # The LIVE monitor's status retains its final, safety-critical failure
+        # and recovery counters after stopping. Do not discard them just
+        # because the stream is no longer active.
+        if state.live_health:
+            lines.extend(['', 'Retained LIVE worker diagnostics:', state.live_health])
     if state.error:
         lines.extend(['', 'ACTION REQUIRED: ' + state.error])
     return '\n'.join(lines)

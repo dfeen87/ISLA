@@ -5,14 +5,15 @@ import shlex
 import threading
 
 from isla.playback import AudioError, BufferPlayer, SoundDeviceBackend
-from isla.preparation import MODES, Preparation
+from isla.preparation import MODES
+from isla.local_preparation import prepare_file
 from isla.live import LiveMonitor, SystemCaptureBackend
 
 from isla.terminal_help import mode_name, next_step, render_help
 
 
 class TerminalController:
-    def __init__(self, backend, preparation_factory=Preparation, live_backend=None, routing=None):
+    def __init__(self, backend, preparation_factory=prepare_file, live_backend=None, routing=None):
         self.player = BufferPlayer(backend)
         self.preparation_factory = preparation_factory
         self.job = None
@@ -337,8 +338,8 @@ class TerminalController:
                 if command == "play":
                     if self.live.running:
                         return ("LIVE monitoring is already running; system audio is being captured. "
-                                "The 'play' command is for local WAV files.\nNEXT: " + next_step(self))
-                    raise ValueError("play is for ALIVE local WAV files. LIVE uses monitor start.\nNEXT: " + next_step(self))
+                                "The 'play' command is for local audio files.\nNEXT: " + next_step(self))
+                    raise ValueError("play is for ALIVE local audio files. LIVE uses monitor start.\nNEXT: " + next_step(self))
                 self.live.select("bypass")
                 return ("Original system audio enabled (Bypass / unprocessed input). "
                         + ("LIVE monitoring remains running in the existing stream." if self.live.running else

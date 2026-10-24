@@ -41,7 +41,7 @@ ISLA was inspired by how slowing a piano recording can expose abrupt note attack
 | Experience | What you hear | Additional setup |
 |---|---|---|
 | **LIVE — Mac system audio** | YouTube, browser audio, and other sound sent through ISLA to your speakers/headphones | **BlackHole 2ch** virtual audio device; macOS audio routing |
-| **ALIVE — Local file player** | Load a WAV recording, play/pause/stop, compare processing modes and Bypass | No BlackHole required |
+| **ALIVE — Local file player** | Load a local recording, including DRM-free Apple purchases on macOS, play/pause/stop, compare processing modes and Bypass | No BlackHole required |
 | **Offline export** | Process a file and save a new audio file using the existing CLI/Python API | No BlackHole required |
 
 **Three musical modes, plus Bypass**
@@ -179,9 +179,9 @@ Do not include the `isla>` prompt itself and do not type `python -m isla window`
 
 The optional `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and `sounddevice>=0.5,<0.6`. Existing base and `.[playback]` installations do not import or require Qt. See the [Qt installation requirements](https://doc.qt.io/qtforpython-6/gettingstarted.html) and [dependency licenses](https://doc.qt.io/qtforpython-6/licenses.html). ISLA remains MIT licensed; Qt/PySide retain their own licenses and notices. No standalone bundled Mac app or installer is supplied.
 
-### ALIVE — play a WAV
+### ALIVE — play a local audio file
 
-1. Click **Open WAV File…** and select a non-empty mono/stereo WAV. Preparation runs outside the window thread using the existing cancellable preparation process.
+1. Click **Open Audio File…** and select a non-empty mono/stereo recording (WAV, or a DRM-free purchased M4A / AAC or Apple Lossless file on macOS). Preparation runs outside the window thread using the existing cancellable preparation process.
 2. Wait for **File ready**. Until then, Play and mode controls are disabled and the status explains what is happening.
 3. Click **Play**, **Pause**, or **Stop**. Position and duration update automatically. Select **Velvet**, **Legato**, **Melt**, or **Original / Bypass** to compare the existing prepared buffers and transitions.
 4. While stopped, choose an eligible listening output and click **Use Listening Output**. This output is shared with LIVE. On macOS, dropdown choices require verified physical stereo devices; the system default remains usable for ALIVE even when BlackHole is absent.
@@ -211,12 +211,12 @@ System audio enters BlackHole, ISLA processes it, then ISLA plays it through you
 
 | Window message or condition | Next action |
 |---|---|
-| **Open an audio file to begin** | Open a WAV and wait for preparation; playback/mode buttons will then become available. |
+| **Open an audio file to begin** | Open a local audio file and wait for preparation; playback/mode buttons will then become available. |
 | **LIVE is not ready**, current output is External Headphones | Open Sound Settings, select **BlackHole 2ch**, return and Recheck. Keep the desired physical listening output inside ISLA. |
 | BlackHole missing, ambiguous, or no eligible output | Check Audio MIDI Setup, reconnect the device and click **Refresh Devices**. Apply a fresh selection. |
 | Device identity changed, stale PortAudio devices, or unplugged headphones | Stop audio, Refresh, select devices again and Recheck. If opened native IDs still disagree, close ISLA and relaunch to refresh PortAudio. |
 | Start LIVE disabled after switching back to ALIVE | Stop playback and click **Apply LIVE Devices / Select LIVE Source** again. |
-| Preparation fails | Read the adjacent error, choose a valid smaller mono/stereo WAV and retry. Close cancels preparation. |
+| Preparation fails | Read the adjacent error, choose a valid smaller mono/stereo audio file and retry. Close cancels preparation. |
 | Audio command takes over ten seconds | The window remains responsive and explains the delay. Close requests cleanup after the operation returns. Commands stay locked to prevent a competing engine. |
 | Cleanup reports a still-stopping audio worker | The window retains session ownership. Retry Close after it stops; it will not return a busy controller to the terminal. A permanently blocked native driver may require process termination; do not start another audio session. |
 
@@ -491,7 +491,9 @@ exit
 
 `play` resumes from pause or starts from the beginning after a stop or completed playback. `stop` resets position; `bypass` returns to the decoded original. Use a **real local file path** in place of the example. Quotes handle spaces, and `~` expands to your home directory.
 
-**Guaranteed format:** mono or stereo **WAV**. Other formats (such as FLAC/AIFF) depend on the installed libsndfile; MP3 is **not guaranteed**. Preparation of long files uses more time, working memory and temporary storage.
+**Local audio formats:** mono or stereo **WAV**, plus **DRM-free M4A / AAC and Apple Lossless (ALAC) on macOS**, decoded with the built-in macOS audio converter. No extra decoder installation is needed on Mac. FLAC, AIFF, OGG and MP3 depend on the installed libsndfile. On other systems, export AAC / ALAC to a DRM-free WAV, FLAC or AIFF first. Preparation of long files uses more time, working memory and temporary storage; decoding stays in the cancellable preparation process and preserves the source sample rate and channels.
+
+**Purchased music from Apple:** download the purchased track to your Mac in the Music app (iTunes Store purchases), then use **Show in Finder** to locate its local file. Open that `.m4a` file with **Open Audio File…**, or use `load "~/Music/path/to/Purchased Song.m4a"` at `isla>`. [Apple describes iTunes Plus purchases as DRM-free AAC](https://support.apple.com/en-ie/guide/music/mus3e2346c2/mac). The original file is left untouched. A cloud-only library entry must be downloaded first. Apple Music subscription downloads and older protected purchases (`.m4p` / `.movpkg`) cannot be imported into ALIVE; use a DRM-free purchased copy. This is local file playback; the offline export CLI retains its libsndfile format support.
 
 ### Export without the interactive player
 
@@ -523,7 +525,7 @@ At `isla>`, type `help` or `?` for the ASCII command center. It shows the curren
 | Topic | Guidance |
 |---|---|
 | `help live` | System capture, Start/Stop, modes and next steps |
-| `help file` (also `help alive`) | Prepare and play a local WAV |
+| `help file` (also `help alive`) | Prepare and play a local audio file |
 | `help devices` | Numbered pickers, BlackHole and physical outputs |
 | `help modes` | Processing selection, Bypass and window reset |
 | `help troubleshoot` | Mistaken commands, routing and recovery |
@@ -612,7 +614,7 @@ Commands are case-insensitive where appropriate; file and device names retain th
 | **Device missing or disconnected** | Run `monitor stop`, reconnect the device, then `devices`; relaunch ISLA if Core Audio/PortAudio holds stale device information. No silent device fallback is provided. |
 | **Crackling, glitches or noticeable delay** | Prefer built-in or wired speakers to Bluetooth, close busy apps, check matching 44.1/48 kHz device formats, and review `status` for underflows, overflows or device warnings. |
 | **`zsh: command not found: isla`** | At the Mac's shell prompt, run `cd ~/ISLA`, `source .venv/bin/activate`, and `python -m pip show isla-audio`. If the package is missing, rerun `python -m pip install -e '.[playback]'`. Start with `python -m isla` and enter `devices` **only after** the `isla>` prompt appears. |
-| **File won't load/play** | Use a valid WAV path, wait for `Preparation: Ready`, check the physical output device and sample-rate/channel support. |
+| **File won't load/play** | Use a valid local audio path (DRM-free for Apple purchases), wait for `Preparation: Ready`, check the physical output device and sample-rate/channel support. |
 
 For deeper device diagnostics inside the activated environment, try `python -m sounddevice`. See [ALIVE/LIVE implementation and acceptance](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) for native test details and unresolved risks.
 
@@ -624,7 +626,7 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 - **Experimental LIVE:** This Python/PortAudio implementation is not hard real-time. It targets macOS 13+ with standalone **BlackHole 2ch** and a **separate physical stereo output** at 44.1 or 48 kHz. Native evidence comes from one Apple Silicon Mac; it does not establish compatibility with every Mac, output device or OS version. Wired outputs avoid the extra delay associated with Bluetooth.
 - **Latency and buffers:** The LIVE DSP adds **32.00 ms at 48 kHz / 34.83 ms at 44.1 kHz**, plus queues and device latency. Native test sessions reported roughly **79–107 ms** in ADC/DAC timestamp estimates, not independent acoustic measurements. Bypass shares the processing delay; video sync can be affected. Fixed buffers can run dry and emit silence, while capture/ring failures can stop monitoring. Check `status` for counters and errors. There is no user-facing buffer-size command.
 - **Routing and recovery:** ISLA rejects virtual, Aggregate and Multi-Output sinks for LIVE, but cannot detect every other app's monitoring path. It does not change the Mac's system output or reconnect devices automatically. Stop monitoring before changing devices, and restore normal output in macOS when finished.
-- **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo is the guaranteed format; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
+- **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo and, on macOS, DRM-free M4A / AAC / ALAC are supported; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
 - **Release status:** Package, HTTP and JUCE/CMake source metadata are aligned at **3.3.0**. The [v3.3.0 source release notes](docs/releases/v3.3.0.md) cover merged PRs #38–#45 and the remaining native macOS verification requirements. A version bump or merged PR does **not** itself publish a GitHub tag/release; consult [GitHub Releases](https://github.com/dfeen87/ISLA/releases) for the actual latest publication. The immutable [v3.2.0](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0), [v3.1.1](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1), [v3.1.0](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0), and [v3.0.0](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) releases remain separate historical baselines. Physical LIVE/GUI, long-session, hot-plug and broader hardware acceptance remain pending; mobile apps and production-grade plugin validation remain future work.
 
 ## Engineering and evidence

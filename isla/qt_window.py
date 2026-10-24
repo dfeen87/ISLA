@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from isla.control import ControlService
+from isla.audio_files import AUDIO_FILE_FILTER
 from isla.playback import SoundDeviceBackend
 from isla.terminal import TerminalController
 
@@ -264,7 +265,8 @@ class ControlWindow(QMainWindow):
     def _file_panel(self):
         panel = QGroupBox('ALIVE — Local Audio File')
         box = QVBoxLayout(panel)
-        self.open_file = QPushButton('Open WAV File…')
+        self.open_file = QPushButton('Open Audio File…')
+        self.open_file.setToolTip('WAV and other local audio; on macOS, DRM-free purchased M4A / AAC and Apple Lossless.')
         self.open_file.clicked.connect(self.choose_file)
         box.addWidget(self.open_file)
         self.filename = label('No file selected')
@@ -488,7 +490,7 @@ class ControlWindow(QMainWindow):
     def choose_file(self):
         if not self.open_file.isEnabled():
             return
-        path, _ = QFileDialog.getOpenFileName(self, 'Open WAV file', '', 'WAV audio (*.wav *.WAV)')
+        path, _ = QFileDialog.getOpenFileName(self, 'Open audio file', '', AUDIO_FILE_FILTER)
         if path:
             self.submit('load', path)
 

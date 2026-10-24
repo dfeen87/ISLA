@@ -97,7 +97,7 @@ The editable install provides the `isla` console command, NumPy, SciPy, SoundFil
 python -m pip show isla-audio
 ~~~
 
-You should see package information including `Name: isla-audio`. If the package is not found, check the output of `python -m pip install -e '.[playback]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA.
+You should see package information including `Name: isla-audio`. If the package is not found, check the output of `python -m pip install -e '.[playback]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA. A pip `[notice]` suggesting `pip install --upgrade pip` is optional and does not indicate an ISLA installation error.
 
 The environment must be activated in each new Terminal session. To use **local audio files only**, continue to [ALIVE](#alive-play-a-local-audio-file); BlackHole is unnecessary.
 
@@ -191,7 +191,9 @@ isla>
 devices
 ~~~
 
-Find the **exact name or index of your physical speakers/headphones** in that list. In the next block, **replace `External Headphones` with your device** before typing the commands one line at a time. Built-in speakers may be named `MacBook Pro Speakers`. Never select `BlackHole 2ch` as ISLA's output.
+**Device-selection tip:** `devices` displays a list, **not** a numbered selection menu. For a list showing `0: BlackHole 2ch` and `1: External Headphones`, enter `input 0` and `output 1` (or `input "BlackHole 2ch"` and `output "External Headphones"`) **after `source system`**. Typing only `1`, `1:`, or `External Headphones` is not a valid command; device indices may differ on your Mac. If startup shows `Output: BlackHole 2ch`, that's the current macOS default output, not your selected physical ISLA output.
+
+In the next block, **replace `External Headphones` with your actual physical output device** before typing each command. Built-in speakers may be named `MacBook Pro Speakers`. Never select `BlackHole 2ch` as ISLA's output.
 
 ~~~text
 source system

@@ -171,75 +171,88 @@ LIVE source below for browser and Mac system audio; file preparation stays offli
 
 ### LIVE Mode — Process YouTube and Mac System Audio
 
-**Testing this PR before merge:** after cloning, run
-`git switch feature/isla-live-system-audio`, then rerun
-`python -m pip install -e '.[playback]'` in the activated environment before `isla`.
-The unmerged LIVE feature is on that branch, not `main`.
+**This is the experimental macOS LIVE feature merged from PR #15.** Unlike the local-file player above, it processes browser/YouTube and other Mac system audio **without downloading a song**. LIVE requires a separately installed **BlackHole 2ch** virtual audio driver; `pip install` alone does not install it. The driver is not an app you open.
 
-**Experimental MVP, not a released v3.0.0 or professional low-latency engine.**
-Target configuration: macOS 13+, Python 3.10+, standalone **BlackHole 2ch** input,
-and a separate stereo built-in, wired/USB, or Bluetooth physical output at **44.1
-or 48 kHz**. Native evidence and remaining acceptance items are in the
-[ALIVE/LIVE acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md).
-Bluetooth adds device latency. AirPlay, Aggregate and Multi-Output devices are
-rejected as LIVE outputs. Mono DSP is tested; this two-channel capture adapter
-requires a stereo output and does not silently downmix.
+**Tested configuration:** Apple Silicon macOS with BlackHole 2ch 0.7.1, sounddevice/PortAudio and a wired physical output; native testing covered 44.1 and 48 kHz. The intended support target is macOS 13+, Python 3.10+, stereo BlackHole 2ch capture and a *separate physical stereo* listening device. This is an MVP, not a hard-real-time or universally hardware-validated processor. See the [ALIVE/LIVE acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) for test results and limits.
 
-1. **Install the audio backend** using the virtual environment from the local-file
-   instructions above: `python -m pip install -e '.[playback]'`. There are no new
-   Python LIVE dependencies. This install path was exercised in a fresh environment.
-2. **Install BlackHole separately.** ISLA does not install or bundle a driver.
-   Use the [official installer](https://existential.audio/blackhole/), or, if
-   Homebrew is already installed, `brew install blackhole-2ch`. This is the
-   [vendor's documented command](https://github.com/ExistentialAudio/BlackHole#installation-instructions),
-   also used by the owner on the native test Mac. Finish the installer and restart
-   if prompted. BlackHole appears as an audio device, not an application. If it is
-   installed but missing, restart the Mac before continuing; an administrator can
-   instead restart Core Audio, which interrupts current sound.
-3. **Permissions:** allow microphone/audio-input access for Terminal (or the host
-   application running Python) when macOS asks. Check **System Settings → Privacy
-   & Security → Microphone** if capture is silent. This implementation uses an
-   audio-input driver, not ScreenCaptureKit; it requests no screen recording.
-4. Open **Applications → Utilities → Audio MIDI Setup → Window → Show Audio
-   Devices**. Select BlackHole 2ch and set **Format** to **48,000 Hz, 2 channels**.
-   Set your speakers/wired output to 48,000 Hz too where available. For 44.1 kHz,
-   set both to 44,100 and use `monitor start 44100`. ISLA checks stream support;
-   Core Audio may convert device-native formats. There is no Python resampler.
-5. Note your normal **System Settings → Sound → Output** choice so you can restore
-   it. Then **manually choose BlackHole 2ch as the Mac sound output**. Do **not**
-   create or select a Multi-Output device. Sound becomes silent until ISLA monitors
-   it. The one listening path must be:
-   **YouTube → BlackHole 2ch → ISLA → speakers/headphones**. Disable other software
-   monitors and per-app output overrides. A browser routed separately to speakers
-   would bypass this path; ISLA cannot inspect every application's settings.
-6. In Terminal, return to the checkout, run `source .venv/bin/activate`, then `isla`.
-   Run `devices` and copy the exact device names (or indices). Run `source system`,
-   `input "BlackHole 2ch"`, and `output "MacBook Pro Speakers"`. For a sound system
-   plugged into the Mac headphone jack, macOS may call it **External Headphones**:
-   use `output "External Headphones"`. Select the physical listening device here,
-   even though the Mac's *system* output remains BlackHole.
-7. Run `bypass`, then `monitor start`. The terminal remains usable. Open YouTube
-   in your browser and play a solo-piano performance—no download or WAV import.
-   For example, [Beethoven played by Valentina Lisitsa](https://www.youtube.com/watch?v=UHd8jwXBzXE).
-   First confirm clear Bypass audio with no doubling or feedback.
-8. Run `mode velvet`, `mode legato`, `mode melt`, then `bypass` to compare.
-   These are **genuine continuous harmonic transformations**, with increasing
-   spectral smoothing strengths. They do not reproduce the file player's
-   look-ahead note-boundary interpolation. All modes retain window/overlap state;
-   Bypass has the same delay, and changes use a 5 ms crossfade.
-9. Run `status` to see routing, mode, monitor state, rate, input/output RMS levels,
-   buffer counters and an ADC/DAC timestamp latency estimate. The estimate is not
-   an acoustic measurement; it excludes browser decoding and may omit device
-   processing. Expect a noticeable delay. See the measured results in the report.
-10. Run `monitor stop`, pause YouTube, and `exit`. Ctrl-C/Ctrl-D at the prompt
-    also stops audio and releases the worker/device. `source file` stops LIVE
-    and returns to the retained local-file player; use `load` and `play` normally.
-11. **Restore normal Mac sound:** in **System Settings → Sound → Output**, select
-    your original speakers/headphones/sound system again, then resume the browser.
-    ISLA never changes this system preference itself, so it cannot restore your
-    manually chosen route on exit. If sound is silent after stopping, exiting,
-    crashing, or force-quitting, select the physical output manually. Restoration
-    after a crash or forced termination is never guaranteed.
+#### First-time Mac setup: Homebrew → BlackHole 2ch → ISLA LIVE
+
+**1. Install Homebrew, if you do not already have it.** Open Terminal and check:
+
+```bash
+brew --version
+```
+
+If the command is not found, follow [Homebrew's official installation instructions](https://brew.sh/). On supported Macs, its published install command is:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Read the installer's prompts and follow its **Next steps** to add `brew` to your shell path; then reopen Terminal and confirm `brew --version` works. Homebrew's current supported macOS versions may be newer than ISLA's minimum; for an older Mac, use the [official BlackHole installer](https://existential.audio/blackhole/) instead.
+
+**2. Install the correct virtual audio driver: BlackHole *2ch*.** The [Homebrew cask](https://formulae.brew.sh/cask/blackhole-2ch) documents this exact command:
+
+```bash
+brew install --cask blackhole-2ch
+```
+
+**Restart your Mac after installation.** The Homebrew package requires a reboot for the audio driver to take effect. Then open **Applications → Utilities → Audio MIDI Setup → Window → Show Audio Devices** and confirm **BlackHole 2ch** appears. Do not substitute BlackHole 16ch or a Multi-Output Device. ISLA looks specifically for the standalone device named `BlackHole 2ch`. You can alternatively use [BlackHole's official package installer](https://existential.audio/blackhole/); a restart is still appropriate.
+
+**3. Install and start ISLA.** Follow **After Cloning — Start ISLA on macOS** above to clone the now-merged `main`, create a virtual environment and install `.[playback]`. No extra LIVE Python dependency is necessary. On subsequent Terminal sessions, use:
+
+```bash
+cd ISLA
+source .venv/bin/activate
+isla
+```
+
+Run `devices` inside ISLA to see your exact physical-output name. A wired speaker system connected through the headphone jack may appear as `External Headphones`. MacBook speakers may appear as `MacBook Pro Speakers`.
+
+**4. Prepare audio routing *before* monitoring.** First note your ordinary output in **System Settings → Sound → Output** (for example, **External Headphones**) so you can restore it later. Set your physical speaker volume to a comfortable level **before** rerouting. In **Audio MIDI Setup**, choose **48,000 Hz / 2 channels** for BlackHole and, where available, your wired or built-in speaker device. For 44,100 Hz on both, use `monitor start 44100` instead.
+
+Now open **System Settings → Sound → Output** and manually select **BlackHole 2ch**. **Your Mac may become silent; this is expected.** Audio is now routed to BlackHole instead of directly to the speakers. Do **not** select a Multi-Output Device or simultaneously monitor the same source through another application.
+
+The one intended listening path is:
+
+```text
+YouTube / Mac system sound → BlackHole 2ch → ISLA LIVE → physical speakers / headphones
+```
+
+**5. Start LIVE and test with YouTube.** Inside the `isla>` prompt, enter these commands **one line at a time**. Replace the physical-output name with the exact device shown by `devices`:
+
+```text
+devices
+source system
+input "BlackHole 2ch"
+output "External Headphones"
+bypass
+monitor start
+status
+```
+
+Open YouTube and play a solo-piano recording (for example, [Beethoven performed by Valentina Lisitsa](https://www.youtube.com/watch?v=UHd8jwXBzXE)). You should hear it through the **physical output selected in ISLA**, not directly from BlackHole. First verify the unprocessed **Bypass** path. Then compare:
+
+```text
+mode velvet
+mode legato
+mode melt
+bypass
+status
+```
+
+These LIVE modes perform real, **continuous harmonic smoothing**. They are intentionally *not* the same as the file player's full offline note-boundary interpolation; differences can be subtle. Mode transitions use a short crossfade and an aligned Bypass path. Use `status` to inspect input/output RMS, buffer counters and the ADC/DAC timestamp *latency estimate* (not a measured acoustic latency).
+
+**6. Stop LIVE and restore ordinary Mac sound.** Inside ISLA:
+
+```text
+monitor stop
+exit
+```
+
+Then manually return to **System Settings → Sound → Output** and choose the **original physical speakers/headphones** noted in Step 4. ISLA does **not** change the Mac's system output preference on your behalf; therefore `exit` cannot restore a route that you manually changed. If ISLA crashes or is force-quit and your sound goes silent, manually select your physical output again.
+
+**Permissions and supported devices:** Allow microphone/audio-input access for Terminal (or the app hosting Python) if prompted; check **System Settings → Privacy & Security → Microphone** if capture is silent. This route uses a virtual audio-input driver, **not** ScreenCaptureKit or screen recording. BlackHole 2ch must be the standalone system output; ISLA must send audio to a separate stereo physical device. AirPlay, Aggregate and Multi-Output devices are rejected as LIVE sinks; Bluetooth output may add substantial latency. The capture path is local and does not save or transmit audio.
 
 Example command sequence exercised with native Core Audio (device names are
 machine-specific; use `devices`):

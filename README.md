@@ -24,7 +24,7 @@ Choose **Original / Bypass**, the established **Velvet / Legato / Melt** profile
 
 **Start here:** [Install and open Control Center](#get-started-on-macos) · [ALIVE local music](#alive-play-a-local-audio-file) · [LIVE system audio](#live-listen-to-your-mac) · [Remastered research](#remastered-research-alive-and-live) · [Troubleshooting](#troubleshooting)
 
-**Reference:** [ALIVE Remastered mathematics](docs/remastered/IMPLEMENTATION.md) · [LIVE Remastered and device/song discovery](docs/remastered/LIVE_AND_DISCOVERY.md) · [Terminal commands](#terminal-command-reference) · [Historical listening samples](#hear-the-difference) · [Research and legacy history](#engineering-and-evidence) · [Published releases](https://github.com/dfeen87/ISLA/releases)
+**Reference:** [ALIVE Remastered mathematics](docs/remastered/IMPLEMENTATION.md) · [LIVE Remastered and device/song discovery](docs/remastered/LIVE_AND_DISCOVERY.md) · [Terminal commands](#terminal-command-reference) · [Electronic listening comparisons](#hear-the-difference) · [Research and legacy history](#engineering-and-evidence) · [Published releases](https://github.com/dfeen87/ISLA/releases)
 
 **Research and release status:** `main` identifies itself as source version **4.0.0**, but the latest published GitHub release is **v3.3.0**. Remastered remains an opt-in engineering preview with native listening acceptance outstanding and the frozen Experiment 02 verdict **REVISE / INCONCLUSIVE**. See the [current feature guide](#remastered-research-alive-and-live) before interpreting historical v3.x audio comparisons.
 
@@ -757,6 +757,47 @@ Phased Music Notes was conceived to explore the hidden texture of classical pian
 
 ### Hear the Difference
 
+**Electronic music · Traditional LIVE vs v4.0 Remastered LIVE**
+
+Hear **Hinkik’s Outbreaker** and **Kubbi’s Ember** through the two current LIVE processing engines. Each song offers **seven versions of the same 24-second passage**: Original / Bypass, three traditional profiles, and three Remastered modes. These are offline exports of the LIVE worker DSPs, at **normal speed**.
+
+**Start with your listening volume low.** Open or download the FLAC links, play one sample at a time, and keep your player volume fixed. All seven versions within each song share one measured integrated-loudness target. Use Original as your reference and compare the same mode across the two columns.
+
+**Traditional LIVE** uses the established strengths **Velvet 0.35 · Legato 0.55 · Melt 0.75**. **Remastered LIVE** uses **100% permitted research depth** for each governed mode. Those settings belong to different processing systems and do not represent equivalent intensity. ALIVE’s traditional local-file processor is a separate pipeline.
+
+#### Hinkik — Outbreaker
+
+Progressive/electro house. Same source passage **00:48–01:12**, with two seconds of preceding musical context used to warm each processor before the audible crop.
+
+**[▶ Original / Bypass — listen or download](docs/audio/electronic-comparison/outbreaker/original.flac?raw=1)**
+
+| Mode | Traditional LIVE | Remastered LIVE · 100% depth |
+|---|---|---|
+| **Velvet** | [▶ Listen / download · 0.35](docs/audio/electronic-comparison/outbreaker/traditional-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/outbreaker/remastered-velvet.flac?raw=1) |
+| **Legato** | [▶ Listen / download · 0.55](docs/audio/electronic-comparison/outbreaker/traditional-legato.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/outbreaker/remastered-legato.flac?raw=1) |
+| **Melt** | [▶ Listen / download · 0.75](docs/audio/electronic-comparison/outbreaker/traditional-melt.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/outbreaker/remastered-melt.flac?raw=1) |
+
+Music: **Outbreaker by Hinkik**. [Artist’s original upload and license](https://www.newgrounds.com/audio/listen/681530). Source and these cropped, processed, level-matched audio adaptations: **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**.
+
+#### Kubbi — Ember
+
+Melodic chipstep. Same source passage **00:40–01:04**, with the same processor warm-up, crop duration, and comparison method.
+
+**[▶ Original / Bypass — listen or download](docs/audio/electronic-comparison/ember/original.flac?raw=1)**
+
+| Mode | Traditional LIVE | Remastered LIVE · 100% depth |
+|---|---|---|
+| **Velvet** | [▶ Listen / download · 0.35](docs/audio/electronic-comparison/ember/traditional-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/ember/remastered-velvet.flac?raw=1) |
+| **Legato** | [▶ Listen / download · 0.55](docs/audio/electronic-comparison/ember/traditional-legato.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/ember/remastered-legato.flac?raw=1) |
+| **Melt** | [▶ Listen / download · 0.75](docs/audio/electronic-comparison/ember/traditional-melt.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/ember/remastered-melt.flac?raw=1) |
+
+Music: **Ember by Kubbi**. [Artist’s original upload and license](https://www.newgrounds.com/audio/listen/974737). Source and these audio adaptations: **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**. Artist credits identify the recordings; no endorsement is implied.
+
+Files are **44.1 kHz stereo, 24-bit PCM FLAC**. FLAC adds no further lossy encoding to the supplied MP3 recordings. Numerical differences are verified; perceived improvement and preference remain open. The Remastered research verdict stays **REVISE / INCONCLUSIVE**. See the [recording credits, method and reproduction instructions](docs/audio/electronic-comparison/README.md) and [measured provenance](docs/audio/electronic-comparison/PROVENANCE.json).
+
+<details>
+<summary>Historical piano baseline and earlier LIVE engineering evidence</summary>
+
 **Historical v3.x production-LIVE comparison (not a v4 Remastered demonstration).** These licensed baseline listening samples and their analyses are preserved for reproducibility. New governed modes require separate creator listening evaluation.
 
 Compare the same short **Emotional Piano** passage by **triangelx**, published under **CC0**, through the original LIVE DSP baseline. Play or download each FLAC and keep your playback volume fixed:
@@ -772,6 +813,8 @@ The [controlled study](docs/research/live-dsp-study/README.md) found three inten
 The [numerical robustness corrections and before/after evidence](docs/research/live-dsp-study/IMPLEMENTATION_REVIEW.md) shipped in v3.1.0. The subsequent [bounded capture-loss recovery implementation](docs/alive/capture-recovery/ASSESSMENT.md) shipped in v3.1.1: isolated driver-reported capture loss can recover through safe silence, queue disposal and fresh DSP state while repeated or unsafe faults still stop LIVE. [Native Mac acceptance](docs/alive/capture-recovery/NATIVE_CHECKLIST.md) is pending; uninterrupted audio, restored lost samples, and independent musical retuning are not claimed.
 
 The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and [owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) document earlier Mac sessions, including subtle mode differences and a preference for Melt. That historical preference is separate from these samples. No terminal demo GIF or new native listening acceptance is claimed.
+
+</details>
 
 
 ### Current acceptance, roadmap and historical milestones

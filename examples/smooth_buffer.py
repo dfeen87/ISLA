@@ -2,7 +2,7 @@ import io
 import numpy as np
 import soundfile as sf
 import time
-from drivers.api import PhasedNotesBuffer
+from drivers.api import IslaBuffer
 
 def main():
     print("--- Smooth Buffer Example ---")
@@ -31,10 +31,10 @@ def main():
 
     print(f"Converted to planar stereo shape: {planar_stereo.shape}")
 
-    # 3. Use PhasedNotesBuffer
+    # 3. Use IslaBuffer
     start_time = time.time()
 
-    pnb = PhasedNotesBuffer(mode="velvet", sr=sr)
+    pnb = IslaBuffer(mode="velvet", sr=sr)
     output_buffer = pnb.process_buffer(planar_stereo)
 
     end_time = time.time()

@@ -3,8 +3,8 @@ Python API driver for ISLA (formerly Phased-Music-Notes).
 
 Provides:
     - smooth(): one-call file-based interface
-    - PhasedNotes: OO file-based interface
-    - PhasedNotesBuffer: buffer-based interface for DAW/VST integration
+    - IslaFile: OO file-based interface (PhasedNotes compatibility alias)
+    - IslaBuffer: buffer-based interface (PhasedNotesBuffer compatibility alias)
 
 It wraps the core engine in src/main.py so users never need
 to touch internal DSP modules directly.
@@ -55,7 +55,7 @@ class IslaFile:
 
     Example
     -------
-        pn = PhasedNotes(mode="melt")
+        pn = IslaFile(mode="melt")
         pn.process("piano.wav", "piano_soft.wav")
     """
 
@@ -85,7 +85,7 @@ class IslaBuffer:
 
     Example (Python-side)
     ---------------------
-        pnb = PhasedNotesBuffer(mode="velvet", sr=44100)
+        pnb = IslaBuffer(mode="velvet", sr=44100)
         out = pnb.process_buffer(audio_np)
     """
 

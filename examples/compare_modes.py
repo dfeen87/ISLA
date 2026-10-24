@@ -1,7 +1,7 @@
 import io
 import numpy as np
 import soundfile as sf
-from drivers.api import PhasedNotesBuffer
+from drivers.api import IslaBuffer
 
 def compute_spectral_centroid(audio, sr):
     # Compute using NumPy FFT magnitude
@@ -37,7 +37,7 @@ def main():
 
     modes = ["velvet", "legato", "melt"]
     for mode in modes:
-        pnb = PhasedNotesBuffer(mode=mode, sr=sr)
+        pnb = IslaBuffer(mode=mode, sr=sr)
         output = pnb.process_buffer(signal)
 
         # Use an in-memory buffer to simulate disk write

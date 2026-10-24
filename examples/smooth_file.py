@@ -2,7 +2,7 @@ import io
 import numpy as np
 import soundfile as sf
 import time
-from phased_music_notes import SmoothPhase
+from isla import SmoothPhase
 
 def main():
     # 1. Generate synthetic WAV in memory

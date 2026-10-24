@@ -1,7 +1,7 @@
 """
 HarmonicBlender
 ---------------
-Final stage of the Phased-Music-Notes DSP pipeline.
+Final harmonic processing stage of ISLA's audio DSP pipeline.
 
 Responsibilities:
     - Smooth harmonic content after phase-aligned transitions

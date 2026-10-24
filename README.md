@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Status](https://img.shields.io/badge/Status-BEDROCK--baseline-blue)
-[![CI](https://github.com/dfeen87/Phased-Music-Notes/actions/workflows/ci.yml/badge.svg)](https://github.com/dfeen87/Phased-Music-Notes/actions/workflows/ci.yml)
+[![CI](https://github.com/dfeen87/ISLA/actions/workflows/ci.yml/badge.svg)](https://github.com/dfeen87/ISLA/actions/workflows/ci.yml)
 
 **ISLA** is the new name for **Phased-Music-Notes**: an experimental audio engineering project exploring smoother transitions between musical notes with phase-aware analysis, transient smoothing, and harmonic blending.
 
@@ -49,7 +49,7 @@ Requires Python 3.10+ and the project dependencies. From a local checkout:
 python -m pip install -e .
 ```
 
-**Python identity:** The editable distribution is `isla-audio`, with new imports via `isla`. The original `phased_music_notes` package and legacy Python class names remain available as compatibility aliases. The GitHub repository URL stays unchanged until its separate settings rename. Existing gRPC wire service identifiers and JUCE plugin IDs are preserved for compatibility.
+**Codebase identity:** The editable distribution is `isla-audio` and the public Python import is `isla`. The original `phased_music_notes` modules and legacy Python class names remain available for existing integrations. The JUCE build target and plugin product display are now `ISLA`, while original plugin identity codes and protobuf/gRPC wire service identifiers stay unchanged for compatibility. The GitHub repository is now `dfeen87/ISLA`.
 
 ---
 
@@ -71,6 +71,10 @@ Choose `"velvet"`, `"legato"`, or `"melt"` to explore different transition treat
 ---
 
 From the command line, you can also use `isla --input input.wav --output output_isla.wav --mode velvet` after installation, or `python -m isla` with the same arguments.
+
+---
+
+**Engineering note:** Existing `phased_music_notes` source files remain the authoritative DSP implementation behind the new `isla` entry points. This avoids duplicating or rewriting BEDROCK-tested audio algorithms. New service discovery reports `isla`; deployments relying on the previous Docker Compose service or HTTP health response must update their configuration.
 
 ---
 

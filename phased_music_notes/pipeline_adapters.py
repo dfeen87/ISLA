@@ -1,5 +1,5 @@
 """
-Pipeline adapters for Phased-Music-Notes.
+Pipeline adapters for ISLA (legacy integration class names preserved).
 Provides:
     - PhasedNotesBeamDoFn: Apache Beam DoFn for batch audio element processing.
     - PhasedNotesAirflowOperator: Airflow Operator for pipeline task integration.
@@ -28,7 +28,7 @@ except ImportError:
 
 class PhasedNotesBeamDoFn(BeamDoFn):
     """
-    Apache Beam DoFn to apply Phased-Music-Notes smoothing on audio streams.
+    Apache Beam DoFn to apply ISLA smoothing on audio streams.
 
     Can accept dictionary elements representing audio data, or paths.
     """
@@ -120,7 +120,7 @@ class PhasedNotesLuigiTask(LuigiTask):
     mode = "velvet"
 
     def run(self):
-        """Run the Phased-Music-Notes DSP on the input target."""
+        """Run the ISLA DSP on the input target."""
         input_target = self.input()
         output_target = self.output()
 

@@ -1,7 +1,7 @@
 """
 utils.py
 --------
-Shared DSP utilities for Phased-Music-Notes.
+Shared audio DSP utilities for ISLA (legacy module path).
 
 This module provides:
     - window generators

@@ -3,7 +3,7 @@
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![Status](https://img.shields.io/badge/Status-BEDROCK--in--review-yellow)
+![Status](https://img.shields.io/badge/Status-BEDROCK--baseline-blue)
 [![CI](https://github.com/dfeen87/Phased-Music-Notes/actions/workflows/ci.yml/badge.svg)](https://github.com/dfeen87/Phased-Music-Notes/actions/workflows/ci.yml)
 
 **ISLA** is the new name for **Phased-Music-Notes**: an experimental audio engineering project exploring smoother transitions between musical notes with phase-aware analysis, transient smoothing, and harmonic blending.
@@ -72,7 +72,7 @@ Choose `"velvet"`, `"legato"`, or `"melt"` to explore different transition treat
 
 ## 🧭 Roadmap (Proposed — Not Yet Released)
 
-- **BEDROCK 1.0:** Harden numerical DSP correctness and document outstanding streaming/real-time risks.
+- **BEDROCK 1.0:** Established a regression-tested offline DSP foundation and documented outstanding streaming/real-time risks.
 - **ISLA v3.0.0 — ALIVE:** Explore a Mac-friendly offline audio interface with import, playback, A/B comparison, and export after BEDROCK acceptance.
 - **ISLA Mobile / Pocket:** Research a future phone experience; no mobile application is available yet.
 - **Real-time plugin:** Requires a separate architectural validation effort and should not be represented as production-ready.

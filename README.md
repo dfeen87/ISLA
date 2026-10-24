@@ -126,7 +126,9 @@ The environment must be activated in each new Terminal session. To use **local a
 ## User Interface
 
 <p align="center">
-  <img src="ISLA_Window.png" width="420" alt="ISLA Window">
+  <img src="ISLA_Window.png" width="420" alt="Early ISLA Audio Control Center interface">
+  <br>
+  <sub><em>An early look at ISLA's first Control Center window. The UI is continually being polished, so current versions may look different.</em></sub>
 </p>
 
 ## ISLA Control Center — Graphical Interface
@@ -366,6 +368,16 @@ Type help for commands.
 Output: External Headphones
 isla>
 ~~~
+
+### Built-in Terminal help — ISLA Audio Control Command Center
+
+When the `isla>` prompt appears, type `help` (or `?`) to open ISLA's **context-aware command center**. The display groups ALIVE file playback, LIVE monitoring, device setup, troubleshooting and suggested next steps. The screenshot below shows the help screen in **ALIVE / stopped** mode; the current context, device names and hints change with your session. Additional topics include `help live`, `help file`, `help devices`, `help modes` and `help troubleshoot`.
+
+<p align="center">
+  <img src="docs/images/ISLA_Terminal_Help.png" width="680" alt="ISLA terminal help screen showing ALIVE playback, LIVE monitoring, device setup, troubleshooting and next-step commands">
+  <br>
+  <sub><em>ISLA's built-in, DOS-inspired command reference. Type <code>help</code> at the <code>isla&gt;</code> prompt whenever you need guidance.</em></sub>
+</p>
 
 **First command inside ISLA: `setup audio`.** Once you see the `isla>` prompt, type this command and press Return (type only the command, **not** `isla>`):
 

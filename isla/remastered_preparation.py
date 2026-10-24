@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import multiprocessing as mp
+import os
 from pathlib import Path
 import tempfile
 
@@ -14,11 +15,23 @@ from isla.remastered import RenderRequest, output_metrics, render_preview
 MAX_SECONDS = 30
 
 
+def _yield_priority_to_playback():
+    """Best effort: give active audio more CPU opportunity than offline rendering."""
+    try:
+        os.nice(5)  # In the spawned child only; never change the parent/PortAudio priority.
+    except (AttributeError, OSError):
+        pass  # Platform lacks niceness or refuses the request; remain functional.
+
+
 def _render(source, directory, sr, request, connection):
     try:
+        _yield_priority_to_playback()
+        connection.send(('progress', 'Loading the validated source…'))
         x = np.load(source, mmap_mode='r', allow_pickle=False)
-        connection.send(('progress', f'Rendering Remastered {request.mode.title()} — {request.intensity}%'))
+        connection.send(('progress', f'Rendering {request.mode.title()} Remastered at '
+                         f'{request.intensity}% depth in a separate process…'))
         y, report = render_preview(x, sr, request)
+        connection.send(('progress', 'Checking numerical and output peak safeguards…'))
         buffer = np.asarray(y, dtype=np.float32)
         report['playback_output'] = output_metrics(x, buffer)
         report['numerical_pass'] = bool(report['numerical_pass'] and
@@ -28,6 +41,7 @@ def _render(source, directory, sr, request, connection):
         if not report['numerical_pass']:
             raise ValueError('Render rejected by numerical/0.98 peak screens; active audio preserved. '
                              'Use a recording with more headroom. No limiter was applied.')
+        connection.send(('progress', 'Saving verified audio for a safe mode change…'))
         np.save(Path(directory, 'rendered.npy'), buffer, allow_pickle=False)
         connection.send(('ready', None))
     except Exception as exc:
@@ -52,7 +66,7 @@ class RemasteredPreparation:
         self.process = context.Process(target=_render,
             args=(str(source), self.directory.name, sr, request, child), daemon=True)
         self.done = self.closed = False
-        self.state = 'Preparing Remastered research preview…'
+        self.state = 'Starting background Remastered preparation…'
         try:
             self.process.start()
         except BaseException:

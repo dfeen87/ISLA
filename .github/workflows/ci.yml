@@ -47,6 +47,7 @@ jobs:
             libfontconfig1-dev \
             libcurl4-openssl-dev \
             libasound2-dev \
+            libportaudio2 \
             libgtk-3-dev \
             webkit2gtk-4.0 \
             pkg-config
@@ -84,7 +85,7 @@ jobs:
       # Python Test Environment
       # ---------------------------------------------------------
       - name: Install Python package
-        run: pip install -e .
+        run: pip install -e '.[playback]'
 
       - name: Add repo to PYTHONPATH
         run: echo "PYTHONPATH=$PWD:$PWD/drivers:$PYTHONPATH" >> $GITHUB_ENV

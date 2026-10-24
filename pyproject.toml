@@ -3,6 +3,10 @@ name = "isla-audio"
 version = "2.1.0"
 description = "ISLA: offline-first phase-aligned musical note smoothing DSP (formerly Phased-Music-Notes)"
 requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "soundfile>=0.12"]
+
+[project.optional-dependencies]
+playback = ["sounddevice>=0.5,<0.6"]
 
 [project.scripts]
 isla = "drivers.cli:main"

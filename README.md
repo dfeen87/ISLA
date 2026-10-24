@@ -273,6 +273,40 @@ osascript -e 'output volume of (get volume settings)'
 
 **Check the selected device before running the first command.** The second command may print `100`, but that does **not** confirm BlackHole 2ch's channel gain is 100% or 0 dB. These commands affect the macOS output-volume control where supported, not source-app volume, BlackHole capture gain, or ISLA's post-DSP listening-volume slider. If your speakers/headphones are selected as macOS output, use caution and do not assume the command targets BlackHole.
 
+### Visual guide — BlackHole at unity, Mac speaker volume kept low
+
+These are **actual macOS Audio MIDI Setup screenshots** from the ISLA development setup, cropped to focus on device controls. The numbers below describe these screenshots; they are not universal defaults.
+
+**1. Configure BlackHole 2ch for clean system-audio capture.**
+
+![Audio MIDI Setup: BlackHole 2ch Output at 48,000 Hz, 2-channel 32-bit Float with Primary at 1.0 / 0.0 dB (unity).](docs/images/blackhole-2ch-unity.webp)
+
+- In **Applications → Utilities → Audio MIDI Setup**, select **BlackHole 2ch** on the left and click **Output**.
+- Leave **48,000 Hz / 2 ch 32-bit Float** if that matches the ISLA LIVE configuration and your physical output; otherwise explicitly match both devices at the supported rate.
+- Set the **Primary** slider to **1.0 / 0.0 dB**, as shown. This is unity gain (no attenuation or boost), **not** a command to set your Mac's physical-speaker volume to 100%.
+- Keep **Mute** off. Channels 1 and 2 may not have separately editable controls.
+
+**2. Keep the physical MacBook speakers at a comfortable level.**
+
+![Audio MIDI Setup: MacBook Pro Speakers with balance centered and Primary at approximately 0.05 / -49.36 dB, intentionally low.](docs/images/macbook-speakers-low-volume.webp)
+
+- Select **MacBook Pro Speakers** on the left. Keep **Balance** centered at **0.5** and the format at **48,000 Hz** where supported.
+- The screenshot's **Primary** slider is **0.05 / −49.36 dB**, which is a *low device-level setting in this example*. **It is not equivalent to 25% on the macOS volume slider.** Set your own speakers/headphones to a comfortably low level; do **not** move the physical-output slider to 0 dB merely to match BlackHole.
+- Selecting a device in Audio MIDI Setup does **not** necessarily make it the macOS default. To adjust the Mac's own output, select the intended physical device in **System Settings → Sound → Output** first.
+
+**3. Lower macOS alert sounds independently.** At your regular macOS shell prompt (not `isla>`), run:
+
+~~~bash
+osascript -e 'set volume alert volume 25'
+osascript -e 'get volume settings'
+~~~
+
+The `alert volume:25` reading confirms the macOS alert-volume setting; **it does not describe BlackHole's 0 dB level or the speaker slider shown above**. In **System Settings → Sound → Sound Effects**, also review **Play sound effects through** and **Alert volume**. If the physical output needs adjustment, select it in macOS Sound settings first and use `osascript -e 'set volume output volume 25'` or its physical volume keys at a safe starting level.
+
+**4. Check the LIVE audio path before pressing Start LIVE.** macOS **Sound → Output** should be **BlackHole 2ch** for system capture; inside ISLA, **Input = BlackHole 2ch** and **Physical Listening Output = External Headphones or MacBook Pro Speakers** (never BlackHole). Start ISLA's LIVE Listening Volume low and raise it gradually. Pause audio before making large gain changes. Stop LIVE and restore your ordinary Mac output when finished.
+
+> **Safety:** The earlier `set volume output volume 100` command in this README affects whichever macOS default output supports volume control; it does **not** independently guarantee BlackHole unity. **Do not run it while physical speakers/headphones are selected unless you intend to raise their level.** For BlackHole, use its separate 0.0 dB Primary setting shown in Photo 1.
+
 **Do this before starting LIVE monitoring:**
 
 1. In **System Settings → Sound → Output**, note your **normal physical output** (such as `MacBook Pro Speakers` or `External Headphones`). Set a comfortable volume on that physical device **before** switching outputs.

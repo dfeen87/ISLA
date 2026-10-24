@@ -301,6 +301,10 @@ class ControlWindow(QMainWindow):
             button.setCheckable(True)
             group.addButton(button)
             if source == 'file':
+                # Initialize unprepared ALIVE modes as disabled just once.
+                # Never toggle the enabled state during ordinary status polls:
+                # doing so cancels a mouse press before its release/click.
+                button.setEnabled(False)
                 command = 'bypass' if value == 'bypass' else 'mode ' + value
                 button.clicked.connect(lambda checked=False, cmd=command: self.submit('file', cmd))
             else:
@@ -726,8 +730,9 @@ class ControlWindow(QMainWindow):
         self.research_intensity.setEnabled(bool(available and s.can_play))
         self.apply_research.setEnabled(bool(available and s.can_play))
         self.cancel_research.setEnabled(bool(available and s.research_pending))
-        for button in self.file_modes.values():
-            button.setEnabled(False)
+        # Preserve ALIVE mouse presses between 50 ms status refreshes. The
+        # final can_play gate below manages all four buttons without an
+        # intermediate disable/re-enable cycle.
         # Set the final enabled state once. Temporarily disabling a combo on
         # every health tick dismisses its native popup before activation.
         mode_available = bool(s and s.source == 'system' and not self.closing
@@ -787,8 +792,15 @@ class ControlWindow(QMainWindow):
         self.refresh.setEnabled(bool(available and not s.stream_active))
         self.recheck.setEnabled(bool(available and not s.stream_active))
         for mode, button in self.file_modes.items():
-            button.setEnabled(bool(available and s.can_play))
-            button.setChecked(('original' if mode == 'bypass' else mode) == s.file_mode)
+            enabled = bool(available and s.can_play)
+            if button.isEnabled() != enabled:
+                button.setEnabled(enabled)
+            # A mouse press should not be reconciled against the previous
+            # snapshot until release; it may be awaiting a clicked signal.
+            if not button.isDown():
+                selected = ('original' if mode == 'bypass' else mode) == s.file_mode
+                if button.isChecked() != selected:
+                    button.setChecked(selected)
         if not self.monitor_volume.isSliderDown() and not self.monitor_volume.hasFocus():
             if self.monitor_volume.value() != s.monitor_volume:
                 self.monitor_volume.setValue(s.monitor_volume)

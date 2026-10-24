@@ -19,4 +19,4 @@ The primary goal of the BEDROCK implementation phase was to harden the mathemati
 
 ## Validation
 * **Pre-fix State:** `test_harmonic_blender_identity` demonstrated nearly 100% signal divergence from the input signal due to a lack of window summation gain correction. Max absolute divergence was `~0.99`.
-* **Post-fix State:** `test_harmonic_blender_identity` passes with max divergence bounded below `1e-5`. All 53 tests in the suite successfully complete.
+* **Post-fix State:** `test_harmonic_blender_identity` passes with max divergence bounded below `1e-5`. All 71 tests in the suite run successfully (70 passed, 1 expected failure).

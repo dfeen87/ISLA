@@ -5,8 +5,8 @@ This document tracks the verified guarantees of the Phased-Music-Notes engine.
 ## DSP Invariants
 
 1. **Identity Transform (HarmonicBlender)**
-   * **Invariant**: `HarmonicBlender(strength=0.0)` must output a bitwise/numerically equivalent signal to the input (within standard 32-bit float epsilon bounds).
-   * **Test**: `test_harmonic_blender_identity`
+   * **Invariant**: `HarmonicBlender(strength=0.0)` must output a numerically equivalent signal to the input, demonstrating a maximum absolute error below `1e-5` for offline, single-buffer processing. This invariant is explicitly verified across 8kHz-96kHz sample rates and 10ms-40ms (even and odd) analysis windows.
+   * **Test**: `test_harmonic_blender_identity`, `test_harmonic_blender_matrix`, `test_harmonic_blender_odd_windows`
    * **Status**: Verified
 
 2. **Phase Continuity in Harmonic Content**

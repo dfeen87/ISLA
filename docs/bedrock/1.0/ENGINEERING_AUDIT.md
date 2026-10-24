@@ -16,13 +16,13 @@ The BEDROCK 1.0 audit assessed the Phased-Music-Notes DSP engine with a focus on
 **Severity**: HIGH
 **Status**: NOT RESOLVED (Deferred to RESIDUAL RISKS)
 **Description**: Chunking a continuous audio signal into smaller blocks results in discontinuities across block boundaries. Because the DSP modules lack internal retained state (e.g. historical buffers or phase context), `HarmonicBlender` processes each block blindly, generating independent windows that cannot be gaplessly spliced back together.
-**Reproduction**: `tests/test_harmonics_adversarial.py::test_harmonic_blender_streaming_continuity`
+**Reproduction**: `tests/test_harmonics_adversarial.py::test_harmonic_blender_streaming_nonzero_strength`
 **Resolution**: Documented as a fundamental architectural risk. Requires a deeper redesign of state-holding DSP nodes.
 
 ### 3. C++/Python Bridge Memory Allocation in Real-Time Path
 **Severity**: CRITICAL
 **Status**: NOT RESOLVED (Deferred to RESIDUAL RISKS)
-**Description**: The JUCE VST integration defined in `drivers/vst/python_bridge.cpp` allocates memory (`py::array_t`) and invokes the global Python interpreter during the audio processing callback (`process_audio()`). This inherently violates real-time constraints and will cause audio dropouts in DAWs.
+**Description**: The JUCE VST integration defined in `drivers/vst/python_bridge.cpp` allocates memory (`py::array_t`) and invokes the global Python interpreter during the audio processing callback (`process_audio()`). This inherently violates real-time constraints and introduces a severe theoretical risk of audio dropouts in DAWs, though actual DAW behavior remains unvalidated.
 **Reproduction**: Inspection of `python_bridge.cpp` where GIL acquisition, exception handling, and NumPy heap allocation occur.
 **Resolution**: Documented as an architectural limitation. Requires a complete bridge rewrite or a rewrite of the DSP in C++.
 

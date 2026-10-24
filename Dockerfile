@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir \
 # Copy the entire workspace
 COPY . .
 
-# Install the phased-music-notes package
+# Install ISLA (legacy phased-music-notes Python distribution retained for compatibility)
 RUN pip install --no-cache-dir -e .
 
 # Expose HTTP port (8080) and gRPC port (50051)

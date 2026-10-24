@@ -1,7 +1,7 @@
 """
 SmoothPhase DSL
 ---------------
-A musical, expressive interface for Phased-Music-Notes.
+A musical, expressive Python interface for ISLA.
 
 Goals:
     - Provide a soft, human-friendly API

@@ -1,7 +1,7 @@
 [project]
 name = "phased-music-notes"
 version = "2.1.0"
-description = "DSP + Python bridge for Phased Music Notes"
+description = "ISLA: offline-first phase-aligned musical note smoothing DSP (formerly Phased-Music-Notes)"
 requires-python = ">=3.10"
 
 [build-system]

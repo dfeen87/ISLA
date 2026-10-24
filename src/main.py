@@ -1,6 +1,6 @@
 """
-Phased-Music-Notes
-Smooth Audio Notes with phase-aligned transitions.
+ISLA
+Smooth audio notes with phase-aligned transitions.
 
 This engine mirrors the deterministic architecture of AeroCam:
 Analyzer → Smoother → Harmonic Blender → Output.
@@ -50,7 +50,7 @@ class PhasedMusicEngine:
         else:
             sf.write(output_path, final_output, sr)
 
-        print(f"[Phased-Music-Notes] Mode '{self.mode}' applied.")
+        print(f"[ISLA] Mode '{self.mode}' applied.")
         if hasattr(output_path, "name"):
             print(f"Output saved to {output_path.name}")
         elif isinstance(output_path, str):

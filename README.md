@@ -10,7 +10,7 @@ Listen to your Mac's audio through **LIVE**, or open a local recording in the **
 
 **Dedicated to Isla, the creator's niece.** Her name is a reminder that expressive music and thoughtful engineering belong together.
 
-> **Before you begin:** ALIVE and experimental LIVE are implemented on `main`. The checked-in package version is **3.0.0**, aligned for the planned **v3.0.0 — ALIVE + LIVE** release. A matching GitHub tag and published release are still pending. See [GitHub releases](https://github.com/dfeen87/ISLA/releases) for published versions.
+> **Before you begin:** ALIVE and experimental LIVE are implemented on `main`. The checked-in package version is **3.1.0**, aligned for the planned **v3.1.0 — DSP Stability & Hear the Difference** release. The published [v3.0.0 — ALIVE + LIVE](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) remains the unchanged historical release baseline. The v3.1.0 tag and GitHub release are still pending.
 
 **Start here:** [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
 
@@ -61,7 +61,7 @@ These reference samples retain the original strengths. No mode tuning or audible
 
 The [controlled study](docs/research/live-dsp-study/README.md) found three intensities of one harmonic operation. Explore the [mathematics](docs/research/live-dsp-study/LIVE_DSP_BASELINE_ANALYSIS.md), [same-passage measurements](docs/research/live-dsp-study/MODE_DIFFERENTIATION_RESULTS.md) and [listening guide](docs/research/live-dsp-study/LISTENING_GUIDE.md). Numerical separation does not establish musical quality or preference.
 
-Separate [numerical robustness corrections and before/after evidence](docs/research/live-dsp-study/IMPLEMENTATION_REVIEW.md) are under review. They preserve the strengths and mode structure; no independent musical tuning or new release is advertised here.
+The [numerical robustness corrections and before/after evidence](docs/research/live-dsp-study/IMPLEMENTATION_REVIEW.md) are included in the v3.1.0 release candidate. They preserve the original strengths and mode structure; no independent artistic retuning, new musical identities or owner listening acceptance is claimed.
 
 The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and [owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) document earlier Mac sessions, including subtle mode differences and a preference for Melt. That historical preference is separate from these samples. No terminal demo GIF or new native listening acceptance is claimed.
 
@@ -365,7 +365,7 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 - **Latency and buffers:** The LIVE DSP adds **32.00 ms at 48 kHz / 34.83 ms at 44.1 kHz**, plus queues and device latency. Native test sessions reported roughly **79–107 ms** in ADC/DAC timestamp estimates, not independent acoustic measurements. Bypass shares the processing delay; video sync can be affected. Fixed buffers can run dry and emit silence, while capture/ring failures can stop monitoring. Check `status` for counters and errors. There is no user-facing buffer-size command.
 - **Routing and recovery:** ISLA rejects virtual, Aggregate and Multi-Output sinks for LIVE, but cannot detect every other app's monitoring path. It does not change the Mac's system output or reconnect devices automatically. Stop monitoring before changing devices, and restore normal output in macOS when finished.
 - **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo is the guaranteed format; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
-- **Release status:** Python package, HTTP service and JUCE/CMake version metadata are aligned at **3.0.0**. **v3.0.0 — ALIVE + LIVE** is the intended next release, with no matching tag or published release as of this README pass. Version alignment alone does not establish release acceptance. Longer-session, stress, physical-disconnect and broader hardware acceptance remain pending. Desktop GUI and mobile apps are future work; the JUCE plugin remains experimental.
+- **Release status:** Python package, HTTP service and JUCE/CMake version metadata are aligned at **3.1.0** on `main`. [v3.0.0 — ALIVE + LIVE](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) has been published from its earlier pinned commit; **v3.1.0 has not yet been tagged or published**. Version alignment and software checks alone do not establish native release acceptance. Longer-session, stress, physical-disconnect and broader hardware acceptance remain pending. Desktop GUI and mobile apps are future work; the JUCE plugin remains experimental.
 
 ## Engineering and evidence
 
@@ -392,7 +392,8 @@ These records preserve the versions and procedures used during their original te
 ### What's next
 
 - **BEDROCK foundation:** Regression-tested offline numerical invariants and documented streaming/real-time risks.
-- **ALIVE + LIVE v3.0.0 candidate:** Terminal file playback and experimental Mac system-audio monitoring are implemented; formal release tagging and broader acceptance remain pending.
+- **ALIVE + LIVE v3.0.0:** Published milestone for terminal file playback and experimental Mac system-audio monitoring; its release commit is preserved.
+- **DSP stability v3.1.0 candidate:** Numerical LIVE reconstruction robustness corrections, reproducible listening comparisons and updated guided setup instructions are implemented; formal v3.1.0 tagging and native acceptance remain pending.
 - **Future work:** Distinctive musical-mode tuning, longer-session reliability, graphical Mac experience, mobile research, and separate production-grade plugin validation.
 
 ---

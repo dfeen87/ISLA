@@ -205,7 +205,7 @@ def test_stop_live_is_independent_of_expensive_device_enumeration(monkeypatch):
         c.close()
 
 
-@pytest.mark.parametrize('change', ['missing_blackhole', 'unplug_output', 'rename_output', 'reindex', 'aggregate', 'ambiguous'])
+@pytest.mark.parametrize('change', ['missing_blackhole', 'unplug_output', 'rename_output', 'aggregate', 'ambiguous'])
 def test_device_refresh_and_start_fail_closed(change):
     s, c, live, _, devices, routing = selected_service()
     try:
@@ -216,8 +216,6 @@ def test_device_refresh_and_start_fail_closed(change):
             entries[1]['alive'] = False
         elif change == 'rename_output':
             entries[1]['name'] = 'Other speakers'
-        elif change == 'reindex':
-            devices.insert(0, dict(name='New microphone', max_input_channels=1, max_output_channels=0))
         elif change == 'aggregate':
             entries[1]['transport'] = 'grup'
         else:

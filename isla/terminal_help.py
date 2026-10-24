@@ -13,11 +13,13 @@ LIVE = (
     ('mode velvet', 'Select Velvet processing.'),
     ('mode legato', 'Select Legato processing.'),
     ('mode melt', 'Select Melt processing.'),
+    ('engine remastered [0-100]', 'LIVE research engine; permitted depth in 5% steps, not volume.'),
+    ('engine production', 'Use the original LIVE harmonic profiles.'),
     ('status', 'Show full LIVE diagnostics and recovery counters.'),
 )
 FILE = (
     ('source file', 'Select ALIVE file playback; stops LIVE.'),
-    ('load <path>', 'Prepare a local mono/stereo audio file; quote paths with spaces.'),
+    ('load <path>', 'Prepare local audio; missing bare filenames search this computer.'),
     ('play', 'Start or resume the prepared file.'),
     ('pause', 'Pause at the current position.'),
     ('stop', 'Stop the file and reset to the beginning.'),

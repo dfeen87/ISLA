@@ -15,6 +15,8 @@ import threading
 from isla.playback import AudioError
 from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.streaming import StreamingDSP
+from isla.live_engine import LiveEngineFactory, current_engine
+from isla.device_refresh import eligible_devices, refresh_portaudio
 
 
 class UIState(str, Enum):
@@ -40,6 +42,7 @@ class DeviceChoice:
     index: int
     name: str
     native_id: int
+    transport: str = ''
 
 
 @dataclass(frozen=True)
@@ -82,6 +85,11 @@ class ControlState:
     research_intensity: int = 100
     research_summary: str = ''
     research_active: bool = False
+    live_engine: str = 'production'
+    live_intensity: int = 100
+    live_applied_engine: str = ''
+    live_research_health: str = ''
+    device_status: str = ''
 
 
 class ControlService:
@@ -108,6 +116,10 @@ class ControlService:
         self.rate = controller.live.config.rate if controller.live.config else 48000
         self.ready = False
         self._initial_devices = True
+        self.devices_need_refresh = False
+        self._was_live_active = controller.live.running or controller.live.stream is not None
+        self._native_signature = None
+        self.device_status = 'Device discovery pending.'
         self._file_touched = controller.player.state != 'stopped'
         if controller._setup_routing is None:
             controller._setup_routing = getattr(controller.live.backend, 'routing', None)
@@ -115,7 +127,10 @@ class ControlService:
         # change the byte-frozen LiveMonitor or StreamingDSP implementation.
         self._original_live_factory = controller.live.processor_factory
         self._monitor_volume = MonitorVolume()
+        self._live_settings = controller.live_settings
         factory = self._original_live_factory or StreamingDSP
+        if not isinstance(factory,LiveEngineFactory):
+            factory = LiveEngineFactory(self._live_settings,factory)
         controller.live.processor_factory = (
             lambda rate, channels: ListeningGainDSP(
                 rate, channels, self._monitor_volume, delegate_factory=factory))
@@ -135,9 +150,19 @@ class ControlService:
         if c.player.stream is not None or c.live.running or c.live.stream is not None:
             raise AudioError("Stop ALIVE and LIVE before changing source or devices.")
 
-    def refresh_devices(self):
+    def refresh_devices(self, rescan=True):
         self._enter()
         c = self.controller
+        if self._initial_devices and (c.live.running or c.live.stream is not None) and c.live.config:
+            config = c.live.config
+            self.selected_capture = DeviceChoice(config.input_id,config.input_name,config.identity[0])
+            self.selected_output = DeviceChoice(config.output_id,config.output_name,config.identity[1])
+            self.captures,self.outputs = (self.selected_capture,),(self.selected_output,)
+            if self.captures and self.outputs:
+                self._initial_devices = False
+            self.device_status = f'LIVE opened: {config.input_name} → {config.output_name}. Stop to refresh devices.'
+            return
+        self._idle()
         self.ready = False
         self.captures = self.outputs = ()
         try:
@@ -148,11 +173,15 @@ class ControlService:
             if hasattr(c.live.backend, 'routing') and c.live.backend.routing is None:
                 c.live.backend.routing = routing
             native, default = routing.snapshot()
+            signature = tuple((d['id'],d['name'],d['alive'],d['input'],d['output']) for d in native)
+            if rescan or signature != self._native_signature:
+                refresh_portaudio(c)
+                native, default = routing.snapshot()
+            self._native_signature = signature
             self.system_output = next((d['name'] for d in native if d['id'] == default), "Unknown device")
-            captures, outputs = c._audio_setup_devices()
+            captures, outputs = eligible_devices(native,c.player.backend.devices())
             def choices(devices, direction):
-                return tuple(DeviceChoice(d['index'], d['name'], next(
-                    n['id'] for n in native if n['name'] == d['name'] and n['alive'] and n[direction]))
+                return tuple(DeviceChoice(d['index'], d['name'], d['native_id'],d.get('transport',''))
                     for d in devices)
             self.captures = choices(captures, 'input')
             self.outputs = choices(outputs, 'output')
@@ -166,36 +195,55 @@ class ControlService:
                     if (self.selected_capture is None or self.selected_output is None or
                             (self.selected_capture.native_id, self.selected_output.native_id) != identity):
                         raise AudioError("Active device identity changed. Stop LIVE and select devices again.")
+            else:
+                def rebind(token, choices):
+                    return next((d for d in choices if token is not None and
+                                 (d.native_id,d.name) == (token.native_id,token.name)),token)
+                self.selected_capture = rebind(self.selected_capture,self.captures)
+                self.selected_output = rebind(self.selected_output,self.outputs)
+            if self.selected_capture is None and len(self.captures) == 1:
+                self.selected_capture = self.captures[0]
+            if self.captures and self.outputs:
+                self._initial_devices = False
+            self.device_status = (f'Device list refreshed: {len(self.outputs)} physical listening output(s). '
+                                  f"Applied output: {c.output or 'choose and apply Step 2' }.")
             if self.selected_capture not in self.captures or self.selected_output not in self.outputs:
                 self.routing_message = "Choose BlackHole 2ch and a physical stereo listening output; apply the selection."
             else:
                 self.check_routing()
+            if not self.captures:
+                self.routing_message = 'BlackHole 2ch is unavailable. Physical outputs remain listed in Step 2; connect BlackHole and refresh.'
         except Exception as exc:
             self.routing_message = str(exc)
             if self.system_output == "Not checked":
                 self.system_output = "Unavailable"
+            self.device_status = 'Device refresh needs attention: ' + str(exc)
         finally:
-            self._initial_devices = False
+            self.devices_need_refresh = False
 
     def _fresh_selection(self, capture, output):
         # Re-enumerate through the existing verified setup filter, then compare
         # native identity to the selected token before committing a change.
         self.refresh_devices()
-        if capture not in self.captures or output not in self.outputs:
+        capture = next((d for d in self.captures if capture and (d.native_id,d.name) == (capture.native_id,capture.name)),None)
+        output = next((d for d in self.outputs if output and (d.native_id,d.name) == (output.native_id,output.name)),None)
+        if capture is None or output is None:
             raise AudioError("Device selection is stale or missing. Refresh devices and select again.")
+        return capture,output
 
     def select_devices(self, capture, output, rate=48000):
         self._enter()
         self._idle()
         if rate not in (44100, 48000):
             raise AudioError("LIVE rate must be 44100 or 48000 Hz.")
-        self._fresh_selection(capture, output)
+        capture,output = self._fresh_selection(capture, output)
         c = self.controller
         self.preview.cancel()
         c.execute("source system")
         c.execute("input " + shlex.quote(capture.name))
         c.execute("output " + shlex.quote(output.name))
         self.selected_capture, self.selected_output, self.rate = capture, output, rate
+        self.device_status = f'Applied LIVE devices: {capture.name} → {output.name} at {rate:,} Hz.'
         self.error = ""
         self.check_routing()
 
@@ -204,11 +252,11 @@ class ControlService:
         self.ready = False
         c = self.controller
         try:
-            if self.selected_capture not in self.captures or self.selected_output not in self.outputs:
-                raise AudioError("Select current BlackHole and physical output devices, then apply the selection.")
             routing = c._setup_routing
             native, default = routing.snapshot()
             self.system_output = next((d['name'] for d in native if d['id'] == default), "Unknown device")
+            if self.selected_capture not in self.captures or self.selected_output not in self.outputs:
+                raise AudioError("Select current BlackHole and physical output devices, then apply the selection.")
             routing.validate(self.selected_capture.name, self.selected_output.name,
                              (self.selected_capture.native_id, self.selected_output.native_id))
             self.ready = True
@@ -225,7 +273,7 @@ class ControlService:
         self._idle()
         if c.source != 'system':
             raise AudioError("Apply the LIVE device selection first.")
-        self._fresh_selection(self.selected_capture, self.selected_output)
+        self.selected_capture,self.selected_output = self._fresh_selection(self.selected_capture, self.selected_output)
         if not self.check_routing():
             raise AudioError(self.routing_message)
         # In the graphical workflow Start LIVE always begins in original
@@ -234,7 +282,11 @@ class ControlService:
         c.live.select('bypass')
         # The existing monitor independently checks channel/rate settings,
         # routing, opened native stream IDs, latency and ongoing device health.
-        return c.execute(f"monitor start {self.rate}")
+        result = c.execute(f"monitor start {self.rate}")
+        config = c.live.config
+        self._was_live_active = True
+        self.device_status = f'LIVE opened: {config.input_name} → {config.output_name} at {config.rate:,} Hz.'
+        return result
 
     def stop_live(self):
         self._enter()
@@ -245,6 +297,8 @@ class ControlService:
         # after the stream is released, on the ordinary idle poll cycle or
         # through the now-enabled Refresh / Recheck buttons.
         self.ready = False
+        self.devices_need_refresh = True
+        self.device_status = 'LIVE stopped; refreshing available listening devices…'
         self.routing_message = "LIVE stopped. Recheck audio routing before restarting."
         return result
 
@@ -304,15 +358,28 @@ class ControlService:
         self._monitor_volume.set_percent(percent)
         return f"ISLA listening volume: {percent}% (does not change macOS volume)."
 
+    def set_live_processing(self, engine, intensity):
+        self._enter()
+        live = self.controller.live
+        if live.running and current_engine(getattr(live,'processor',None)) is None:
+            raise AudioError('Stop and restart LIVE from this window to enable Remastered processing.')
+        self._live_settings.set(engine,intensity)
+        return f'LIVE requested: {engine.title()}, {intensity}% permitted Remastered depth.'
+
     def poll(self):
         self._enter()
         self.controller.poll()
         self.preview.poll()
+        active = self.controller.live.running or self.controller.live.stream is not None
+        if self._was_live_active and not active:
+            self.devices_need_refresh = True
+        self._was_live_active = active
         return self.snapshot()
 
     def snapshot(self):
         self._enter()
         c, p, live = self.controller, self.controller.player, self.controller.live
+        engine = current_engine(getattr(live,'processor',None))
         preparing = c.job is not None and not c.job.done
         live_active = live.running or live.stream is not None
         stream_active = live_active or p.stream is not None
@@ -347,7 +414,10 @@ class ControlService:
             self.preview.job is not None, self.preview.state,
             self.preview.applied.mode if self.preview.applied else '',
             self.preview.applied.intensity if self.preview.applied else 100,
-            self.preview.summary, p.mode.startswith('remastered_'))
+            self.preview.summary, p.mode.startswith('remastered_'),
+            self._live_settings.request.engine,self._live_settings.request.intensity,
+            getattr(getattr(engine,'applied',None),'engine','') if live_active else '',
+            getattr(engine,'diagnostics','') if live_active else '',self.device_status)
 
     def shutdown(self):
         self._enter()

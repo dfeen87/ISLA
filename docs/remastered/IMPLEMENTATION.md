@@ -1,5 +1,8 @@
 # v4.0 Remastered research preview
 
+For the subsequent continuous LIVE implementation, Bluetooth output discovery
+and local-song search, see [LIVE and discovery](LIVE_AND_DISCOVERY.md).
+
 This opt-in ALIVE preview connects the frozen Experiment 02 governed renderer
 to the existing file player. It adds independent processing-depth control for
 Velvet, Legato and Melt. Production package/release metadata remains 3.3.0;

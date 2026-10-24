@@ -90,7 +90,11 @@ jobs:
       - name: Add repo to PYTHONPATH
         run: echo "PYTHONPATH=$PWD:$PWD/drivers:$PYTHONPATH" >> $GITHUB_ENV
 
-      - name: Run Python tests (excluding pybind11 vendor tests)
+      - name: Production-only acceptance (independent of research)
+        run: python -m pytest -q tests --ignore-glob='tests/test_resonance02_*.py'
+
+      - name: Run complete Python tests (excluding pybind11 vendor tests)
+        if: ${{ !cancelled() }}
         run: pytest -q --ignore=drivers/pybind11/tests
 
       # ---------------------------------------------------------

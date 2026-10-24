@@ -88,6 +88,8 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
         assert w.windowTitle() == 'ISLA — Audio Control Center'
         assert w.file_status.text() == 'Open an audio file to begin'
         assert 'Open Audio File' in w.file_next_step.text()
+        assert '25% software output level' in w.alive_volume_notice.text()
+        assert 'Mac system volume and LIVE volume stay unchanged' in w.alive_volume_notice.text()
         assert not w.play.isEnabled() and not w.pause.isEnabled()
         assert not any(b.isEnabled() for b in w.file_modes.values())
         assert not w.start_live.isEnabled()
@@ -100,11 +102,15 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
         wait_ui(app, lambda: w.state.file_state == UIState.READY)
         assert 'ALIVE is ready' in w.file_next_step.text()
         click(app, w, w.play)
+        assert c.player.output_level_percent == 25
         assert w.state.file_state == UIState.PLAYING and w.pause.isEnabled()
         assert 'ALIVE is playing' in w.file_next_step.text()
         assert not w.open_file.isEnabled() and not w.output.isEnabled()
         click(app, w, w.file_modes['melt'])
         assert c.player.mode == 'melt' and len(files.streams) == 1
+        import numpy as np
+        np.testing.assert_allclose(files.streams[0].pump()[-64:],
+                                   np.full((64, 2), .075), atol=1e-7)
         click(app, w, w.file_modes['bypass'])
         assert c.player._selected is c.player.buffers['original']
         click(app, w, w.pause)

@@ -18,8 +18,8 @@ devices          List input/output devices and channel counts
 setup audio      Guided LIVE setup: choose BlackHole input and physical output
 source system    Select LIVE system audio (BlackHole 2ch)
 source file      Return to the loaded-file player (stops LIVE)
-input <name|id>  Select the standalone BlackHole 2ch input
-output <name|id> Select speakers/headphones while audio is stopped
+input [name|id]  Choose BlackHole; no argument opens the numbered input picker
+output [name|id] Choose speakers; no argument opens the numbered output picker
 monitor start [44100|48000]  Start LIVE; default 48000 Hz
 monitor stop     Stop LIVE and release the devices
 status           Show source, mode, file/monitor state, timing, and output
@@ -46,6 +46,7 @@ class TerminalController:
         self._setup_inputs = []
         self._setup_outputs = []
         self._setup_input = None
+        self._setup_single = False
 
     @property
     def setup_prompt(self):
@@ -73,6 +74,7 @@ class TerminalController:
         blackhole = unique_native("BlackHole 2ch", "input")
         if len(captures) != 1 or blackhole is None or blackhole["transport"] != "virt":
             raise AudioError("Standalone BlackHole 2ch is missing or ambiguous. Check Audio MIDI Setup.")
+        captures = [dict(captures[0], native_id=blackhole["id"])]
 
         outputs = []
         for device in portaudio:
@@ -82,7 +84,7 @@ class TerminalController:
                 continue
             native_device = unique_native(device["name"], "output")
             if native_device is not None and native_device["transport"] in CoreAudioRouting.PHYSICAL:
-                outputs.append(device)
+                outputs.append(dict(device, native_id=native_device["id"]))
         if not outputs:
             raise AudioError("No verified physical stereo output found. Reconnect speakers/headphones and retry.")
         return captures, outputs
@@ -96,6 +98,7 @@ class TerminalController:
         self._setup_inputs = []
         self._setup_outputs = []
         self._setup_input = None
+        self._setup_single = False
         return "Audio setup canceled; previous routing preserved."
 
     def _begin_audio_setup(self):
@@ -105,11 +108,33 @@ class TerminalController:
         self._setup_inputs = captures
         self._setup_outputs = outputs
         self._setup_input = None
+        self._setup_single = False
         self._setup_stage = "input"
         return ("ISLA — Audio Setup\n"
                 "Select BlackHole 2ch for capture, then a physical stereo output.\n"
                 "Type a listed number or exact name; type cancel to leave.\n"
                 + self._audio_setup_menu("Available capture inputs:", captures))
+
+    def _begin_device_picker(self, direction):
+        """Select one verified device from a number-only terminal prompt."""
+        if self.source != "system":
+            raise ValueError("Select source system first; file playback still accepts output <name|id>.")
+        if self.live.running or self.player.stream is not None:
+            raise ValueError("Stop audio before changing devices.")
+        captures, outputs = self._audio_setup_devices()
+        self._setup_inputs, self._setup_outputs = captures, outputs
+        self._setup_input = None
+        self._setup_single = True
+        self._setup_stage = direction
+        choices = captures if direction == "input" else outputs
+        label = "Available BlackHole capture inputs:" if direction == "input" else "Available physical stereo outputs:"
+        return ("Choose a listed number (or exact name), or type cancel.\n"
+                + self._audio_setup_menu(label, choices))
+
+    @staticmethod
+    def _same_device(left, right):
+        return (left["index"], left["name"], left["native_id"]) == (
+            right["index"], right["name"], right["native_id"])
 
     def _choose_audio_setup(self, line):
         value = " ".join(shlex.split(line)).strip()
@@ -124,6 +149,25 @@ class TerminalController:
                     + ". Select a number/name shown below, or type cancel.\n"
                     + self._audio_setup_menu("Available devices:", choices))
         selected = matches[0]
+        if self._setup_single:
+            # Revalidate PortAudio index, CoreAudio identity and eligibility.
+            if self.live.running or self.player.stream is not None:
+                self._cancel_audio_setup()
+                raise ValueError("Audio started during selection. Stop audio and retry.")
+            try:
+                fresh_inputs, fresh_outputs = self._audio_setup_devices()
+                fresh = fresh_inputs if self._setup_stage == "input" else fresh_outputs
+                if not any(self._same_device(selected, d) for d in fresh):
+                    raise AudioError("Device changed during selection. Type input/output to refresh.")
+                if self._setup_stage == "input":
+                    self.capture = selected["name"]
+                    message = f"Capture selected: {self.capture}"
+                else:
+                    self.output = self.player.backend.select_output(str(selected["index"]))
+                    message = f"Output selected: {self.output}"
+            finally:
+                self._cancel_audio_setup()
+            return message
         if self._setup_stage == "input":
             self._setup_input = selected
             self._setup_stage = "output"
@@ -136,11 +180,9 @@ class TerminalController:
             raise ValueError("Audio started while configuring; setup canceled. Stop audio and retry.")
         try:
             fresh_inputs, fresh_outputs = self._audio_setup_devices()
-            if not any(d["index"] == self._setup_input["index"] and d["name"] == self._setup_input["name"]
-                       for d in fresh_inputs):
+            if not any(self._same_device(d, self._setup_input) for d in fresh_inputs):
                 raise AudioError("BlackHole device changed during setup. Retry.")
-            if not any(d["index"] == selected["index"] and d["name"] == selected["name"]
-                       for d in fresh_outputs):
+            if not any(self._same_device(d, selected) for d in fresh_outputs):
                 raise AudioError("Output device changed during setup. Retry.")
             # Only file playback state may be stopped; never start a live stream here.
             self.player.stop()
@@ -216,7 +258,7 @@ class TerminalController:
             else:
                 self.live.stop()
             self.source = source
-            return "System audio selected. Use input/output, then monitor start." if source == "system" else "File source selected."
+            return "System audio selected. Type input/output for numbered menus, then monitor start." if source == "system" else "File source selected."
         if command in ("input", "output"):
             if not values:
                 raise ValueError(f"Usage: {command} <exact device name|id>")

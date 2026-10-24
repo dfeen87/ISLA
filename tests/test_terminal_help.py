@@ -111,7 +111,7 @@ def test_running_commands_keep_stream_and_every_status_field(monkeypatch):
         # Neither mistaken play nor repeated start may even call start/configure.
         monkeypatch.setattr(c.live, 'start', lambda *a: pytest.fail('reopened LIVE'))
         for _ in range(3):
-            assert 'local WAV files' in c.execute('play')
+            assert 'local audio files' in c.execute('play')
             assert 'Current mode:' in c.execute('monitor start 44100')
             assert 'existing stream' in c.execute('bypass')
             assert c.live.mode == 'bypass' and c.live.stream is stream and c.live.running

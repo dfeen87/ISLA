@@ -40,13 +40,13 @@ def session(factory=StreamingDSP, rate=48000):
     assert all(stream.closed for stream in backend.streams)
 
 
-def pump(monitor, stream, block=ZERO):
+def pump(monitor, stream, block=ZERO, status=None):
     # Explicitly schedule DSP after the manually pumped callback returns. This
     # models the normal one-hop pipeline without accidental host-thread races;
     # contention and in-flight interleavings have separate forced tests below.
     monitor._test_process_gate.clear()
     try:
-        result = stream.pump(block)
+        result = stream.pump(block, status)
     finally:
         monitor._test_process_gate.set()
     wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
@@ -193,10 +193,13 @@ def test_recovery_flush_contention_stops_safely(ring_name):
 
 def test_device_output_flags_and_persistent_starvation_are_distinct():
     with session(PassThrough) as (monitor, stream):
-        for _ in range(CAPACITY):
-            stream.pump(ZERO, flags(output_underflow=True))
-            if not monitor.halt.is_set():
-                wait_for(lambda: monitor.output.count == 1)
+        # Feed one simulated hardware callback at a time and wait for its
+        # worker response. Otherwise application-ring starvation can halt the
+        # session before CAPACITY driver-output flags have been delivered;
+        # that is a separate failure mode tested below.
+        for _ in range(CAPACITY - 1):
+            pump(monitor, stream, status=flags(output_underflow=True))
+        stream.pump(ZERO, flags(output_underflow=True))
         wait_for(lambda: not monitor.running)
         assert monitor.output_underflows == CAPACITY and monitor.input_underflows == 0
         assert monitor.fatal_device_errors == 1 and "device output underflow" in monitor.error

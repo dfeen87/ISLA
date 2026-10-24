@@ -127,5 +127,5 @@
   "driver_version": "BlackHole 2ch 0.7.1 (installed separately by owner)",
   "source_note": "Repeat was started from Beethoven solo piano with autoplay disabled. No continuous browser-source audit was retained, so exact source identity for every measured mode interval is not asserted.",
   "evidence_scope": "Core Audio capture, live worker signal comparison and output-stream delivery. No microphone/physical-output recording or acoustic latency measurement.",
-  "final_head_note": "Native DSP/device path verified. Subsequent terminal change isolates LIVE stop from pending file-preparation errors; covered by automated tests. See final-head CI for all regressions."
+  "final_head_note": "Native DSP/device path verified. Subsequent changes isolate LIVE stop from pending file-preparation errors and verify opened native IDs before start; both have automated tests. Native inactive-stream ID matching was separately verified at both rates. See final-head CI."
 }

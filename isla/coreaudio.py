@@ -95,3 +95,26 @@ class CoreAudioRouting:
         if expected is not None and identity != expected:
             raise AudioError("Audio device identity changed. Stop and select devices again.")
         return identity
+
+    @staticmethod
+    def _stream_identity(sd, stream):
+        # Public PortAudio Core Audio extensions return the actual native IDs.
+        # sounddevice 0.5.x does not expose them; isolate its private handle here.
+        # If that bridge changes, fail closed rather than trust a cached index.
+        library = C.CDLL(sd._libname)
+        pointer = int(sd._ffi.cast("uintptr_t", stream._ptr))
+        devices = []
+        for name in ("PaMacCore_GetStreamInputDevice", "PaMacCore_GetStreamOutputDevice"):
+            query = getattr(library, name)
+            query.argtypes = [C.c_void_p]
+            query.restype = C.c_uint32
+            devices.append(query(pointer))
+        return tuple(devices)
+
+    def validate_stream(self, sd, stream, expected):
+        try:
+            actual = self._stream_identity(sd, stream)
+        except Exception as exc:
+            raise AudioError("Cannot verify native stream devices. Check sounddevice 0.5.x / PortAudio installation.") from exc
+        if actual != expected:
+            raise AudioError("Opened stream device identity differs from selection. Exit and relaunch ISLA to refresh stale devices.")

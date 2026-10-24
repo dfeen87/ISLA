@@ -179,6 +179,16 @@ input/output objects sharing one name are disambiguated by stream direction;
 genuinely ambiguous names are rejected. Default output must be standalone
 BlackHole, never a Multi-Output that sends a second unprocessed path to speakers.
 
+Before starting an opened stream, the backend also verifies its actual native
+input/output IDs using the [PortAudio Core Audio extensions](https://files.portaudio.com/docs/v19-doxydocs/pa__mac__core_8h.html)
+and rechecks routing. This catches stale PortAudio device-index mappings before
+they can send output to an unintended device. sounddevice 0.5.x exposes its
+handle only privately; that access is isolated and fails closed if unavailable.
+[Native inactive-stream verification](NATIVE_STREAM_IDENTITY.json) matched
+BlackHole/native wired-output IDs at both rates without starting playback or
+changing normal routing. Deterministic mismatch/unavailable-extension tests verify
+error reporting and closure of the unopened session.
+
 The worker rechecks the route/device identities and stream/callback activity
 every 250 ms. Disconnection or routing change stops the owned stream, including
 while the prompt is waiting for input. This is periodic validation, not an
@@ -406,7 +416,7 @@ to restore normal Mac routing. It never changes the system default or saves audi
 - [ ] Final-head CI/reviews: recorded in the follow-up PR, not inferred from local tests.
 - [ ] Owner release acceptance: pending. No automatic merge, version bump or release.
 
-Final local full-suite result: **150 passed, 1 expected failure**, with the existing
+Final local full-suite result: **152 passed, 1 expected failure**, with the existing
 FastAPI/Starlette deprecation warning. The one XFAIL remains the unchanged BEDROCK
 offline nonzero chunk-streaming test; the new LIVE continuity reference tests pass.
 Local service tests need localhost socket access. A workspace-specific macOS

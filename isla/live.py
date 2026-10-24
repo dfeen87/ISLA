@@ -104,11 +104,20 @@ class SystemCaptureBackend:
         self.routing.validate(config.input_name, config.output_name, config.identity)
 
     def open(self, config, callback):
-        return self.playback.sd.Stream(
+        stream = self.playback.sd.Stream(
             device=(config.input_id, config.output_id), samplerate=config.rate,
             channels=(config.channels, config.channels), dtype="float32",
             blocksize=BLOCK, latency="low", callback=callback,
         )
+        try:
+            # Verify actual native handles, not only PortAudio's cached names,
+            # and recheck routing before the inactive stream can be started.
+            self.routing.validate_stream(self.playback.sd, stream, config.identity)
+            self.validate(config)
+        except BaseException:
+            stream.close()
+            raise
+        return stream
 
 
 class LiveMonitor:

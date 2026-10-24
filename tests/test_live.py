@@ -118,6 +118,7 @@ def fake_routing(default=10, transport="bltn"):
         dict(id=10, name="BlackHole 2ch", transport="virt", alive=True, input=True, output=True),
         dict(id=11, name="Test speakers", transport=transport, alive=True, input=False, output=True),
     ], default)
+    routing.validate_stream = lambda sd, stream, expected: None
     return routing
 
 
@@ -543,3 +544,31 @@ def test_fft_executes_on_worker_never_callback(monkeypatch):
         assert threads == ["isla-live"]
     finally:
         monitor.stop()
+
+
+def test_opened_native_stream_identity_guard_fails_closed():
+    routing = CoreAudioRouting.__new__(CoreAudioRouting)
+    routing._stream_identity = lambda sd, stream: (10, 11)
+    routing.validate_stream(None, None, (10, 11))
+    with pytest.raises(AudioError, match="identity differs"):
+        routing.validate_stream(None, None, (10, 10))
+    def unavailable(sd, stream):
+        raise AttributeError("missing PortAudio extension")
+    routing._stream_identity = unavailable
+    with pytest.raises(AudioError, match="Cannot verify"):
+        routing.validate_stream(None, None, (10, 11))
+
+
+def test_failed_native_identity_check_closes_inactive_stream():
+    playback, _ = mock_playback()
+    routing = fake_routing()
+    backend = SystemCaptureBackend(playback, routing)
+    config = backend.configure("0", "1", 48000)
+    stream = FakeStream(None)
+    playback.sd.Stream = lambda **kw: stream
+    def stale(sd, stream, expected):
+        raise AudioError("stale native IDs")
+    routing.validate_stream = stale
+    with pytest.raises(AudioError, match="stale native IDs"):
+        backend.open(config, None)
+    assert stream.closed and not stream.active

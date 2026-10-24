@@ -10,6 +10,7 @@ import soundfile as sf
 from drivers import cli
 from drivers.api import IslaBuffer
 from isla.playback import AudioError, BufferPlayer, SoundDeviceBackend
+from isla.alive_listening_gain import ALIVE_GUI_PLAY_LEVEL_PERCENT, AttenuatedALIVEBackend
 from isla.preparation import MODES, Preparation
 from isla.terminal import TerminalController, run_terminal
 
@@ -133,14 +134,13 @@ def test_modes_crossfade_at_same_position_and_bypass_is_exact(backend, buffers):
     player.close()
 
 
-def test_output_level_applies_after_all_mode_crossfades_and_preserves_source(backend, buffers):
-    """ALIVE output attenuation never rewrites the existing DSP/source buffers."""
-    player = BufferPlayer(backend)
-    originals = {mode: buffer.copy() for mode, buffer in buffers.items()}
+def test_gui_output_adapter_scales_crossfade_and_preserves_source(backend, buffers):
+    """Attenuate the PortAudio output, not the frozen playback or DSP arrays."""
+    originals = {mode: value.copy() for mode, value in buffers.items()}
+    adapter = AttenuatedALIVEBackend(backend)
+    assert adapter.output_level_percent == ALIVE_GUI_PLAY_LEVEL_PERCENT == 25
+    player = BufferPlayer(adapter)
     player.install(buffers, 44100)
-    assert player.output_level_percent == 100  # Legacy/terminal unity preserved.
-    player.set_output_level_percent(25)
-    assert player.output_level_percent == 25
     player.play()
     first = player.stream.pump()
     np.testing.assert_allclose(first, originals['original'][:512] * .25, atol=1e-7)
@@ -162,14 +162,28 @@ def test_output_level_applies_after_all_mode_crossfades_and_preserves_source(bac
     player.close()
 
 
-@pytest.mark.parametrize('invalid', [-1, 101, True, False, 25.0, '25', None])
-def test_alive_output_level_rejects_invalid_percent_without_changing_gain(backend, invalid):
-    player = BufferPlayer(backend)
-    with pytest.raises(ValueError, match='integer from 0 to 100'):
-        player.set_output_level_percent(invalid)
-    assert player.output_level_percent == 100
-    assert player._output_gain == 1.0
+def test_gui_output_adapter_attenuates_final_partial_block(backend):
+    """The frozen CallbackStop must still attenuate the last output block."""
+    adapter = AttenuatedALIVEBackend(backend)
+    player = BufferPlayer(adapter)
+    source = np.full((700, 2), .8, dtype=np.float32)
+    player.install({'original': source}, 48000)
+    player.play()
+    first = player.stream.pump()
+    last = player.stream.pump()
+    np.testing.assert_allclose(first, .2, atol=1e-7)
+    np.testing.assert_allclose(last[:188], .2, atol=1e-7)
+    np.testing.assert_array_equal(last[188:], 0)
+    np.testing.assert_array_equal(source, np.full((700, 2), .8, np.float32))
+    player.refresh()
+    assert player.state == 'completed'
+    player.close()
 
+
+@pytest.mark.parametrize('invalid', [-1, 101, True, False, 25.0, '25', None])
+def test_gui_output_adapter_rejects_invalid_percent(backend, invalid):
+    with pytest.raises(ValueError, match='integer from 0 to 100'):
+        AttenuatedALIVEBackend(backend, invalid)
 
 
 def test_long_transition_spans_blocks_without_duration_change(backend):

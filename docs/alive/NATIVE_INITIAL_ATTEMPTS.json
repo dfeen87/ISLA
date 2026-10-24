@@ -1,0 +1,51 @@
+{
+  "note": "Failures and setup issues retained; none is an acceptance pass.",
+  "attempts": [
+    {
+      "attempt": 1,
+      "output": "MacBook Pro Speakers",
+      "status": "",
+      "underflows": 2,
+      "device_status": 0,
+      "transcript_errors": [
+        {
+          "command": "status",
+          "result": "Source: System Audio\nMode: Bypass\nMonitor: Failed\nInput: BlackHole 2ch\nOutput: MacBook Pro Speakers\nSample rate: 48000\nLatency (ADC/DAC estimate): 79.1 ms\nUnderflows: 1; Overflows: 0; Device status: 1; Muted non-finite blocks: 0\nError: Capture discontinuity reported by device; stopped safely. Retry monitoring.\nSelected input: BlackHole 2ch\nSelected output: MacBook Pro Speakers"
+        }
+      ],
+      "outcome": "Owner reported no audible audio; speaker volume subsequently found at scalar 0.0625. Initial capture status failure also recorded. This attempt is NOT an audible acceptance pass."
+    },
+    {
+      "attempt": 2,
+      "output": "MacBook Pro Speakers",
+      "status": "Devices do not support stereo at 48000 Hz: Internal PortAudio error [PaErrorCode -9986]",
+      "underflows": 3,
+      "device_status": 0,
+      "transcript_errors": [
+        {
+          "command": "monitor start",
+          "result": "LIVE start failed: Devices do not support stereo at 48000 Hz: Internal PortAudio error [PaErrorCode -9986]"
+        },
+        {
+          "command": "status",
+          "result": "Source: System Audio\nMode: Bypass\nMonitor: Failed\nInput: BlackHole 2ch\nOutput: MacBook Pro Speakers\nSample rate: 48000\nLatency (ADC/DAC estimate): 100.5 ms\nSignal RMS (input/output): 0.01286 / 0.00987\nUnderflows: 3; Overflows: 0; Device status: 0; Muted non-finite blocks: 0\nError: Devices do not support stereo at 48000 Hz: Internal PortAudio error [PaErrorCode -9986]\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+        }
+      ],
+      "outcome": "Owner heard built-in speakers; plugged-in sound system needed explicit selection. Same-process output change hit stale PortAudio/audio-unit device state; fresh process recovered."
+    },
+    {
+      "attempt": 3,
+      "output": "External Headphones",
+      "status": "Capture discontinuity reported by device (overflow=True, underflow=False); stopped safely. Retry monitoring.",
+      "underflows": 0,
+      "device_status": 1,
+      "transcript_errors": [
+        {
+          "command": "status",
+          "result": "Source: System Audio\nMode: Bypass\nMonitor: Failed\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 48000\nLatency (ADC/DAC estimate): Pending audio\nSignal RMS (input/output): 0.00000 / 0.00000\nUnderflows: 0; Overflows: 0; Device status: 1; Muted non-finite blocks: 0\nError: Capture discontinuity reported by device (overflow=True, underflow=False); stopped safely. Retry monitoring.\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+        }
+      ],
+      "outcome": "Initial capture overflow stopped monitor before startup-settling fix; no audible acceptance."
+    }
+  ]
+}

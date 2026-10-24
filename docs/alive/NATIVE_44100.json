@@ -1,0 +1,131 @@
+{
+  "kind": "native-coreaudio-youtube",
+  "macos": "26.7.2",
+  "python": "3.14.6",
+  "capture": "BlackHole 2ch",
+  "output": "External Headphones",
+  "original_output": "External Headphones",
+  "rate": 44100,
+  "source_url": "https://www.youtube.com/watch?v=UHd8jwXBzXE",
+  "transcript": [
+    {
+      "command": "devices",
+      "result": "0: BlackHole 2ch (input 2, output 2; default 48000 Hz)\n1: External Headphones (input 0, output 2; default 48000 Hz)\n2: MacBook Pro Microphone (input 1, output 0; default 48000 Hz)\n3: MacBook Pro Speakers (input 0, output 2; default 48000 Hz)\n4: Microsoft Teams Audio (input 1, output 1; default 48000 Hz)"
+    },
+    {
+      "command": "source system",
+      "result": "System audio selected. Use input/output, then monitor start."
+    },
+    {
+      "command": "input \"BlackHole 2ch\"",
+      "result": "Capture selected: BlackHole 2ch"
+    },
+    {
+      "command": "output \"External Headphones\"",
+      "result": "Output selected: External Headphones"
+    },
+    {
+      "command": "bypass",
+      "result": "Original system audio enabled."
+    },
+    {
+      "command": "monitor start 44100",
+      "result": "LIVE monitoring active."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Bypass\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 44100\nLatency (ADC/DAC estimate): Pending audio\nSignal RMS (input/output): 0.00000 / 0.00000\nUnderflows: 0; Overflows: 0; Device status: 0; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Bypass\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 44100\nLatency (ADC/DAC estimate): 83.9 ms\nSignal RMS (input/output): 0.00547 / 0.00549\nUnderflows: 1; Overflows: 0; Device status: 0; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "mode velvet",
+      "result": "VELVET enabled (LIVE harmonic profile)."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Velvet\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 44100\nLatency (ADC/DAC estimate): 83.9 ms\nSignal RMS (input/output): 0.00432 / 0.00492\nUnderflows: 1; Overflows: 0; Device status: 0; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "mode legato",
+      "result": "LEGATO enabled (LIVE harmonic profile)."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Legato\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 44100\nLatency (ADC/DAC estimate): 83.9 ms\nSignal RMS (input/output): 0.00384 / 0.00346\nUnderflows: 1; Overflows: 0; Device status: 0; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "mode melt",
+      "result": "MELT enabled (LIVE harmonic profile)."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Melt\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 44100\nLatency (ADC/DAC estimate): 83.9 ms\nSignal RMS (input/output): 0.00313 / 0.00318\nUnderflows: 1; Overflows: 0; Device status: 0; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "bypass",
+      "result": "Original system audio enabled."
+    },
+    {
+      "command": "monitor stop",
+      "result": "LIVE monitoring stopped."
+    },
+    {
+      "command": "exit",
+      "result": "Audio stopped.\nResources released.\nGoodbye from ISLA."
+    }
+  ],
+  "owner_listening": "No separate rate-specific owner listening verdict. Prior 48 kHz audibility confirmed; musical quality remains pending.",
+  "state_after_close": "Stopped",
+  "error": "",
+  "underflows": 1,
+  "overflows": 0,
+  "device_status": 0,
+  "last_adc_dac_latency_ms": 83.93395625171252,
+  "max_worker_ms": 3.943833988159895,
+  "modes": {
+    "bypass": {
+      "blocks": 6617,
+      "samples": 6775808,
+      "input_energy": 93.45248321236548,
+      "output_energy": 93.45248321236548,
+      "error_energy": 0.0,
+      "peak_error": 0.0,
+      "relative_rms_change_percent": 0.0
+    },
+    "velvet": {
+      "blocks": 1104,
+      "samples": 1130496,
+      "input_energy": 19.289602867918347,
+      "output_energy": 17.656288342989924,
+      "error_energy": 0.05221240113463872,
+      "peak_error": 0.0020559802651405334,
+      "relative_rms_change_percent": 5.202656939625255
+    },
+    "legato": {
+      "blocks": 1086,
+      "samples": 1112064,
+      "input_energy": 40.244847370666015,
+      "output_energy": 35.164319231730815,
+      "error_energy": 0.2534066276583501,
+      "peak_error": 0.0031382720917463303,
+      "relative_rms_change_percent": 7.935126276509692
+    },
+    "melt": {
+      "blocks": 1121,
+      "samples": 1147904,
+      "input_energy": 30.962008556883642,
+      "output_energy": 25.285241429558912,
+      "error_energy": 0.41156284994399495,
+      "peak_error": 0.004131782799959183,
+      "relative_rms_change_percent": 11.529315392938846
+    }
+  },
+  "restored": true,
+  "driver_version": "BlackHole 2ch 0.7.1 (installed separately by owner)",
+  "source_note": "Repeat was started from Beethoven solo piano with autoplay disabled. No continuous browser-source audit was retained, so exact source identity for every measured mode interval is not asserted.",
+  "evidence_scope": "Core Audio capture, live worker signal comparison and output-stream delivery. No microphone/physical-output recording or acoustic latency measurement.",
+  "final_head_note": "Native DSP/device path verified. Subsequent changes isolate LIVE stop from pending file-preparation errors and verify opened native IDs before start; both have automated tests. Native inactive-stream ID matching was separately verified at both rates. See final-head CI."
+}

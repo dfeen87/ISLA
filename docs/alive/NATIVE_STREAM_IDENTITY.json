@@ -1,0 +1,32 @@
+{
+  "kind": "native-open-without-start",
+  "normal_route_unchanged": true,
+  "results": [
+    {
+      "rate": 44100,
+      "actual_native_ids": [
+        88,
+        116
+      ],
+      "expected_native_ids": [
+        88,
+        116
+      ],
+      "active": false,
+      "result": "matching native devices before start"
+    },
+    {
+      "rate": 48000,
+      "actual_native_ids": [
+        88,
+        116
+      ],
+      "expected_native_ids": [
+        88,
+        116
+      ],
+      "active": false,
+      "result": "matching native devices before start"
+    }
+  ]
+}

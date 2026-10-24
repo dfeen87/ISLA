@@ -1,0 +1,31 @@
+{
+  "kind": "guided-owner-listening-followup",
+  "tested_code_commit": "f1d7b4715ef8e99ce19fa32bd66485f5f7657de9",
+  "rate": 44100,
+  "capture": "BlackHole 2ch",
+  "output": "External Headphones",
+  "application": "Installed production isla terminal, including native stream-ID guard",
+  "source": "Owner confirmed solo piano playing in YouTube; no exact per-interval URL asserted",
+  "sequence": [
+    "bypass",
+    "velvet ~20 seconds",
+    "bypass ~6 seconds",
+    "legato ~20 seconds",
+    "bypass ~6 seconds",
+    "melt ~20 seconds",
+    "bypass",
+    "melt at owner request"
+  ],
+  "owner_bypass_feedback": "Yes—piano is playing clearly",
+  "owner_mode_feedback": "I like this one best; all of them have subtle differences, which is great (Melt preferred)",
+  "owner_keep_request": "Keep Melt on and BlackHole on the computer",
+  "guided_session_status": {
+    "monitor": "Running",
+    "latency_estimate_ms": 107.1,
+    "output_ring_underflows": 3,
+    "ring_overflows": 0,
+    "device_status": 0
+  },
+  "disposition": "Guided session exited and restored normal output; then, at owner request, a fresh production terminal session with Melt was started without the test timeout. BlackHole remains the system default and the sound system is the explicit physical output. No audio recording or volume change.",
+  "release_acceptance": "No automatic merge or release; long-session, physical hot-unplug and independent review remain pending"
+}

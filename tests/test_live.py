@@ -8,6 +8,7 @@ import pytest
 
 from isla.coreaudio import CoreAudioRouting
 from isla.live import BLOCK, CAPACITY, WARMUP_BLOCKS, BlockRing, LiveConfig, LiveMonitor, SystemCaptureBackend
+from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.playback import AudioError, SoundDeviceBackend
 from isla.streaming import MODES, StreamingDSP
 from isla.terminal import TerminalController
@@ -137,6 +138,72 @@ def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
     finally:
         monitor.stop()
     assert backend.streams[0].closed and not monitor.running
+
+
+
+def test_live_listening_volume_attenuates_worker_output_without_changing_bypass():
+    """The real worker scales its output queue, not the original capture input."""
+    backend = FakeBackend()
+    volume = MonitorVolume()
+    # The fake transport is pumped synchronously, unlike real PortAudio.
+    # Hold the DSP worker until AFTER the callback drains the previous output
+    # slot. Otherwise the synthetic worker can race ahead and collide with the
+    # one-slot ring, correctly tripping the real fail-closed overflow guard.
+    # This follows the established deterministic bypass transport test above.
+    gate = threading.Event()
+    gate.set()
+
+    class ScheduledPassThrough(PassThrough):
+        def process_block(self, block):
+            assert gate.wait(2), "test DSP worker was not released after callback"
+            return super().process_block(block)
+
+    monitor = LiveMonitor(
+        backend,
+        processor_factory=lambda rate, channels: ListeningGainDSP(
+            rate, channels, volume, delegate_factory=ScheduledPassThrough),
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
+    )
+    monitor.start("BlackHole 2ch", "Test speakers")
+    warmup(monitor)
+    signal = np.full((BLOCK, 2), .25, dtype=np.float32)
+
+    def render_blocks(count):
+        rendered = []
+        for _ in range(count):
+            gate.clear()
+            try:
+                rendered.append(monitor.stream.pump(signal))
+            finally:
+                gate.set()
+            wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
+            assert not monitor.halt.is_set(), monitor.error
+        return rendered
+
+    try:
+        # Normal 100% output remains the exact float32 bypass waveform.
+        dry = render_blocks(4)
+        np.testing.assert_array_equal(dry[-1], signal)
+        volume.set_percent(50)
+        quiet = render_blocks(4)
+        np.testing.assert_allclose(quiet[-1], signal * .5, rtol=0, atol=1e-7)
+        assert np.isfinite(quiet[1]).all()
+        assert (quiet[1] <= signal).all() and (quiet[1] >= signal * .5).all()
+        assert monitor.mode == 'bypass' and volume.percent == 50
+        volume.set_percent(0)
+        muted = render_blocks(4)
+        assert np.count_nonzero(muted[-1]) == 0
+        volume.set_percent(100)
+        restored = render_blocks(4)
+        np.testing.assert_array_equal(restored[-1], signal)
+        assert volume.percent == 100 and monitor.processor.mode == 'bypass'
+        for invalid in (-1, 101, 50.0, True, None):
+            with pytest.raises(ValueError, match="0 to 100"):
+                volume.set_percent(invalid)
+        assert len(backend.streams) == 1
+    finally:
+        monitor.stop()
+    assert backend.streams[0].closed
 
 
 def test_manually_pumped_transport_does_not_timeout_during_runner_pause():

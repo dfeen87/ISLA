@@ -13,6 +13,8 @@ import shlex
 import threading
 
 from isla.playback import AudioError
+from isla.monitor_gain import ListeningGainDSP, MonitorVolume
+from isla.streaming import StreamingDSP
 
 
 class UIState(str, Enum):
@@ -72,6 +74,7 @@ class ControlState:
     can_start: bool
     closed: bool
     live_applied_mode: str | None
+    monitor_volume: int
     live_failure_reason: str
 
 
@@ -98,6 +101,14 @@ class ControlService:
         self._file_touched = controller.player.state != 'stopped'
         if controller._setup_routing is None:
             controller._setup_routing = getattr(controller.live.backend, 'routing', None)
+        # The optional listening attenuation is a separate adapter. Never
+        # change the byte-frozen LiveMonitor or StreamingDSP implementation.
+        self._original_live_factory = controller.live.processor_factory
+        self._monitor_volume = MonitorVolume()
+        factory = self._original_live_factory or StreamingDSP
+        controller.live.processor_factory = (
+            lambda rate, channels: ListeningGainDSP(
+                rate, channels, self._monitor_volume, delegate_factory=factory))
         controller._window_owner = self
 
     def _enter(self):
@@ -206,6 +217,10 @@ class ControlService:
         self._fresh_selection(self.selected_capture, self.selected_output)
         if not self.check_routing():
             raise AudioError(self.routing_message)
+        # In the graphical workflow Start LIVE always begins in original
+        # Bypass; effect selection is deliberately a separate next step.
+        # Terminal-only commands retain their existing semantics.
+        c.live.select('bypass')
         # The existing monitor independently checks channel/rate settings,
         # routing, opened native stream IDs, latency and ongoing device health.
         return c.execute(f"monitor start {self.rate}")
@@ -259,6 +274,14 @@ class ControlService:
             raise AudioError("Select Bypass, Velvet, Legato or Melt.")
         self.controller.live.select(mode)
 
+    def set_monitor_volume(self, percent):
+        self._enter()
+        live = self.controller.live
+        if live.running and not isinstance(getattr(live, 'processor', None), ListeningGainDSP):
+            raise AudioError("Stop and restart LIVE from this window to enable listening volume.")
+        self._monitor_volume.set_percent(percent)
+        return f"ISLA listening volume: {percent}% (does not change macOS volume)."
+
     def poll(self):
         self._enter()
         self.controller.poll()
@@ -291,12 +314,13 @@ class ControlService:
             len(p.buffers['original']) / p.sr if p.buffers else 0,
             p.mode, live.mode, c.source, c.capture, c.output or 'Not selected', self.system_output,
             self.captures, self.outputs, self.selected_capture, self.selected_output, self.rate,
-            self.ready, self.routing_message, self.error, p.warning, live.status(),
+            self.ready, self.routing_message, self.error, p.warning,
+            live.status() + f"\nISLA listening volume: {self._monitor_volume.percent}% (physical output only)",
             stream_active, live_active, bool(p.buffers) and not preparing and not live_active,
             not stream_active, not stream_active,
             not stream_active and devices_selected and self.ready and c.source == 'system', self.closed,
             getattr(getattr(live, 'processor', None), 'mode', None) if live_active else None,
-            live.error)
+            self._monitor_volume.percent, live.error)
 
     def shutdown(self):
         self._enter()
@@ -313,5 +337,7 @@ class ControlService:
                 c.job.close()
                 c.job = None
                 c.path = None
+        # Restore the exact original factory for a borrowed CLI session.
+        c.live.processor_factory = self._original_live_factory
         self.closed = True
         c._window_owner = c._window_thread = None

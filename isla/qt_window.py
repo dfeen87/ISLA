@@ -18,7 +18,7 @@ from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QButtonGroup, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
     QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
-    QVBoxLayout, QWidget,
+    QSlider, QVBoxLayout, QWidget,
 )
 
 from isla.control import ControlService
@@ -150,7 +150,7 @@ class CommandWorker:
                               'live_mode': self.service.live_mode, 'devices': self.service.select_devices,
                               'file_output': self.service.select_file_output,
                               'refresh': self.service.refresh_devices, 'start': self.service.start_live,
-                              'stop': self.service.stop_live}[action]
+                              'stop': self.service.stop_live, 'volume': self.service.set_monitor_volume}[action]
                     result = method(*args)
                     self.service.error = ''
                     if result:
@@ -243,7 +243,7 @@ class ControlWindow(QMainWindow):
                 command = 'bypass' if value == 'bypass' else 'mode ' + value
                 button.clicked.connect(lambda checked=False, cmd=command: self.submit('file', cmd))
             else:
-                button.clicked.connect(lambda checked=False, mode=value: self.submit('live_mode', mode))
+                button.clicked.connect(lambda checked=False, mode=value: self._choose_live_mode(mode))
             index = len(buttons)
             row.addWidget(button, index // 2, index % 2)
             buttons[value] = button
@@ -283,6 +283,31 @@ class ControlWindow(QMainWindow):
         self.apply_output.clicked.connect(lambda: self.submit('file_output', self.file_output.currentData()))
         box.addWidget(self.apply_output)
         box.addWidget(label('ALIVE can use the system default output without BlackHole. Physical output choices are offered when verified by macOS. Stop audio before changing devices.'))
+        # Use spare left-panel space for LIVE listening attenuation. This does
+        # not alter BlackHole capture gain, other apps or macOS output volume.
+        volume_group = QGroupBox('LIVE Listening Volume')
+        volume_box = QVBoxLayout(volume_group)
+        volume_box.addWidget(label('Controls only the ISLA sound sent to selected headphones/speakers. BlackHole capture and macOS volume do not change. 100% is original/unity; 0% is muted.'))
+        self.monitor_volume = QSlider(Qt.Orientation.Horizontal)
+        self.monitor_volume.setAccessibleName('LIVE listening volume (0 to 100 percent)')
+        self.monitor_volume.setRange(0, 100)
+        self.monitor_volume.setValue(100)
+        self.monitor_volume_value = label('100%')
+        self.monitor_volume.valueChanged.connect(lambda value: self.monitor_volume_value.setText(f'{value}%'))
+        self.monitor_volume.sliderReleased.connect(self._apply_volume)
+        volume_box.addWidget(self.monitor_volume)
+        row = QHBoxLayout()
+        row.addWidget(self.monitor_volume_value)
+        self.apply_volume = QPushButton('Apply Volume')
+        self.apply_volume.clicked.connect(self._apply_volume)
+        row.addWidget(self.apply_volume)
+        self.mute_volume = QPushButton('Mute')
+        self.mute_volume.clicked.connect(self._toggle_mute)
+        row.addWidget(self.mute_volume)
+        volume_box.addLayout(row)
+        self.monitor_volume_status = label('LIVE listening level: 100% (unity)')
+        volume_box.addWidget(self.monitor_volume_status)
+        box.addWidget(volume_group)
         box.addStretch()
         return panel
 
@@ -345,6 +370,26 @@ class ControlWindow(QMainWindow):
         box.addWidget(self.health)
         box.addWidget(label(RESTORE_OUTPUT))
         return panel
+
+    def _choose_live_mode(self, mode):
+        # A second click on an active effect returns to Original/Bypass.
+        # Qt buttons remain exclusive; the worker snapshot owns their state.
+        selected = self.state.live_mode if self.state is not None else 'bypass'
+        requested = 'bypass' if mode == selected else mode
+        return self.submit('live_mode', requested)
+
+    def _apply_volume(self):
+        return self.submit('volume', self.monitor_volume.value())
+
+    def _toggle_mute(self):
+        if self.state is None:
+            return False
+        if self.state.monitor_volume:
+            self._last_nonzero_volume = self.state.monitor_volume
+            target = 0
+        else:
+            target = getattr(self, '_last_nonzero_volume', 100)
+        return self.submit('volume', target)
 
     def choose_file(self):
         if not self.open_file.isEnabled():
@@ -456,10 +501,12 @@ class ControlWindow(QMainWindow):
         s = self.state
         available = s is not None and not self.busy and not self.closing
         for button in (self.open_file, self.play, self.pause, self.stop_file, self.start_live, self.stop_live,
-                       self.apply_devices, self.apply_output, self.refresh, self.recheck, self.settings):
+                       self.apply_devices, self.apply_output, self.refresh, self.recheck, self.settings,
+                       self.apply_volume, self.mute_volume):
             button.setEnabled(bool(available))
         for combo in (self.capture, self.output, self.file_output, self.rate):
             combo.setEnabled(bool(available and s.can_configure))
+        self.monitor_volume.setEnabled(bool(available))
         for button in (*self.file_modes.values(), *self.live_modes.values()):
             button.setEnabled(False)
         if s is None:
@@ -497,6 +544,14 @@ class ControlWindow(QMainWindow):
         for mode, button in self.file_modes.items():
             button.setEnabled(bool(available and s.can_play))
             button.setChecked(('original' if mode == 'bypass' else mode) == s.file_mode)
+        if not self.monitor_volume.isSliderDown() and not self.monitor_volume.hasFocus():
+            if self.monitor_volume.value() != s.monitor_volume:
+                self.monitor_volume.setValue(s.monitor_volume)
+        self.monitor_volume_status.setText(
+            f'LIVE listening level: {s.monitor_volume}% '
+            + ('(muted)' if s.monitor_volume == 0 else '(unity)' if s.monitor_volume == 100
+               else '(ISLA output attenuation)'))
+        self.mute_volume.setText('Unmute' if s.monitor_volume == 0 else 'Mute')
         for mode, button in self.live_modes.items():
             # Mode selection is allowed while LIVE is running; the worker
             # updates the original StreamingDSP at the next processed hop.

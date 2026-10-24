@@ -89,7 +89,15 @@ source .venv/bin/activate
 python -m pip install -e '.[playback]'
 ~~~
 
-The editable install provides the `isla` command, NumPy, SciPy, SoundFile, and the `sounddevice`/PortAudio playback backend. It does **not** install BlackHole. No DAW, VST, or JUCE build is required to run the terminal application.
+The editable install provides the `isla` console command, NumPy, SciPy, SoundFile, and the `sounddevice`/PortAudio playback backend. It does **not** install BlackHole. No DAW, VST, or JUCE build is required to run the terminal application.
+
+**Verify that the installation completed successfully** (still at your Mac's shell prompt, with `(.venv)` active):
+
+~~~bash
+python -m pip show isla-audio
+~~~
+
+You should see package information including `Name: isla-audio`. If the package is not found, check the output of `python -m pip install -e '.[playback]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA.
 
 The environment must be activated in each new Terminal session. To use **local audio files only**, continue to [ALIVE](#alive-play-a-local-audio-file); BlackHole is unnecessary.
 
@@ -147,10 +155,19 @@ ISLA deliberately **does not change the macOS default sound output automatically
 ~~~bash
 cd ~/ISLA
 source .venv/bin/activate
-isla
+python -m isla
 ~~~
 
-You can replace the last command with `python -m isla`; **both launch the interactive ISLA application** from the activated Python environment.
+**`python -m isla` is the recommended first-run command.** After successful installation, you can also launch with the shorter `isla` console command if it is available in your activated environment.
+
+If you instead enter `isla` and receive `zsh: command not found: isla`, **don't type `devices` into zsh**. Check the installation with `python -m pip show isla-audio`; if the package is missing, run these commands in `~/ISLA`:
+
+~~~bash
+python -m pip install -e '.[playback]'
+python -m isla
+~~~
+
+If the module launches but `isla` is still not found, continue using `python -m isla` and investigate the console-script `PATH` later. If the module does not launch, read its error and recheck the Python environment and installation output.
 
 When ISLA starts successfully, you'll see a message similar to this (your output-device name may differ):
 
@@ -218,13 +235,15 @@ Pause the browser or music app. Then open **System Settings → Sound → Output
 
 ## ALIVE: Play a local audio file
 
-**No Homebrew or BlackHole required for this mode.** Complete the Python installation under [Get started](#get-started-on-macos), then select your ordinary speakers/headphones in macOS. In Terminal:
+**No Homebrew or BlackHole required for this mode.** Complete and verify the Python installation under [Get started](#get-started-on-macos), then select your ordinary speakers/headphones in macOS. In Terminal:
 
 ~~~bash
 cd ~/ISLA
 source .venv/bin/activate
-isla
+python -m isla
 ~~~
+
+You can also run `isla` when its installed console command is available.
 
 From the `isla>` prompt:
 
@@ -254,11 +273,13 @@ exit
 
 ### Export without the interactive player
 
-The original one-shot command remains available:
+The one-shot file-processing route is available using Python directly:
 
 ~~~bash
-isla --input input.wav --output output_isla.wav --mode velvet
+python -m isla --input input.wav --output output_isla.wav --mode velvet
 ~~~
+
+When the short `isla` console command is available, `isla --input input.wav --output output_isla.wav --mode velvet` is equivalent.
 
 Or in Python:
 
@@ -298,13 +319,14 @@ Commands are case-insensitive where appropriate; file and device names retain th
 | Symptom | What to check |
 |---|---|
 | **`brew: command not found`** | Install Homebrew from [brew.sh](https://brew.sh/) and follow its post-install shell-path instructions. |
+| **BlackHole already installed** | Homebrew's `Not upgrading blackhole-2ch, the latest version is already installed` message is informational. Continue to the audio-device setup. |
 | **BlackHole not found** | Install the **2ch** cask, restart macOS, and confirm the device appears in **Audio MIDI Setup**. Run `devices` again in a freshly launched ISLA terminal. |
 | **Mac goes silent after selecting BlackHole** | Expected until LIVE is monitoring. If you want ordinary sound back, select your physical speakers/headphones in **System Settings → Sound → Output**. |
 | **LIVE is silent** | Confirm YouTube is playing, system output is **BlackHole 2ch**, ISLA input is BlackHole, ISLA output is the correct *physical* device, and input permission/volume are enabled. Use `status` to distinguish silent input from output problems. |
 | **Echo, feedback or doubled sound** | Immediately run `monitor stop`. Remove Multi-Output routing, per-app direct speaker output and any other software monitor. Do not choose BlackHole as ISLA output. |
 | **Device missing or disconnected** | Run `monitor stop`, reconnect the device, then `devices`; relaunch ISLA if Core Audio/PortAudio holds stale device information. No silent device fallback is provided. |
 | **Crackling, glitches or noticeable delay** | Prefer built-in or wired speakers to Bluetooth, close busy apps, check matching 44.1/48 kHz device formats, and review `status` for underflows, overflows or device warnings. |
-| **`isla` not found** | Run `source ~/ISLA/.venv/bin/activate` and reinstall `python -m pip install -e '.[playback]'` from your checkout if necessary. |
+| **`zsh: command not found: isla`** | At the Mac's shell prompt, run `cd ~/ISLA`, `source .venv/bin/activate`, and `python -m pip show isla-audio`. If the package is missing, rerun `python -m pip install -e '.[playback]'`. Start with `python -m isla` and enter `devices` **only after** the `isla>` prompt appears. |
 | **File won't load/play** | Use a valid WAV path, wait for `Preparation: Ready`, check the physical output device and sample-rate/channel support. |
 
 For deeper device diagnostics inside the activated environment, try `python -m sounddevice`. See [ALIVE/LIVE implementation and acceptance](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) for native test details and unresolved risks.

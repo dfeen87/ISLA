@@ -129,6 +129,9 @@ def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable
     try:
         w.capture.setCurrentIndex(1)
         w.output.setCurrentIndex(1)
+        # Qt state is refreshed by its event timer; selection alone does not
+        # synchronously enable the button until the next UI update.
+        wait_ui(app, lambda: w.apply_devices.isEnabled())
         click(app, w, w.apply_devices)
         click(app, w, w.start_live)
         assert len(live.streams) == 1

@@ -102,7 +102,7 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
         wait_ui(app, lambda: w.state.file_state == UIState.READY)
         assert 'ALIVE is ready' in w.file_next_step.text()
         click(app, w, w.play)
-        assert c.player.output_level_percent == 25
+        assert c.player.backend.output_level_percent == 25
         assert w.state.file_state == UIState.PLAYING and w.pause.isEnabled()
         assert 'ALIVE is playing' in w.file_next_step.text()
         assert not w.open_file.isEnabled() and not w.output.isEnabled()

@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: >-
+  If you use ISLA in research, teaching, or another software project,
+  please cite the released version you used. This file currently cites
+  the latest published release, v3.3.0.
+type: software
+title: "ISLA — Let the Music Flow."
+abstract: >-
+  ISLA is an open-source audio-processing application for local file
+  playback and experimental macOS system-audio monitoring. It provides
+  Original/Bypass alongside Velvet, Legato, and Melt musical processing
+  profiles through a Python terminal interface and a desktop Audio
+  Control Center.
+authors:
+  - family-names: Feeney
+    given-names: Don Michael
+    name-suffix: Jr.
+keywords:
+  - audio signal processing
+  - music
+  - phase alignment
+  - real-time audio
+  - research software
+  - Python
+license: MIT
+repository-code: "https://github.com/dfeen87/ISLA"
+url: "https://github.com/dfeen87/ISLA/releases/tag/v3.3.0"
+# Cite an actual published release, not the unreleased v4.0.0 source candidate.
+version: "3.3.0"
+date-released: "2026-10-24"

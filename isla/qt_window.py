@@ -18,7 +18,7 @@ from PySide6.QtCore import QEvent, QTimer, Qt
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QButtonGroup, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
-    QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
+    QFrame, QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
     QSlider, QVBoxLayout, QWidget,
 )
 
@@ -488,8 +488,28 @@ class ControlWindow(QMainWindow):
         self.apply_live_intensity = QPushButton('Apply LIVE Engine / Depth')
         self.apply_live_intensity.clicked.connect(self._apply_live_processing)
         box.addWidget(self.apply_live_intensity)
+        # Continuously changing frame/veto counters can wrap to a different
+        # number of lines on every poll. Keep the space reserved so they never
+        # push the sound-effect selector and following controls up/down.
+        # Retain the selectable text and allow scrolling rather than clipping.
         self.live_processing_status = label()
-        box.addWidget(self.live_processing_status)
+        self.live_processing_status.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self.live_processing_status.setAccessibleName('LIVE Remastered applied diagnostics')
+        self.live_processing_view = QScrollArea()
+        self.live_processing_view.setAccessibleName('LIVE engine status (scrollable)')
+        self.live_processing_view.setWidgetResizable(True)
+        self.live_processing_view.setFrameShape(QFrame.Shape.NoFrame)
+        self.live_processing_view.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.live_processing_view.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        # Fixed five-text-line viewport (scaled to the user's active font);
+        # longer diagnostics stay available by scrolling inside this area.
+        self.live_processing_view.setFixedHeight(
+            self.live_processing_status.fontMetrics().lineSpacing() * 5 + 12)
+        self.live_processing_view.setWidget(self.live_processing_status)
+        box.addWidget(self.live_processing_view)
         box.addWidget(label('Remastered depth is independent of listening volume. 0% restores original audio; 100% uses the governed research depths. Research verdict: REVISE / INCONCLUSIVE.'))
         self.live_mode_choice = QComboBox()
         self.live_mode_choice.setAccessibleName('Step 4 LIVE sound effect')

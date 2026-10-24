@@ -133,6 +133,45 @@ def test_modes_crossfade_at_same_position_and_bypass_is_exact(backend, buffers):
     player.close()
 
 
+def test_output_level_applies_after_all_mode_crossfades_and_preserves_source(backend, buffers):
+    """ALIVE output attenuation never rewrites the existing DSP/source buffers."""
+    player = BufferPlayer(backend)
+    originals = {mode: buffer.copy() for mode, buffer in buffers.items()}
+    player.install(buffers, 44100)
+    assert player.output_level_percent == 100  # Legacy/terminal unity preserved.
+    player.set_output_level_percent(25)
+    assert player.output_level_percent == 25
+    player.play()
+    first = player.stream.pump()
+    np.testing.assert_allclose(first, originals['original'][:512] * .25, atol=1e-7)
+
+    position = player.cursor
+    player.select('melt')
+    changed = player.stream.pump()
+    fade = player._fade[:, 0]
+    expected_fade = (originals['original'][position:position + len(fade)] *
+                     (1 - fade[:, None]) +
+                     originals['melt'][position:position + len(fade)] * fade[:, None]) * .25
+    np.testing.assert_allclose(changed[:len(fade)], expected_fade, atol=1e-7)
+    np.testing.assert_allclose(changed[len(fade):],
+                               originals['melt'][position + len(fade):position + 512] * .25,
+                               atol=1e-7)
+
+    for mode, original in originals.items():
+        np.testing.assert_array_equal(buffers[mode], original)
+    player.close()
+
+
+@pytest.mark.parametrize('invalid', [-1, 101, True, False, 25.0, '25', None])
+def test_alive_output_level_rejects_invalid_percent_without_changing_gain(backend, invalid):
+    player = BufferPlayer(backend)
+    with pytest.raises(ValueError, match='integer from 0 to 100'):
+        player.set_output_level_percent(invalid)
+    assert player.output_level_percent == 100
+    assert player._output_gain == 1.0
+
+
+
 def test_long_transition_spans_blocks_without_duration_change(backend):
     buffers = {"original": np.zeros((2048, 1), np.float32), "melt": np.ones((2048, 1), np.float32)}
     player = BufferPlayer(backend)

@@ -95,7 +95,17 @@ def warmup(monitor):
 
 
 def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
-    monitor, backend = start_bypass()
+    backend = FakeBackend()
+    # This fake is manually pumped, not a continuously firing PortAudio device.
+    # Tie watchdog time to its transport frames so runner scheduling cannot
+    # masquerade as missing hardware callbacks. All production monitors and
+    # disconnect tests retain the real wall-clock watchdog.
+    monitor = LiveMonitor(
+        backend, processor_factory=PassThrough,
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
+    )
+    monitor.start("BlackHole 2ch", "Test speakers")
+    warmup(monitor)
     rng = np.random.default_rng(50)
     blocks = rng.uniform(-.5, .5, (12, BLOCK, 2)).astype(np.float32)
     rendered = []
@@ -110,6 +120,41 @@ def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
     finally:
         monitor.stop()
     assert backend.streams[0].closed and not monitor.running
+
+
+def test_manually_pumped_transport_does_not_timeout_during_runner_pause():
+    backend = FakeBackend()
+    monitor = LiveMonitor(
+        backend, processor_factory=PassThrough,
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
+    )
+    monitor.start("BlackHole 2ch", "Test speakers")
+    warmup(monitor)
+    try:
+        # More than the real hardware heartbeat limit passes on the host.
+        # The mock transport's clock has not advanced: no fake device time
+        # passed, so this must not be treated as a broken physical callback.
+        time.sleep(.30)
+        assert monitor.running and not monitor.error
+        block = np.ones((BLOCK, 2), np.float32) * .25
+        monitor.stream.pump(block)
+        wait_for(lambda: monitor.output.count == 1)
+        output = monitor.stream.pump(np.zeros((BLOCK, 2), np.float32))
+        np.testing.assert_array_equal(output, block)
+    finally:
+        monitor.stop()
+
+
+def test_real_watchdog_still_detects_missing_callbacks():
+    monitor, backend = start_bypass()
+    try:
+        # A real clock is the default; absence of further callbacks must
+        # still halt the session, even while a mock stream reports active.
+        wait_for(lambda: not monitor.running)
+        assert "callbacks stopped" in monitor.error
+        assert backend.streams[0].closed
+    finally:
+        monitor.stop()
 
 
 def fake_routing(default=10, transport="bltn"):

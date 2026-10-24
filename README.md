@@ -2,7 +2,13 @@
 
 **ALIVE + LIVE · Velvet · Legato · Melt**
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/dfeen87/ISLA?display_name=tag&style=for-the-badge&logo=github&label=Release&color=8B5CF6)](https://github.com/dfeen87/ISLA/releases/latest)
+[![ALIVE Python Acceptance](https://img.shields.io/github/actions/workflow/status/dfeen87/ISLA/alive.yml?branch=main&label=ALIVE%20Tests&style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/dfeen87/ISLA/actions/workflows/alive.yml)
+[![Linux JUCE Build](https://img.shields.io/github/actions/workflow/status/dfeen87/ISLA/ci.yml?branch=main&label=Linux%20%2F%20JUCE&style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/dfeen87/ISLA/actions/workflows/ci.yml)
+
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](pyproject.toml)
+[![Experimental LIVE for macOS 13+](https://img.shields.io/badge/LIVE-macOS%2013%2B-111827?style=for-the-badge&logo=apple&logoColor=white)](#live-listen-to-your-mac)
+[![MIT License](https://img.shields.io/badge/License-MIT-16A34A?style=for-the-badge)](LICENSE)
 
 **ISLA** is an open-source audio experiment exploring softer, more connected musical transitions through note smoothing and harmonic blending. It is for musicians, curious listeners, and developers who want to listen, compare, and help shape the sound.
 
@@ -10,7 +16,7 @@ Listen to your Mac's audio through **LIVE**, or open a local recording in the **
 
 **Dedicated to Isla, the creator's niece.** Her name is a reminder that expressive music and thoughtful engineering belong together.
 
-> **Before you begin:** ALIVE and experimental LIVE are implemented on `main`. The checked-in package version is **3.1.1**, prepared for the **LIVE Continuity & Recovery** patch following the published [v3.1.0 — DSP Stability & Hear the Difference](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) release. The v3.1.1 tag and GitHub release are not yet published. The historical v3.0.0 and v3.1.0 tags remain unchanged.
+> **Before you begin:** ALIVE and experimental LIVE are implemented on `main`. The checked-in package version is **3.1.1**, released as [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) following the published [v3.1.0 — DSP Stability & Hear the Difference](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0). These release tags preserve their respective historical commits. Recovery remains experimental and sustained native Mac acceptance is pending.
 
 **Start here:** [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
 
@@ -365,7 +371,7 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 - **Latency and buffers:** The LIVE DSP adds **32.00 ms at 48 kHz / 34.83 ms at 44.1 kHz**, plus queues and device latency. Native test sessions reported roughly **79–107 ms** in ADC/DAC timestamp estimates, not independent acoustic measurements. Bypass shares the processing delay; video sync can be affected. Fixed buffers can run dry and emit silence, while capture/ring failures can stop monitoring. Check `status` for counters and errors. There is no user-facing buffer-size command.
 - **Routing and recovery:** ISLA rejects virtual, Aggregate and Multi-Output sinks for LIVE, but cannot detect every other app's monitoring path. It does not change the Mac's system output or reconnect devices automatically. Stop monitoring before changing devices, and restore normal output in macOS when finished.
 - **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo is the guaranteed format; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes; output conversion or hardware can clip levels.
-- **Release status:** Python package, HTTP service and JUCE/CMake metadata are aligned to **3.1.1** for the next patch. [v3.0.0 — ALIVE + LIVE](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) and [v3.1.0 — DSP Stability](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) are published from their historical pinned commits; **v3.1.1 has not yet been tagged or published**. Version alignment and software checks alone do not establish native release acceptance of recovery. Longer-session, stress, physical-disconnect and broader hardware acceptance remain pending. Desktop GUI and mobile apps are future work; the JUCE plugin remains experimental.
+- **Release status:** Python package, HTTP service and JUCE/CMake metadata are aligned at **3.1.1**. The [v3.0.0 — ALIVE + LIVE](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0), [v3.1.0 — DSP Stability](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) and [v3.1.1 — LIVE Continuity & Recovery](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) releases are published from separate pinned commits. Software checks alone do not establish native release acceptance of recovery. Longer-session, stress, physical-disconnect and broader hardware acceptance remain pending. Desktop GUI and mobile apps are future work; the JUCE plugin remains experimental.
 
 ## Engineering and evidence
 
@@ -394,7 +400,7 @@ These records preserve the versions and procedures used during their original te
 - **BEDROCK foundation:** Regression-tested offline numerical invariants and documented streaming/real-time risks.
 - **ALIVE + LIVE v3.0.0:** Published milestone for terminal file playback and experimental Mac system-audio monitoring; its release commit is preserved.
 - **DSP stability v3.1.0:** Published numerical LIVE reconstruction robustness corrections, reproducible listening comparisons and improved guided setup; its release commit is preserved.
-- **LIVE recovery v3.1.1 candidate:** Bounded capture-discontinuity recovery and expanded diagnostics are implemented; patch tagging and sustained native Mac acceptance remain pending.
+- **LIVE recovery v3.1.1:** Published bounded capture-discontinuity recovery and expanded diagnostics; sustained native Mac recovery acceptance remains pending.
 - **Future work:** Distinctive musical-mode tuning, longer-session reliability, graphical Mac experience, mobile research, and separate production-grade plugin validation.
 
 ---

@@ -134,7 +134,7 @@ The environment must be activated in each new Terminal session. **Open the graph
 
 ## ISLA Control Center — Graphical Interface
 
-The optional **ISLA — Audio Control Center** provides clickable ALIVE playback and guided LIVE setup. The traditional terminal and offline exporter remain available. This is an optional experimental desktop feature; physical macOS GUI/audio acceptance is pending. It does not integrate the research-only v4.0 algorithms.
+The optional **ISLA — Audio Control Center** provides clickable ALIVE playback, guarded Remastered depth controls in both ALIVE and LIVE, Bluetooth-capable device selection, local music loading, and guided LIVE setup. The original terminal and production offline exporter remain available. **This is a Python/PySide6 application, not yet a standalone Mac installer;** physical macOS GUI/audio and creator-listening acceptance of the latest research paths are pending.
 
 ### Install and launch: which prompt are you using?
 
@@ -185,7 +185,7 @@ The optional `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and 
 3. Click **Play**, **Pause**, or **Stop**. Position and duration update automatically. Select **Velvet**, **Legato**, **Melt**, or **Original / Bypass** to compare the existing prepared buffers and transitions.
 4. While stopped, choose an eligible listening output and click **Use Listening Output**. This output is shared with LIVE. On macOS, dropdown choices require verified physical stereo devices; the system default remains usable for ALIVE even when BlackHole is absent.
 
-Stop LIVE before opening a file. Stop file playback before changing devices or applying LIVE setup. There are no new gain, volume, slowdown or DSP parameters.
+Stop LIVE before opening a file. Stop file playback before changing devices or applying LIVE setup. **ALIVE's Remastered research panel** is separate from the three prepared production buffers; it offers 0–100% processing depth for eligible short excerpts and is not a gain or slowdown control.
 
 ### LIVE — guided Mac system audio
 
@@ -194,7 +194,8 @@ Install standalone **BlackHole 2ch** separately using the [LIVE instructions bel
 1. **Capture Source:** choose **BlackHole 2ch**.
 2. **Physical Listening Device:** choose your verified stereo speakers/headphones, such as MacBook Pro Speakers or External Headphones when present. Select **44,100** or **48,000 Hz**, then click **Apply LIVE Devices / Select LIVE Source**. Virtual, Aggregate, Multi-Output, ambiguous and mono sinks are excluded.
 3. **macOS Sound Routing:** inspect the detected current system output. Click **Open Sound Settings**, then manually select **BlackHole 2ch** in macOS Sound → Output. Return and click **Recheck Audio Routing**. If the button cannot open the pane, use Apple menu → System Settings → Sound → Output.
-4. Click **Start LIVE** to begin with **Original / Bypass** automatically selected. Under Step 4, use the **LIVE sound effect** dropdown (Original / Bypass, Velvet, Legato, Melt); choose **Original / Bypass** or the adjacent **Reset to Original** button to return to Original. Re-selecting the same effect is idempotent. Start LIVE and Stop LIVE remain separate buttons so selecting an effect never unexpectedly starts or stops the monitor. You never need to stop and restart monitoring to switch modes. The LIVE panel reports **Requested** while a command is pending, the confirmed backend mode, and when the DSP worker has picked it up on an audio block. Health refreshes preserve a pending selection and leave the open dropdown usable. Rapid choices are dispatched once per changed selection in order; Stop and Close discard choices not yet dispatched. A rejected command restores the confirmed mode and leaves an error visible until another mode request. Switching modes does **not** require Stop/Start and does not change any system routing. The modes can sound subtle; compare at similar loudness. Use **LIVE Listening Volume**, in the lower-left panel, to select 0–100% and click **Apply Volume**, or choose **Mute/Unmute**. The control attenuates only ISLA's processed signal headed to the selected physical headphones/speakers; it does not change BlackHole input gain, macOS volume or other applications. At 100%, Original/Bypass retains its existing exact unity audio. Volume changes ramp over about 5 ms and do not restart LIVE. Click **Stop LIVE** when finished. The **scrollable LIVE diagnostics panel** shows latency, signal levels, recovery and error counters; scroll inside that panel to read the lower entries while monitoring, without the display jumping back to the top. If LIVE stops unexpectedly, its safety reason appears beside the controls and in diagnostics. **Stop LIVE** releases audio without a blocking device rescan; Refresh Devices and Recheck Audio Routing become available once the stream stops.
+4. Click **Start LIVE** to begin in **Original / Bypass**. Use the **LIVE sound effect** dropdown to choose Velvet, Legato, Melt or Original; **Reset to Original** restores Bypass. Effect changes do not stop or restart the stream. The interface shows pending and confirmed mode selections and exposes any safety-stop reason. Use the separate **LIVE Listening Volume** control to attenuate physical listening output (0–100%, with Apply Volume and Mute/Unmute); it never adjusts BlackHole capture, macOS master volume or other applications. **Stop LIVE** releases the stream before deferred device discovery. See [device and session behavior](docs/remastered/LIVE_AND_DISCOVERY.md) and the [detailed Control Center checklist](docs/control-center/ACCEPTANCE.md).
+5. **Optional v4.0 Remastered LIVE:** Choose **v4.0 Remastered LIVE** in the engine selector, set **0–100% permitted depth in 5% increments**, then click **Apply LIVE Engine / Depth** (or release the slider). Choose Velvet, Legato or Melt in the effect dropdown. This is governed **processing depth, not listening volume**: 0% is Original and 100% is the research baseline. The original profiles are still available under **Original LIVE profiles**. The existing LIVE stream and routing protections stay in effect. Read the [research limitations](docs/remastered/LIVE_AND_DISCOVERY.md#verification-and-scientific-scope).
 
 Required arrangement:
 
@@ -327,7 +328,7 @@ ISLA deliberately **does not change the macOS default sound output automatically
 
 ### Bluetooth stereo speakers / headphones (experimental)
 
-Bluetooth speakers and headphones can be selected as ISLA's **physical stereo output**, if Core Audio and PortAudio both identify a unique, connected stereo device that accepts 44.1 or 48 kHz. Wireless output is **not guaranteed**: Bluetooth adds device buffering, latency and possible clock drift/dropouts, so this is a listening convenience, **not** a low-latency or video-sync claim.
+Bluetooth speakers and headphones can be selected as ISLA's **physical stereo output**, if Core Audio and PortAudio both identify a unique, connected stereo device that accepts 44.1 or 48 kHz. Current Step 2 can label eligible paired outputs **(Bluetooth)**, and refreshed discovery after Stop helps when the device list changes. Wireless output is **not guaranteed**: Bluetooth adds device buffering, latency and possible clock drift/dropouts, so this is a listening convenience, **not** a low-latency or video-sync claim.
 
 1. Pair and connect your Bluetooth speaker/headphones in **System Settings → Bluetooth**. Verify ordinary Mac playback first at a comfortable volume. If the device presents separate hands-free/mono and stereo profiles, choose the stereo output and do not use its microphone as ISLA's input.
 2. With ISLA stopped, inspect its current `devices` list. Use `setup audio` to choose standalone **BlackHole 2ch** for input and the **exact listed Bluetooth stereo device** for output. Alternatively, use `source system`, `input "BlackHole 2ch"`, and `output "<exact listed Bluetooth device name>"` inside `isla>`. The name is discovered on your Mac; these commands do not pair hardware.
@@ -427,7 +428,7 @@ Now play music in your browser—for example, [the Beethoven performance used in
 
 ### 4. Compare Velvet, Legato, Melt and Bypass
 
-Switch profiles while the music plays:
+Start with the **original production** profiles while music plays:
 
 ~~~text
 mode velvet
@@ -436,6 +437,18 @@ mode melt
 bypass
 status
 ~~~
+
+To opt into the **experimental governed Remastered LIVE engine** instead, at the same `isla>` prompt use:
+
+~~~text
+engine remastered 50
+mode melt
+status
+bypass
+engine production
+~~~
+
+The `50` requests **50% permitted Remastered processing depth**, not 50% volume. Use 0–100 in steps of five. `engine production` returns to the existing harmonic profiles; production modes and their historical examples remain supported.
 
 Allow a passage of music to play in each mode. These profiles change the harmonic processing; the musical effect can be subtle and depends on the material. The terminal remains responsive; `status` reports signal levels, device status and buffer counters. Reported latency is an ADC/DAC **timestamp estimate**, not an independently measured acoustic/video-sync delay.
 
@@ -488,7 +501,7 @@ stop
 exit
 ~~~
 
-`play` resumes from pause or starts from the beginning after a stop or completed playback. `stop` resets position; `bypass` returns to the decoded original. Use a **real local file path** in place of the example. Quotes handle spaces, and `~` expands to your home directory.
+`play` resumes from pause or starts from the beginning after a stop or completed playback. `stop` resets position; `bypass` returns to the decoded original. Use a **real local file path** in place of the example. Quotes handle spaces, and `~` expands to your home directory. **New:** for a missing *bare filename*, such as `load "Dancing Queen.m4a"`, ISLA can search Spotlight and accessible local music folders; ambiguous matches require an explicit full path. Existing full paths are never silently replaced. See [local song discovery](docs/remastered/LIVE_AND_DISCOVERY.md#finding-a-local-song).
 
 **Local audio formats:** mono or stereo **WAV**, plus **DRM-free M4A / AAC and Apple Lossless (ALAC) on macOS**, decoded with the built-in macOS audio converter. No extra decoder installation is needed on Mac. FLAC, AIFF, OGG and MP3 depend on the installed libsndfile. On other systems, export AAC / ALAC to a DRM-free WAV, FLAC or AIFF first. Preparation of long files uses more time, working memory and temporary storage; decoding stays in the cancellable preparation process and preserves the source sample rate and channels.
 
@@ -590,7 +603,8 @@ Inside a numbered picker, help/topics remain available without consuming a devic
 | `stop` | Stop and reset to beginning | Stops the live monitor |
 | `monitor start [44100\|48000]` | Not applicable | Start capture and playback (default 48000); omit brackets when typing |
 | `monitor stop` | Stops LIVE monitor if present | Stop LIVE monitoring |
-| `mode velvet` / `mode legato` / `mode melt` | Select prepared file processing | Select LIVE harmonic profile |
+| `mode velvet` / `mode legato` / `mode melt` | Select prepared production mode | Select profile within the chosen LIVE engine |
+| `engine remastered 0..100` / `engine production` | LIVE-engine command; use the Control Center Remastered panel for ALIVE research | Opt into governed research depth (5% steps) or return to original LIVE profiles |
 | `bypass` | Decoded original audio | Original captured system audio, time-aligned |
 
 **The table above lists commands for the `isla>` prompt, not macOS shell commands.** For installation and GUI launch, see [which prompt are you using?](#install-and-launch-which-prompt-are-you-using). Shell commands such as `python -m isla window` belong at the Mac's `%` / `$` prompt.
@@ -613,7 +627,10 @@ Commands are case-insensitive where appropriate; file and device names retain th
 | **Device missing or disconnected** | Run `monitor stop`, reconnect the device, then `devices`; relaunch ISLA if Core Audio/PortAudio holds stale device information. No silent device fallback is provided. |
 | **Crackling, glitches or noticeable delay** | Prefer built-in or wired speakers to Bluetooth, close busy apps, check matching 44.1/48 kHz device formats, and review `status` for underflows, overflows or device warnings. |
 | **`zsh: command not found: isla`** | At the Mac's shell prompt, run `cd ~/ISLA`, `source .venv/bin/activate`, and `python -m pip show isla-audio`. If the package is missing, rerun `python -m pip install -e '.[playback]'`. Start with `python -m isla` and enter `devices` **only after** the `isla>` prompt appears. |
-| **File won't load/play** | Use a valid local audio path (DRM-free for Apple purchases), wait for `Preparation: Ready`, check the physical output device and sample-rate/channel support. |
+| **File won't load/play** | Use a valid downloaded local audio path (DRM-free for Apple purchases), wait for `Preparation: Ready`, check the physical output device and sample-rate/channel support. Protected Apple Music subscription downloads are not importable. |
+| **Bare filename finds multiple songs** | Use `load "<full path>"` or the Control Center file picker; ISLA does not choose an ambiguous search match automatically. |
+| **Remastered ALIVE render rejected** | Use a supported 44.1/48 kHz mono/stereo excerpt up to 30 seconds with enough peak headroom. Return to Original; no limiter or automatic attenuation is applied. |
+| **Bluetooth device disappeared** | Stop LIVE, reconnect the device in macOS, refresh the device list and reselect the verified physical stereo endpoint. The same device name alone is not trusted as identity. |
 
 For deeper device diagnostics inside the activated environment, try `python -m sounddevice`. See [ALIVE/LIVE implementation and acceptance](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) for native test details and unresolved risks.
 
@@ -630,13 +647,15 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 
 ## Engineering and evidence
 
-**LIVE** uses a continuous harmonic-processing path with retained weighted overlap-add (WOLA) state, a 2048-sample window / 512-sample hop, short mode crossfades and a time-aligned Bypass. Spectral work runs outside the audio callback. **ALIVE and offline export** use the existing whole-file note-boundary and harmonic pipeline. Those pipelines have different behavior; passing offline numerical checks does not establish professional real-time readiness.
+**Original LIVE production profiles** use a continuous harmonic-processing path with retained weighted overlap-add (WOLA) state, a 2048-sample window / 512-sample hop, short crossfades and time-aligned Bypass. **Remastered LIVE** is a separate bounded-state streaming adaptation of frozen Experiment 02, tested for numerical equivalence against its offline reference. All spectral work remains outside PortAudio callbacks. **Production ALIVE and offline export** retain the older whole-file note-boundary/harmonic pipeline, while **Remastered ALIVE** prepares validated short research excerpts. These paths are not interchangeable; numerical tests do not prove perceptual improvement or native hard-real-time readiness.
 
 The public Python package is `isla`, and the distribution is `isla-audio`. Legacy `phased_music_notes` imports and aliases remain available. The gRPC wire service identifiers and JUCE plugin identity codes remain intact; some Docker/service discovery identifiers have changed to ISLA.
 
 **Engineering evidence and source of truth**
 
-These records preserve the versions and procedures used during their original tests, including the earlier `2.1.0` baseline. Use the onboarding above for current setup.
+Current governed research evidence: [ALIVE Remastered validation](docs/remastered/VALIDATION.md), [LIVE Remastered validation](docs/remastered/LIVE_VALIDATION.md), [60-cell ALIVE matrix](docs/remastered/INTENSITY_MATRIX.json) and [60-cell LIVE matrix](docs/remastered/LIVE_MATRIX.json). These are engineering checks, not creator-listening results. The frozen Experiment 02 [specification](docs/research/phase-governed-resonance-02/SPECIFICATION.md), [research report](docs/research/phase-governed-resonance-02/RESEARCH_REPORT.md) and [freeze record](docs/research/phase-governed-resonance-02/FREEZE.json) remain historically authoritative.
+
+The older records below preserve versions and procedures used during their original tests, including the earlier `2.1.0` baseline. **Historical provenance is intentionally retained rather than rewritten as v4.0.0.** Use the current onboarding above for setup.
 
 - [ALIVE + LIVE implementation, native acceptance and remaining gates](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md)
 - [Controlled LIVE DSP study: baseline mathematics, same-passage comparisons and open acceptance gates](docs/research/live-dsp-study/README.md)
@@ -673,13 +692,12 @@ The [numerical robustness corrections and before/after evidence](docs/research/l
 The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and [owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) document earlier Mac sessions, including subtle mode differences and a preference for Melt. That historical preference is separate from these samples. No terminal demo GIF or new native listening acceptance is claimed.
 
 
-### What's next
+### Current acceptance, roadmap and historical milestones
 
-- **BEDROCK foundation:** Regression-tested offline numerical invariants and documented streaming/real-time risks.
-- **ALIVE + LIVE v3.0.0:** Published milestone for terminal file playback and experimental Mac system-audio monitoring; its release commit is preserved.
-- **DSP stability v3.1.0:** Published numerical LIVE reconstruction robustness corrections, reproducible listening comparisons and improved guided setup; its release commit is preserved.
-- **LIVE recovery v3.1.1:** Published bounded capture-discontinuity recovery and expanded diagnostics; sustained native Mac recovery acceptance remains pending.
-- **Future work:** Independent native-Mac control-window/BlackHole acceptance, distinctive musical-mode tuning, longer-session reliability, mobile research, and separate production-grade plugin validation.
+- **Current v4.0.0 source candidate:** Complete physical-Mac ALIVE/LIVE/Bluetooth listening and routing acceptance; reproduce reported issues before any GitHub `v4.0.0` release. Research superiority remains unproven.
+- **Possible future distribution work:** Independently package and sign a standalone Mac Control Center installer without modifying frozen DSP or historic evidence. No `.app`/DMG is published yet.
+- **Historical releases:** BEDROCK numerical foundation; [v3.0.0](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) ALIVE/LIVE; [v3.1.0](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) DSP numerical robustness; [v3.1.1](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) bounded LIVE recovery; [v3.2.0](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0) Control Center; and [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0) LIVE usability. Their tags and original scope are preserved.
+- **Longer-term ideas:** Distinctive musical-mode tuning based on listening evidence, long-session reliability, mobile research and separate professional plugin validation.
 
 ---
 

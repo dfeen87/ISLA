@@ -191,7 +191,7 @@ Install standalone **BlackHole 2ch** separately using the [LIVE instructions bel
 1. **Capture Source:** choose **BlackHole 2ch**.
 2. **Physical Listening Device:** choose your verified stereo speakers/headphones, such as MacBook Pro Speakers or External Headphones when present. Select **44,100** or **48,000 Hz**, then click **Apply LIVE Devices / Select LIVE Source**. Virtual, Aggregate, Multi-Output, ambiguous and mono sinks are excluded.
 3. **macOS Sound Routing:** inspect the detected current system output. Click **Open Sound Settings**, then manually select **BlackHole 2ch** in macOS Sound → Output. Return and click **Recheck Audio Routing**. If the button cannot open the pane, use Apple menu → System Settings → Sound → Output.
-4. Click **Start LIVE** to begin with **Original / Bypass** automatically selected. Velvet, Legato and Melt are mutually exclusive effects: click one to enable it; click that same effect again, or click **Original / Bypass**, to reset to Original. You never need to stop and restart monitoring to switch modes. The LIVE panel reports the selected mode and when the DSP worker has picked it up on an audio block. Switching modes does **not** require Stop/Start and does not change any system routing. The modes can sound subtle; compare at similar loudness. Use **LIVE Listening Volume**, in the lower-left panel, to select 0–100% and click **Apply Volume**, or choose **Mute/Unmute**. The control attenuates only ISLA's processed signal headed to the selected physical headphones/speakers; it does not change BlackHole input gain, macOS volume or other applications. At 100%, Original/Bypass retains its existing exact unity audio. Volume changes ramp over about 5 ms and do not restart LIVE. Click **Stop LIVE** when finished. The **scrollable LIVE diagnostics panel** shows latency, signal levels, recovery and error counters; scroll inside that panel to read the lower entries while monitoring, without the display jumping back to the top. If LIVE stops unexpectedly, its safety reason appears beside the controls and in diagnostics. **Stop LIVE** releases audio without a blocking device rescan; Refresh Devices and Recheck Audio Routing become available once the stream stops.
+4. Click **Start LIVE** to begin with **Original / Bypass** automatically selected. Under Step 4, use the **LIVE sound effect** dropdown (Original / Bypass, Velvet, Legato, Melt); selecting the active effect again, or choosing Original / Bypass, returns to Original. Start LIVE and Stop LIVE remain separate buttons so selecting an effect never unexpectedly starts or stops the monitor. You never need to stop and restart monitoring to switch modes. The LIVE panel reports the selected mode and when the DSP worker has picked it up on an audio block. Switching modes does **not** require Stop/Start and does not change any system routing. The modes can sound subtle; compare at similar loudness. Use **LIVE Listening Volume**, in the lower-left panel, to select 0–100% and click **Apply Volume**, or choose **Mute/Unmute**. The control attenuates only ISLA's processed signal headed to the selected physical headphones/speakers; it does not change BlackHole input gain, macOS volume or other applications. At 100%, Original/Bypass retains its existing exact unity audio. Volume changes ramp over about 5 ms and do not restart LIVE. Click **Stop LIVE** when finished. The **scrollable LIVE diagnostics panel** shows latency, signal levels, recovery and error counters; scroll inside that panel to read the lower entries while monitoring, without the display jumping back to the top. If LIVE stops unexpectedly, its safety reason appears beside the controls and in diagnostics. **Stop LIVE** releases audio without a blocking device rescan; Refresh Devices and Recheck Audio Routing become available once the stream stops.
 
 Required arrangement:
 
@@ -346,21 +346,27 @@ The guided setup asks you to select **BlackHole 2ch** for capture and then **phy
 - **macOS Terminal / zsh:** `(.venv) (base) ... ISLA %` means you are still at your Mac's shell prompt. Running `devices` here produces `zsh: command not found: devices`.
 - **ISLA:** `isla>` means the app is running. **Only here** can you use ISLA commands such as `devices`, `source system`, `monitor start`, and `mode melt`.
 
-**Optional — manual device selection:** If you prefer the original commands instead of the wizard, type `devices` at the normal `isla>` prompt to view all devices:
+**Optional — number-only device pickers:** After `source system`, type `input` or `output` with no argument to open a filtered selection menu. At its `Select input` / `Select output` prompt, type **only the number shown** (or `cancel`). `input` lists verified BlackHole 2ch capture devices; `output` lists only verified physical stereo outputs. The indices come from the current device list and can change after plugging or unplugging hardware.
+
+If you prefer to inspect all endpoints first, type `devices` at the normal `isla>` prompt:
 
 ~~~text
 devices
 ~~~
 
-The `devices` command **only displays a list; it does not open a selection menu**. From the normal `isla>` prompt, enter these commands one line at a time, replacing `External Headphones` with your own physical output (for example, `MacBook Pro Speakers`):
+The `devices` command **only displays a list; it does not open a selection menu**. The simpler guided commands are:
 
 ~~~text
 source system
-input "BlackHole 2ch"
-output "External Headphones"
+input
+0
+output
+1
 ~~~
 
-Or use `input 0` and `output 1` **if those are the indices in your current list**. Typing a bare `1`, `1:`, or `External Headphones` at `isla>` does not select a device. Never choose BlackHole as the ISLA output. A startup line such as `Output: BlackHole 2ch` reflects the macOS default output, not your selected physical ISLA output.
+The example chooses `0` for BlackHole capture and `1` for External Headphones **only if those numbers appear in the displayed selection menus**. If MacBook Pro Speakers is listed as `3`, select `3` instead at the output picker. You can still enter `input "BlackHole 2ch"`, `output "External Headphones"`, or direct `input 0` / `output 1` at `isla>` with verified current indices.
+
+A bare number is accepted **only when a picker is active**, never at the normal `isla>` command prompt. Do not append descriptions such as `default 48000 Hz`; sample rate is not a device-selection command. Microphones and BlackHole cannot be selected as LIVE playback outputs. Never choose BlackHole as the ISLA output. A startup line such as `Output: BlackHole 2ch` reflects the macOS default output, not your selected physical ISLA output.
 
 **With either setup method**, after confirming macOS **System Settings → Sound → Output** is set to **BlackHole 2ch**, type:
 

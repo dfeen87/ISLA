@@ -1,4 +1,4 @@
-"""Deterministic research measurements through unchanged LIVE StreamingDSP.
+"""Deterministic research measurements through the frozen original LIVE baseline.
 
 Run from repo: PYTHONPATH=. python tools/dsp_study.py --output <directory>
 No audio hardware, capture, routing, or playback. Raw FLOAT WAVs are measurements;
@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from isla.streaming import MODES, StreamingDSP
+from dsp_study_baseline import MODES, StreamingDSP
 from dsp_study_fixtures import fixtures, fixture_manifest
 
 BASELINE_COMMIT="4eb2412682f8b3c6321ce5c8887314850ac9a697"
@@ -305,7 +305,10 @@ def main():
     production_hashes={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest()
         for p in [root/"isla/streaming.py",root/"isla/harmonics.py",root/"phased_music_notes/harmonics.py"]}
     metadata=dict(kind="deterministic-identical-source-live-study",baseline_commit=BASELINE_COMMIT,
-        checkout_commit=checkout_commit,production_source_sha256=production_hashes,platform=platform.platform(),
+        checkout_commit=checkout_commit,checkout_source_sha256=production_hashes,
+        rendering_implementation="frozen original tools/dsp_study_baseline.py; not current production DSP",
+        baseline_reference_sha256=hashlib.sha256((root/"tools/dsp_study_baseline.py").read_bytes()).hexdigest(),
+        platform=platform.platform(),
         python=platform.python_version(),numpy=np.__version__,soundfile=sf.__version__,
         bands_hz=["0-200","200-2000","2000-6000","6000-Nyquist"],
         alignment="1536 frames removed; full raw output separately inspected for cold-start probes",

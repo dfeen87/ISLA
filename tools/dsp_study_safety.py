@@ -1,4 +1,4 @@
-"""Research checks of the unchanged LIVE path; never opens an audio device.
+"""Research checks of the current LIVE path; never opens an audio device.
 
 Run from any directory: python tools/dsp_study_safety.py --output safety.json
 Numerical equality and float32 bit equality are reported separately because
@@ -8,9 +8,11 @@ The array-size check bounds retained DSP arrays, not whole-process memory.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import platform
+import subprocess
 import sys
 
 import numpy as np
@@ -124,9 +126,19 @@ def main():
     args = parser.parse_args()
     if args.sustained_blocks < 64:
         parser.error("--sustained-blocks must be at least 64")
+    root = Path(__file__).resolve().parents[1]
+    sources = ("isla/streaming.py", "isla/spectral.py", "phased_music_notes/harmonics.py")
+    source_hashes = {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
+                     for name in sources if (root / name).exists()}
+    try:
+        tested_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+    except (OSError, subprocess.SubprocessError):
+        tested_commit = None
     result = dict(kind="deterministic-software-safety-research", python=platform.python_version(),
                   numpy=np.__version__, platform=platform.platform(), seed=20261024,
-                  production_dsp_modified=False, audio_device_opened=False,
+                  script_modifies_dsp_source=False, tested_commit=tested_commit,
+                  tested_dsp_source_sha256=source_hashes, audio_device_opened=False,
                   limitations=["No native transport, routing, acoustic, or subjective listening acceptance.",
                                "Retained-array layout is not a process RSS or real-time safety guarantee.",
                                "Switch reference uses independently advanced float32 outputs; absolute tolerance 1e-7."],

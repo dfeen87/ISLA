@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reproduce LIVE startup and near-null-bin sensitivity, without audio devices.
 
-This experiment uses the unchanged production StreamingDSP and generated signals.
+This experiment uses the frozen original StreamingDSP and generated signals.
 It characterizes numerical differences; it does not measure perceived quality.
 
 Example (from an installed checkout):
@@ -18,7 +18,7 @@ import sys
 
 import numpy as np
 
-from isla.streaming import StreamingDSP
+from dsp_study_baseline import StreamingDSP
 
 
 SEED = 72
@@ -173,11 +173,13 @@ def main():
     perturbation, gain = null_and_gain_cases()
     result = {
         "kind": "ISLA LIVE deterministic edge-case characterization",
-        "tested_commit": commit,
+        "tested_commit": "4eb2412682f8b3c6321ce5c8887314850ac9a697",
+        "checkout_commit": commit,
         "python_version": sys.version,
         "numpy_version": np.__version__,
         "platform": platform.platform(),
-        "production_dsp_modified": False,
+        "script_modifies_dsp_source": False,
+        "rendering_implementation": "frozen original tools/dsp_study_baseline.py at main 4eb2412682f8b3c6321ce5c8887314850ac9a697",
         "audio_devices_opened": False,
         "perceptual_quality_claim": False,
         "definitions": {

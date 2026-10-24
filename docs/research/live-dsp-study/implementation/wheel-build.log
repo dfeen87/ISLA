@@ -1,0 +1,10 @@
+WARNING: The directory '/Users/donfeeney/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing ./.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: isla-audio
+  Building wheel for isla-audio (pyproject.toml): started
+  Building wheel for isla-audio (pyproject.toml): finished with status 'done'
+  Created wheel for isla-audio: filename=isla_audio-3.0.0-py3-none-any.whl size=45130 sha256=9d11049814dc8b6bc2893f0f8fc36885c0fd2b663fca6ef09af937f507f3b97d
+  Stored in directory: /private/var/folders/kv/0t0sccnx5ld__qgcssnk9nxm0000gn/T/pip-ephem-wheel-cache-us6gwc4_/wheels/8e/41/5e/d2e92df991d48f37968b263ec164aab090067eca668f27309c
+Successfully built isla-audio

@@ -71,7 +71,11 @@ def test_mode_renders_receive_identical_samples_fresh_state_and_delay(study, mon
         def __init__(self, samplerate, count):
             super().__init__(samplerate, count)
             assert not np.any(self.history) and not np.any(self.tails)
-            assert not np.any(self.weights) and not np.any(self.dry)
+            prehistory = np.zeros_like(self.weights)
+            for shift in (512, 1024, 1536):
+                prehistory[:-shift] += self.window[shift:] ** 2
+            np.testing.assert_array_equal(self.weights, prehistory)
+            assert not np.any(self.dry)
             self.received = []
             created.append(self)
 

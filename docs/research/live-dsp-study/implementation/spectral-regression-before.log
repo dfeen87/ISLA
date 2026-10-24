@@ -1,0 +1,748 @@
+FFFFFFFFFFFFFFFFFFFFFFFF...                                              [100%]
+=================================== FAILURES ===================================
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-1-44100] _
+
+rate = 44100, channels = 1, bin_index = 20, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.044125300934099415) < 0.01
+E        +  where np.float64(0.044125300934099415) = _relative(array([[ 0.01505536],\n       [ 0.04541222],\n       [ 0.07559903],\n       ...,\n       [-0.09683456],\n       [-0.06733947],\n       [-0.03757763]], shape=(57344, 1), dtype=float32), array([[-0.00046165],\n       [ 0.0289896 ],\n       [ 0.05833275],\n       ...,\n       [-0.10519943],\n       [-0.07691765],\n       [-0.04834712]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-1-48000] _
+
+rate = 48000, channels = 1, bin_index = 20, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.047441009124129734) < 0.01
+E        +  where np.float64(0.047441009124129734) = _relative(array([[ 0.01505536],\n       [ 0.04541222],\n       [ 0.07559903],\n       ...,\n       [-0.09683456],\n       [-0.06733947],\n       [-0.03757762]], shape=(57344, 1), dtype=float32), array([[-0.01916609],\n       [ 0.00995449],\n       [ 0.03904107],\n       ...,\n       [-0.11344658],\n       [-0.08518557],\n       [-0.05660296]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-2-44100] _
+
+rate = 44100, channels = 2, bin_index = 20, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.05060085575335909) < 0.01
+E        +  where np.float64(0.05060085575335909) = _relative(array([[-0.00936141,  0.00190536],\n       [ 0.02067374,  0.01973772],\n       [ 0.05062754,  0.03748555],\n       ...,\n ..., -0.04765325],\n       [-0.06000776, -0.0299283 ],\n       [-0.03206778, -0.0120926 ]], shape=(57344, 2), dtype=float32), array([[-0.00046165,  0.00027529],\n       [ 0.0289896 ,  0.01794416],\n       [ 0.05833275,  0.03554614],\n       ...,\n ..., -0.06308118],\n       [-0.07691765, -0.04611125],\n       [-0.04834712, -0.02896824]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-2-48000] _
+
+rate = 48000, channels = 2, bin_index = 20, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.04803038478141829) < 0.01
+E        +  where np.float64(0.04803038478141829) = _relative(array([[-0.00936141,  0.00190536],\n       [ 0.02067374,  0.01973772],\n       [ 0.05062754,  0.03748555],\n       ...,\n ..., -0.04765325],\n       [-0.06000775, -0.0299283 ],\n       [-0.03206777, -0.0120926 ]], shape=(57344, 2), dtype=float32), array([[-0.01916609, -0.01067552],\n       [ 0.00995449,  0.00681374],\n       [ 0.03904107,  0.02427902],\n       ...,\n ..., -0.0680557 ],\n       [-0.08518557, -0.05109849],\n       [-0.05660296, -0.03394838]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-1-44100] _
+
+rate = 44100, channels = 1, bin_index = 40, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.04786996550500295) < 0.01
+E        +  where np.float64(0.04786996550500295) = _relative(array([[-0.00226253],\n       [ 0.05492133],\n       [ 0.11124539],\n       ...,\n       [-0.17049062],\n       [-0.11469393],\n       [-0.05716996]], shape=(57344, 1), dtype=float32), array([[ 0.01671848],\n       [ 0.0743999 ],\n       [ 0.13095723],\n       ...,\n       [-0.18598877],\n       [-0.13169308],\n       [-0.07542142]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-1-48000] _
+
+rate = 48000, channels = 1, bin_index = 40, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.049673613183561977) < 0.01
+E        +  where np.float64(0.049673613183561977) = _relative(array([[-0.00226254],\n       [ 0.05492133],\n       [ 0.11124539],\n       ...,\n       [-0.1704906 ],\n       [-0.11469391],\n       [-0.05716994]], shape=(57344, 1), dtype=float32), array([[-0.02375362],\n       [ 0.03402546],\n       [ 0.09129354],\n       ...,\n       [-0.18010499],\n       [-0.12562822],\n       [-0.06927079]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-2-44100] _
+
+rate = 44100, channels = 2, bin_index = 40, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.04947969712670508) < 0.01
+E        +  where np.float64(0.04947969712670508) = _relative(array([[ 0.0122579 ,  0.00863042],\n       [ 0.0672211 ,  0.04393797],\n       [ 0.12119389,  0.07858343],\n       ...,\n ..., -0.09619746],\n       [-0.11214612, -0.06319395],\n       [-0.05646904, -0.02922326]], shape=(57344, 2), dtype=float32), array([[ 0.01671848,  0.01001891],\n       [ 0.0743999 ,  0.04462752],\n       [ 0.13095723,  0.07856184],\n       ...,\n ..., -0.11160003],\n       [-0.13169308, -0.07902256],\n       [-0.07542142, -0.04525941]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-2-48000] _
+
+rate = 48000, channels = 2, bin_index = 40, mode = 'velvet'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.051841649569750035) < 0.01
+E        +  where np.float64(0.051841649569750035) = _relative(array([[ 0.0122579 ,  0.00863042],\n       [ 0.0672211 ,  0.04393797],\n       [ 0.12119388,  0.07858343],\n       ...,\n ..., -0.09619746],\n       [-0.11214608, -0.06319395],\n       [-0.05646901, -0.02922325]], shape=(57344, 2), dtype=float32), array([[-0.02375362, -0.01429253],\n       [ 0.03402546,  0.02037596],\n       [ 0.09129354,  0.05473841],\n       ...,\n ..., -0.10806081],\n       [-0.12562822, -0.07537467],\n       [-0.06927079, -0.04156017]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-1-44100] _
+
+rate = 44100, channels = 1, bin_index = 20, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.07181953659728292) < 0.01
+E        +  where np.float64(0.07181953659728292) = _relative(array([[ 0.02365843],\n       [ 0.05384186],\n       [ 0.08382399],\n       ...,\n       [-0.09987148],\n       [-0.07084467],\n       [-0.04153034]], shape=(57344, 1), dtype=float32), array([[-0.00072545],\n       [ 0.02803487],\n       [ 0.05669127],\n       ...,\n       [-0.11301629],\n       [-0.08589611],\n       [-0.05845384]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-1-48000] _
+
+rate = 48000, channels = 1, bin_index = 20, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.0772091159411508) < 0.01
+E        +  where np.float64(0.0772091159411508) = _relative(array([[ 0.02365843],\n       [ 0.05384185],\n       [ 0.08382399],\n       ...,\n       [-0.09987148],\n       [-0.07084467],\n       [-0.04153034]], shape=(57344, 1), dtype=float32), array([[-0.03011814],\n       [-0.00187745],\n       [ 0.02637577],\n       ...,\n       [-0.12597609],\n       [-0.09888856],\n       [-0.07142729]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-2-44100] _
+
+rate = 44100, channels = 2, bin_index = 20, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.08235931205592173) < 0.01
+E        +  where np.float64(0.08235931205592173) = _relative(array([[-0.01471078,  0.00299414],\n       [ 0.0149671 ,  0.0205043 ],\n       [ 0.04458307,  0.03792118],\n       ...,\n ..., -0.04350541],\n       [-0.05932343, -0.02604551],\n       [-0.03287202, -0.00849054]], shape=(57344, 2), dtype=float32), array([[-0.00072545,  0.0004326 ],\n       [ 0.02803487,  0.01768584],\n       [ 0.05669127,  0.03487353],\n       ...,\n ..., -0.06774929],\n       [-0.08589611, -0.05147585],\n       [-0.05845384, -0.03500939]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-2-48000] _
+
+rate = 48000, channels = 2, bin_index = 20, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.078168389197579) < 0.01
+E        +  where np.float64(0.078168389197579) = _relative(array([[-0.01471078,  0.00299414],\n       [ 0.0149671 ,  0.0205043 ],\n       [ 0.04458307,  0.03792118],\n       ...,\n ..., -0.04350541],\n       [-0.05932342, -0.02604551],\n       [-0.03287202, -0.00849054]], shape=(57344, 2), dtype=float32), array([[-0.03011814, -0.01677581],\n       [-0.00187745,  0.00019518],\n       [ 0.02637577,  0.01716805],\n       ...,\n ..., -0.0755664 ],\n       [-0.09888856, -0.05931294],\n       [-0.07142729, -0.04283533]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-1-44100] _
+
+rate = 44100, channels = 1, bin_index = 40, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.077903862668327) < 0.01
+E        +  where np.float64(0.077903862668327) = _relative(array([[-0.0035554 ],\n       [ 0.05133047],\n       [ 0.10539126],\n       ...,\n       [-0.16508669],\n       [-0.11081041],\n       [-0.05486404]], shape=(57344, 1), dtype=float32), array([[ 0.0262719 ],\n       [ 0.08193964],\n       [ 0.13636702],\n       ...,\n       [-0.1894409 ],\n       [-0.13752335],\n       [-0.0835449 ]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-1-48000] _
+
+rate = 48000, channels = 1, bin_index = 40, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.08083948867040888) < 0.01
+E        +  where np.float64(0.08083948867040888) = _relative(array([[-0.0035554 ],\n       [ 0.05133046],\n       [ 0.10539126],\n       ...,\n       [-0.16508664],\n       [-0.11081037],\n       [-0.054864  ]], shape=(57344, 1), dtype=float32), array([[-0.03732713],\n       [ 0.0184941 ],\n       [ 0.07403838],\n       ...,\n       [-0.18019497],\n       [-0.12799287],\n       [-0.07387961]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-2-44100] _
+
+rate = 44100, channels = 2, bin_index = 40, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.0805235377300814) < 0.01
+E        +  where np.float64(0.0805235377300814) = _relative(array([[ 0.01926242,  0.01356209],\n       [ 0.07065868,  0.0480607 ],\n       [ 0.12102462,  0.08183452],\n       ...,\n ..., -0.08947115],\n       [-0.1068067 , -0.05765104],\n       [-0.0537626 , -0.02493758]], shape=(57344, 2), dtype=float32), array([[ 0.0262719 ,  0.015744  ],\n       [ 0.08193964,  0.04914428],\n       [ 0.13636702,  0.08180058],\n       ...,\n ..., -0.11367518],\n       [-0.13752335, -0.08252456],\n       [-0.0835449 , -0.05013725]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-2-48000] _
+
+rate = 48000, channels = 2, bin_index = 40, mode = 'legato'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.0843677799055566) < 0.01
+E        +  where np.float64(0.0843677799055566) = _relative(array([[ 0.01926242,  0.01356209],\n       [ 0.07065868,  0.0480607 ],\n       [ 0.12102461,  0.08183452],\n       ...,\n ..., -0.08947113],\n       [-0.10680665, -0.05765103],\n       [-0.05376255, -0.02493757]], shape=(57344, 2), dtype=float32), array([[-0.03732713, -0.02245968],\n       [ 0.0184941 ,  0.01103467],\n       [ 0.07403838,  0.04436374],\n       ...,\n ..., -0.10811354],\n       [-0.12799287, -0.07679217],\n       [-0.07387961, -0.04432414]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-1-44100] _
+
+rate = 44100, channels = 1, bin_index = 20, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.10151855583999937) < 0.01
+E        +  where np.float64(0.10151855583999937) = _relative(array([[ 0.0322615 ],\n       [ 0.06227149],\n       [ 0.09204894],\n       ...,\n       [-0.1029084 ],\n       [-0.07434989],\n       [-0.04548306]], shape=(57344, 1), dtype=float32), array([[-0.00098924],\n       [ 0.02708015],\n       [ 0.05504979],\n       ...,\n       [-0.12083314],\n       [-0.09487458],\n       [-0.06856056]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-1-48000] _
+
+rate = 48000, channels = 1, bin_index = 20, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.10912127772668012) < 0.01
+E        +  where np.float64(0.10912127772668012) = _relative(array([[ 0.0322615 ],\n       [ 0.06227149],\n       [ 0.09204894],\n       ...,\n       [-0.1029084 ],\n       [-0.07434988],\n       [-0.04548305]], shape=(57344, 1), dtype=float32), array([[-0.0410702 ],\n       [-0.01370938],\n       [ 0.01371048],\n       ...,\n       [-0.1385056 ],\n       [-0.11259155],\n       [-0.08625163]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-2-44100] _
+
+rate = 44100, channels = 2, bin_index = 20, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.11641676332229088) < 0.01
+E        +  where np.float64(0.11641676332229088) = _relative(array([[-0.02006016,  0.00408292],\n       [ 0.00926046,  0.02127087],\n       [ 0.03853861,  0.03835681],\n       ...,\n ..., -0.03935757],\n       [-0.0586391 , -0.02216271],\n       [-0.03367627, -0.00488847]], shape=(57344, 2), dtype=float32), array([[-0.00098924,  0.00058991],\n       [ 0.02708015,  0.01742751],\n       [ 0.05504979,  0.03420092],\n       ...,\n ..., -0.07241741],\n       [-0.09487458, -0.05684045],\n       [-0.06856056, -0.04105054]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-2-48000] _
+
+rate = 48000, channels = 2, bin_index = 20, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.11047719229953208) < 0.01
+E        +  where np.float64(0.11047719229953208) = _relative(array([[-0.02006016,  0.00408292],\n       [ 0.00926046,  0.02127087],\n       [ 0.03853861,  0.03835681],\n       ...,\n ..., -0.03935757],\n       [-0.05863909, -0.02216271],\n       [-0.03367626, -0.00488847]], shape=(57344, 2), dtype=float32), array([[-0.0410702 , -0.0228761 ],\n       [-0.01370938, -0.00642338],\n       [ 0.01371048,  0.01005708],\n       ...,\n ..., -0.0830771 ],\n       [-0.11259155, -0.06752738],\n       [-0.08625163, -0.05172228]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-1-44100] _
+
+rate = 44100, channels = 1, bin_index = 40, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.11009581493988471) < 0.01
+E        +  where np.float64(0.11009581493988471) = _relative(array([[-0.00484827],\n       [ 0.0477396 ],\n       [ 0.09953714],\n       ...,\n       [-0.15968274],\n       [-0.10692689],\n       [-0.05255811]], shape=(57344, 1), dtype=float32), array([[ 0.03582532],\n       [ 0.08947939],\n       [ 0.14177682],\n       ...,\n       [-0.19289304],\n       [-0.14335363],\n       [-0.09166837]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-1-48000] _
+
+rate = 48000, channels = 1, bin_index = 40, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.11424530381600354) < 0.01
+E        +  where np.float64(0.11424530381600354) = _relative(array([[-0.00484827],\n       [ 0.0477396 ],\n       [ 0.09953713],\n       ...,\n       [-0.15968268],\n       [-0.10692684],\n       [-0.05255805]], shape=(57344, 1), dtype=float32), array([[-0.05090063],\n       [ 0.00296273],\n       [ 0.05678321],\n       ...,\n       [-0.18028496],\n       [-0.13035752],\n       [-0.07848844]], shape=(57344, 1), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-2-44100] _
+
+rate = 44100, channels = 2, bin_index = 40, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.11379798713876557) < 0.01
+E        +  where np.float64(0.11379798713876557) = _relative(array([[ 0.02626694,  0.01849377],\n       [ 0.07409627,  0.05218343],\n       [ 0.12085534,  0.08508559],\n       ...,\n ..., -0.08274483],\n       [-0.1014673 , -0.05210813],\n       [-0.05105615, -0.02065191]], shape=(57344, 2), dtype=float32), array([[ 0.03582532,  0.0214691 ],\n       [ 0.08947939,  0.05366103],\n       [ 0.14177682,  0.08503932],\n       ...,\n ..., -0.11575034],\n       [-0.14335363, -0.08602656],\n       [-0.09166837, -0.05501508]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+_ test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-2-48000] _
+
+rate = 48000, channels = 2, bin_index = 40, mode = 'melt'
+
+    @pytest.mark.parametrize("rate", [44100, 48000])
+    @pytest.mark.parametrize("channels", [1, 2])
+    @pytest.mark.parametrize("bin_index", [20, 40])
+    @pytest.mark.parametrize("mode", ["velvet", "legato", "melt"])
+    def test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change(
+        rate, channels, bin_index, mode
+    ):
+        count = 65536
+        time = np.arange(count) / rate
+        mono = (.5 * np.sin(2 * np.pi * bin_index * rate / 2048 * time)).astype(np.float32)
+        audio = mono[:, None] if channels == 1 else np.stack((mono, np.float32(.6) * mono), axis=1)
+        noise = np.random.default_rng(72).normal(size=audio.shape) * 1e-8
+        changed = (audio.astype(np.float64) + noise).astype(np.float32)
+        # Exclude startup and end flush: this probes persistent spectral-null
+        # sensitivity independently of incomplete startup WOLA normalization.
+        region = slice(4096, -4096)
+        assert _relative(changed[region], audio[region]) < np.finfo(np.float32).eps
+        reference = _render(audio, rate, mode)[region]
+        perturbed = _render(changed, rate, mode)[region]
+        # New representation-stability requirement, not a relaxed legacy WOLA
+        # reference tolerance and not an audibility/quality threshold.
+>       assert _relative(perturbed, reference) < .01
+E       assert np.float64(0.11923160790242929) < 0.01
+E        +  where np.float64(0.11923160790242929) = _relative(array([[ 0.02626693,  0.01849377],\n       [ 0.07409626,  0.05218343],\n       [ 0.12085534,  0.08508559],\n       ...,\n ..., -0.08274481],\n       [-0.10146721, -0.05210811],\n       [-0.05105609, -0.02065188]], shape=(57344, 2), dtype=float32), array([[-0.05090063, -0.03062684],\n       [ 0.00296273,  0.00169339],\n       [ 0.05678321,  0.03398908],\n       ...,\n ..., -0.10816628],\n       [-0.13035752, -0.07820966],\n       [-0.07848844, -0.04708812]], shape=(57344, 2), dtype=float32))
+
+tests/test_streaming_spectral_safety.py:50: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-1-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-1-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-2-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-20-2-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-1-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-1-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-2-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[velvet-40-2-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-1-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-1-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-2-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-20-2-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-1-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-1-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-2-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[legato-40-2-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-1-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-1-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-2-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-20-2-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-1-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-1-48000]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-2-44100]
+FAILED tests/test_streaming_spectral_safety.py::test_near_null_quantization_scale_perturbation_has_no_percent_scale_output_change[melt-40-2-48000]
+24 failed, 3 passed in 1.21s

@@ -8,6 +8,7 @@ session lease until cleanup completes; it never hands a busy engine to the CLI.
 from __future__ import annotations
 
 import queue
+from pathlib import Path
 from collections import deque
 import subprocess
 import sys
@@ -206,6 +207,8 @@ class CommandWorker:
                               'stop': self.service.stop_live, 'volume': self.service.set_monitor_volume,
                               'research': self.service.prepare_remastered,
                               'cancel_research': self.service.cancel_remastered,
+                              'save_mix': self.service.save_mix,
+                              'cancel_mix_save': self.service.cancel_mix_save,
                               'processing': self.service.set_live_processing}[action]
                     result = method(*args)
                     self.service.error = ''
@@ -279,6 +282,12 @@ def audio_diagnostics(state):
         lines.append('Last preparation: ' + state.research_status)
     if state.alive_health:
         lines.append('ALIVE transport: ' + state.alive_health)
+    if state.save_pending:
+        lines.append(f'Save Mix: WRITING {state.save_mode} as float32 WAV (not finished)')
+    elif state.saved_path:
+        lines.append('Saved Mix: ' + state.saved_path)
+    elif state.save_status and state.save_status != 'No mix saved yet.':
+        lines.append('Save Mix: ' + state.save_status)
     if state.file_warning:
         lines.append('ALIVE warning: ' + state.file_warning)
     lines.extend(['', 'LIVE — Transport',
@@ -473,11 +482,27 @@ class ControlWindow(QMainWindow):
         row = QHBoxLayout()
         self.apply_research = QPushButton('Prepare / Apply Remastered')
         self.apply_research.clicked.connect(self._prepare_research)
+        self.save_mix_button = QPushButton('Save Mix…')
+        self.save_mix_button.setAccessibleName('Save selected ALIVE processing to WAV')
+        self.save_mix_button.setEnabled(False)
+        self.save_mix_button.clicked.connect(self._choose_mix_export)
         self.cancel_research = QPushButton('Cancel Preparation')
-        self.cancel_research.clicked.connect(lambda: self.submit('cancel_research'))
+        self.cancel_research.clicked.connect(self._cancel_audio_job)
         row.addWidget(self.apply_research)
+        row.addWidget(self.save_mix_button)
         row.addWidget(self.cancel_research)
         research_box.addLayout(row)
+        self.export_status = label(
+            'Save Mix… exports the selected prepared audio as a new 32-bit float WAV. '
+            'The 25% listening-only attenuation is not written to the file.')
+        self.export_status.setAccessibleName('ALIVE mix export status')
+        research_box.addWidget(self.export_status)
+        self.export_progress = QProgressBar()
+        self.export_progress.setAccessibleName('Saving mix in background, progress indeterminate')
+        self.export_progress.setRange(0, 0)
+        self.export_progress.setTextVisible(False)
+        self.export_progress.setVisible(False)
+        research_box.addWidget(self.export_progress)
         self.research_progress = QProgressBar()
         self.research_progress.setAccessibleName('Remastered preparation active (duration unknown)')
         self.research_progress.setRange(0, 1)
@@ -705,6 +730,30 @@ class ControlWindow(QMainWindow):
         return self.submit('research', self.research_mode.currentData(),
                            self.research_intensity.value() * 5)
 
+    def _choose_mix_export(self):
+        if not self.save_mix_button.isEnabled() or self.state is None:
+            return False
+        # Users choose a new file; never silently overwrite source/other files.
+        source = Path(self.state.file_name)
+        mode = self.state.file_mode.replace('remastered_', 'remastered-')
+        proposed = str(source.with_name(source.stem + '-ISLA-' + mode + '.wav'))
+        destination, _ = QFileDialog.getSaveFileName(
+            self, 'Save prepared ALIVE mix', proposed, '32-bit float WAV (*.wav)')
+        if not destination:
+            return False
+        if not Path(destination).suffix:
+            destination += '.wav'
+        return self.submit('save_mix', destination)
+
+    def _cancel_audio_job(self):
+        if self.state is None:
+            return False
+        if self.state.save_pending:
+            return self.submit('cancel_mix_save')
+        if self.state.research_pending:
+            return self.submit('cancel_research')
+        return False
+
     def submit(self, action, *args):
         if self.busy or self.closed_cleanly:
             return False
@@ -741,7 +790,7 @@ class ControlWindow(QMainWindow):
                 self.activity.setText(value)
             elif kind == 'error':
                 action, message = value
-                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'cancel_research') else self.live_error
+                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
                 target.setText('Action required: ' + message)
                 if action == 'live_mode':
                     self._live_mode_error = message
@@ -840,13 +889,31 @@ class ControlWindow(QMainWindow):
         self.research_mode.setEnabled(prepared and not pending)
         self.research_intensity.setEnabled(prepared and not pending)
         self.apply_research.setEnabled(bool(available and admitted and not pending))
-        self.cancel_research.setEnabled(bool(available and pending))
+        saving = bool(s is not None and s.save_pending)
+        self.cancel_research.setText('Cancel Save' if saving else 'Cancel Preparation')
+        self.cancel_research.setEnabled(bool(available and (pending or saving)))
+        save_ready = bool(available and prepared and s.source == 'file'
+                          and not s.live_active and not pending and not saving
+                          and s.alive_applied_mode !=
+                          'previous buffer — selected mode awaits callback')
+        if self.save_mix_button.isEnabled() != save_ready:
+            self.save_mix_button.setEnabled(save_ready)
+        self.save_mix_button.setToolTip(
+            'Save the selected prepared ALIVE mode to a new lossless WAV, '
+            'without GUI listening attenuation.' if save_ready else
+            'Finish loading, Remastered preparation, or the current mix save.')
+        self.export_progress.setVisible(saving)
+        self.export_status.setText(
+            s.save_status if s.save_status != 'No mix saved yet.' else
+            'Save Mix… exports a separate 32-bit float WAV; '
+            'your original and 25% GUI listening gain are unchanged.')
         apply_reason = ('Wait for the current audio command to finish.' if not available else
                         'A preparation is already running; cancel it before starting another.' if pending else
                         admission_note)
         cancel_reason = ('Wait for the current audio command to finish.' if not available else
+                         'Cancel the background mix save; no partial WAV is published.' if saving else
                          'Cancel the pending render; existing audio will be preserved.' if pending else
-                         'No preparation is pending. Existing applied audio is preserved.')
+                         'No preparation or mix save is pending. Existing audio is preserved.')
         for button, reason in ((self.apply_research, apply_reason), (self.cancel_research, cancel_reason)):
             button.setToolTip(reason)
             button.setAccessibleDescription(reason)

@@ -1,0 +1,52 @@
+{
+  "kind": "synthetic-worker-only",
+  "platform": "macOS-26.7.2-arm64-arm-64bit-Mach-O",
+  "python": "3.13.5",
+  "numpy": "2.5.4",
+  "results": [
+    {
+      "rate": 44100,
+      "channels": 1,
+      "blocks": 600,
+      "hop_budget_ms": 11.609977324263038,
+      "algorithmic_delay_ms": 34.82993197278911,
+      "dsp_p50_ms": 0.1031044994306285,
+      "dsp_p99_ms": 0.2078505004101318,
+      "dsp_max_ms": 0.3307089991722023,
+      "retained_array_bytes": 108576
+    },
+    {
+      "rate": 44100,
+      "channels": 2,
+      "blocks": 600,
+      "hop_budget_ms": 11.609977324263038,
+      "algorithmic_delay_ms": 34.82993197278911,
+      "dsp_p50_ms": 0.18599999930302147,
+      "dsp_p99_ms": 0.23127736079914038,
+      "dsp_max_ms": 0.2736250007728813,
+      "retained_array_bytes": 180256
+    },
+    {
+      "rate": 48000,
+      "channels": 1,
+      "blocks": 600,
+      "hop_budget_ms": 10.666666666666666,
+      "algorithmic_delay_ms": 32.0,
+      "dsp_p50_ms": 0.10439549987495411,
+      "dsp_p99_ms": 0.19358363962965142,
+      "dsp_max_ms": 1.732166998408502,
+      "retained_array_bytes": 108576
+    },
+    {
+      "rate": 48000,
+      "channels": 2,
+      "blocks": 600,
+      "hop_budget_ms": 10.666666666666666,
+      "algorithmic_delay_ms": 32.0,
+      "dsp_p50_ms": 0.18033300057140877,
+      "dsp_p99_ms": 0.20111124968025254,
+      "dsp_max_ms": 0.20895799934805837,
+      "retained_array_bytes": 180256
+    }
+  ]
+}

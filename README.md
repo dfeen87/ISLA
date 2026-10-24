@@ -12,29 +12,33 @@
 [![Experimental LIVE for macOS 13+](https://img.shields.io/badge/LIVE-macOS%2013%2B-111827?style=for-the-badge&logo=apple&logoColor=white)](#live-listen-to-your-mac)
 [![MIT License](https://img.shields.io/badge/License-MIT-16A34A?style=for-the-badge)](LICENSE)
 
-**ISLA** is an open-source audio experiment exploring softer, more connected musical transitions through note smoothing and harmonic blending. It is for musicians, curious listeners, and developers who want to listen, compare, and help shape the sound.
+**ISLA** is an open-source, local-first audio application and musical-processing research project. Use **ALIVE** to play and compare local recordings, or **LIVE** to hear Mac system audio through ISLA. The native **Audio Control Center** brings file playback, device setup, listening volume and processing modes into a clickable window.
 
-Listen to your Mac's audio through **LIVE**, or open a local recording in the **ALIVE** file player. Switch between **Velvet**, **Legato**, **Melt**, and the original sound with **Bypass**, from the terminal or the optional desktop control window.
+Choose **Original / Bypass**, the established **Velvet / Legato / Melt** profiles, or opt into the **v4.0 Remastered research engines** in ALIVE and LIVE. Remastered intensity controls permitted DSP depth—not loudness. Results are experimental; audible improvement has **not** been established.
 
 **Author:** Don Michael Feeney Jr. · **License:** [MIT](LICENSE)
 
 **Dedicated to Isla, the creator's niece.** Her name is a reminder that expressive music and thoughtful engineering belong together.
 
-## Inspiration
-
-Phased Music Notes was conceived to explore the hidden texture of classical piano recordings—slowing musical passages to reveal their resonance, harmonic vibrations, and decaying notes, then using phase-aware signal processing to create smoother, more connected musical transitions while preserving the instrument's expressive character.
-
 > **Source version: 4.0.0 — Remastered research candidate (not yet released).** Python package, HTTP API and JUCE/CMake metadata are aligned at 4.0.0. The source includes opt-in Experiment 02 Remastered modes for ALIVE and LIVE, DRM-free Apple-purchase import, Bluetooth-device improvements and local-song discovery. Existing production DSP, ALIVE/LIVE transport safeguards and frozen Experiment 02 research remain protected. **Native Mac/creator listening acceptance is pending.** The latest published GitHub Release remains [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0); a source-version change does not publish v4.0.0.
 
-**Start here:** [Graphical control center](#isla-control-center--graphical-interface) · [Hear the difference](#hear-the-difference) · [Install ISLA](#get-started-on-macos) · [Mac audio / LIVE](#live-listen-to-your-mac) · [Local files / ALIVE](#alive-play-a-local-audio-file)
+**Start here:** [Install and open Control Center](#get-started-on-macos) · [ALIVE local music](#alive-play-a-local-audio-file) · [LIVE system audio](#live-listen-to-your-mac) · [Remastered research](#remastered-research-alive-and-live) · [Troubleshooting](#troubleshooting)
 
-**Explore:** [v4.0.0 Remastered ALIVE preview](docs/remastered/IMPLEMENTATION.md) · [LIVE Remastered, Bluetooth and song discovery](docs/remastered/LIVE_AND_DISCOVERY.md) · [Published v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0) · [Commands](#terminal-command-reference) · [Troubleshooting](#troubleshooting) · [Privacy and limits](#privacy-and-practical-limits) · [Engineering evidence](#engineering-and-evidence)
+**Reference:** [ALIVE Remastered mathematics](docs/remastered/IMPLEMENTATION.md) · [LIVE Remastered and device/song discovery](docs/remastered/LIVE_AND_DISCOVERY.md) · [Terminal commands](#terminal-command-reference) · [Historical listening samples](#hear-the-difference) · [Research and legacy history](#engineering-and-evidence) · [Published releases](https://github.com/dfeen87/ISLA/releases)
 
-**Opt-in v4.0 Remastered research preview:** the control window's **Show v4.0 Remastered Research Preview** panel prepares the frozen Experiment 02 governed ALIVE modes at **0–100% permitted depth, in 5% steps**. ALIVE Remastered supports mono/stereo 44.1/48 kHz excerpts up to 30 seconds; **LIVE Remastered** uses separate bounded streaming processing without that excerpt limit. These are research adaptations, not a claim of perceptual superiority. The historical **REVISE / INCONCLUSIVE** research verdict and native listening acceptance remain outstanding. See the [ALIVE mathematical contract](docs/remastered/IMPLEMENTATION.md) and [LIVE technical contract](docs/remastered/LIVE_AND_DISCOVERY.md).
+**Research and release status:** `main` identifies itself as source version **4.0.0**, but the latest published GitHub release is **v3.3.0**. Remastered remains an opt-in engineering preview with native listening acceptance outstanding and the frozen Experiment 02 verdict **REVISE / INCONCLUSIVE**. See the [current feature guide](#remastered-research-alive-and-live) before interpreting historical v3.x audio comparisons.
 
 ---
 
 ## What ISLA does
+
+**After installing the GUI extra** ([steps below](#get-started-on-macos)), launch the Control Center from your Mac's Terminal:
+
+~~~bash
+python -m isla window
+~~~
+
+Alternatively, use `isla window` in the activated environment. For the classic interactive `isla>` prompt, run `python -m isla`. **A standalone `.app`/DMG installer is not published yet.**
 
 ISLA was inspired by how slowing a piano recording can expose abrupt note attacks and resonances. It explores whether software can make those transitions feel softer and more connected without losing the character of the performance.
 
@@ -43,10 +47,11 @@ ISLA was inspired by how slowing a piano recording can expose abrupt note attack
 | Experience | What you hear | Additional setup |
 |---|---|---|
 | **LIVE — Mac system audio** | YouTube, browser audio, and other sound sent through ISLA to your speakers/headphones | **BlackHole 2ch** virtual audio device; macOS audio routing |
-| **ALIVE — Local file player** | Load a local recording, including DRM-free Apple purchases on macOS, play/pause/stop, compare processing modes and Bypass | No BlackHole required |
-| **Offline export** | Process a file and save a new audio file using the existing CLI/Python API | No BlackHole required |
+| **ALIVE — Local file player** | Load local files including eligible DRM-free Apple purchases; compare Original, production modes and opt-in Remastered | No BlackHole required |
+| **Offline export** | Process a local file with the existing production CLI/Python API | No BlackHole required |
+| **Remastered research** | Control governed Velvet, Legato or Melt processing depth in ALIVE or continuous LIVE | ALIVE: supported short excerpts; LIVE: same BlackHole routing as above |
 
-**Three musical modes, plus Bypass**
+**Three established musical profiles, plus Bypass**
 
 | Mode | Listening intention |
 |---|---|
@@ -55,9 +60,18 @@ ISLA was inspired by how slowing a piano recording can expose abrupt note attack
 | **Melt** | A more pronounced, flowing harmonic texture |
 | **Bypass** | The original input audio, without ISLA's smoothing |
 
-These are **creative goals**, not guarantees for every recording. LIVE modes share a continuous harmonic-processing structure and differ by strength; the offline file processor also has look-ahead note-boundary processing. The two pipelines do **not** produce identical results. LIVE changes can sound subtle; compare against Bypass at similar loudness.
+These are **creative goals**, not guarantees. The **original production** LIVE modes share a continuous harmonic-processing structure; the production ALIVE/offline processor has a different file-processing pipeline. They do **not** produce identical results. The separate **Remastered research** engines implement governed Experiment 02 mechanisms and must not be confused with the original production presets. Compare everything against Bypass at comfortable, comparable loudness.
 
 Bypass keeps the decoded original in ALIVE and a time-aligned copy of the captured input in LIVE. It does not remove LIVE's monitoring delay. Processing is not loudness-normalized, so a louder mode is not necessarily a better one.
+
+### Remastered research: ALIVE and LIVE
+
+**Depth control:** 0–100% in **5% steps**. At **0%**, Remastered selects the original source (subject to LIVE's existing delay); at **100%**, it uses the frozen Experiment 02 governed baseline depths. Intermediate settings scale only permitted DSP control and its recovery allowance. They are **not** wet/dry mix, a volume knob or a guarantee of audible intensity.
+
+- **ALIVE preview:** Open a local mono/stereo **WAV excerpt** at **44.1 or 48 kHz, up to 30 seconds**; expand **Show v4.0 Remastered Research Preview**, choose the mode and intensity, then **Prepare / Apply Remastered**. This creates a validated playback buffer without changing the original file. A hot recording may be rejected by the 0.98 peak screen even at 0%; Original remains available.
+- **LIVE preview:** With BlackHole and a verified physical listening output configured, choose **v4.0 Remastered LIVE** in Step 4, set depth, apply the engine and choose Velvet, Legato or Melt. The same governed equations run continuously in the existing worker, **without ALIVE's 30-second excerpt limit**. The LIVE Listening Volume control is separate from research depth. Stop and lower the source level if an audio-safety guard triggers.
+
+The frozen research verdict remains **REVISE / INCONCLUSIVE**. Numerical equivalence and hosted GUI tests do **not** establish superior sound, hard real-time guarantees or completed physical Mac/Bluetooth listening acceptance. Read the [ALIVE research implementation](docs/remastered/IMPLEMENTATION.md) and [LIVE research/device guide](docs/remastered/LIVE_AND_DISCOVERY.md).
 
 ### Why this exists
 
@@ -65,23 +79,6 @@ Bypass keeps the decoded original in ALIVE and a time-aligned copy of the captur
 
 ISLA began as **Phased-Music-Notes** and evolved through a regression-tested BEDROCK DSP foundation into a usable terminal player and experimental live-audio monitor.
 
-### Hear the Difference
-
-Compare the same short **Emotional Piano** passage by **triangelx**, published under **CC0**, through the original LIVE DSP baseline. Play or download each FLAC and keep your playback volume fixed:
-
-| Original / Bypass | Velvet · 0.35 | Legato · 0.55 | Melt · 0.75 |
-|---|---|---|---|
-| [Listen / download](docs/audio/live-baseline/bypass.flac?raw=1) | [Listen / download](docs/audio/live-baseline/velvet.flac?raw=1) | [Listen / download](docs/audio/live-baseline/legato.flac?raw=1) | [Listen / download](docs/audio/live-baseline/melt.flac?raw=1) |
-
-These reference samples retain the original strengths. No mode tuning or audible improvement is claimed. The [source, license and render details](docs/audio/live-baseline/PROVENANCE.md) identify the baseline, passage and level adjustments; the source description does not establish how the instrument was recorded.
-
-The [controlled study](docs/research/live-dsp-study/README.md) found three intensities of one harmonic operation. Explore the [mathematics](docs/research/live-dsp-study/LIVE_DSP_BASELINE_ANALYSIS.md), [same-passage measurements](docs/research/live-dsp-study/MODE_DIFFERENTIATION_RESULTS.md) and [listening guide](docs/research/live-dsp-study/LISTENING_GUIDE.md). Numerical separation does not establish musical quality or preference.
-
-The [numerical robustness corrections and before/after evidence](docs/research/live-dsp-study/IMPLEMENTATION_REVIEW.md) shipped in v3.1.0. The subsequent [bounded capture-loss recovery implementation](docs/alive/capture-recovery/ASSESSMENT.md) shipped in v3.1.1: isolated driver-reported capture loss can recover through safe silence, queue disposal and fresh DSP state while repeated or unsafe faults still stop LIVE. [Native Mac acceptance](docs/alive/capture-recovery/NATIVE_CHECKLIST.md) is pending; uninterrupted audio, restored lost samples, and independent musical retuning are not claimed.
-
-The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and [owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) document earlier Mac sessions, including subtle mode differences and a preference for Melt. That historical preference is separate from these samples. No terminal demo GIF or new native listening acceptance is claimed.
-
----
 
 ## Get started on macOS
 
@@ -112,10 +109,10 @@ Then, from your `ISLA` checkout:
 ~~~bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e '.[playback]'
+python -m pip install -e '.[gui]'
 ~~~
 
-The editable install provides the `isla` console command, NumPy, SciPy, SoundFile, and the `sounddevice`/PortAudio playback backend. It does **not** install BlackHole. No DAW, VST, or JUCE build is required to run the terminal application.
+The editable GUI installation provides the `isla` command, NumPy, SciPy, SoundFile, PortAudio playback and the PySide6 control window. It **does not** install BlackHole. No DAW, VST or JUCE build is needed to run ISLA. For a lighter **terminal-only** install, use `python -m pip install -e '.[playback]'` instead.
 
 **Verify that the installation completed successfully** (still at your Mac's shell prompt, with `(.venv)` active):
 
@@ -123,16 +120,16 @@ The editable install provides the `isla` console command, NumPy, SciPy, SoundFil
 python -m pip show isla-audio
 ~~~
 
-You should see package information including `Name: isla-audio`. If the package is not found, check the output of `python -m pip install -e '.[playback]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA. A pip `[notice]` suggesting `pip install --upgrade pip` is optional and does not indicate an ISLA installation error.
+You should see package information including `Name: isla-audio`. If the package is not found, check the output of `python -m pip install -e '.[gui]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA. A pip `[notice]` suggesting `pip install --upgrade pip` is optional and does not indicate an ISLA installation error.
 
-The environment must be activated in each new Terminal session. To use **local audio files only**, continue to [ALIVE](#alive-play-a-local-audio-file); BlackHole is unnecessary.
+The environment must be activated in each new Terminal session. **Open the graphical Control Center** with `python -m isla window` or `isla window`. To use the classic terminal interface, run `python -m isla`; for **local audio files only**, continue to [ALIVE](#alive-play-a-local-audio-file). BlackHole is unnecessary for ALIVE.
 
 ## User Interface
 
 <p align="center">
   <img src="ISLA_Window.png" width="420" alt="Early ISLA Audio Control Center interface">
   <br>
-  <sub><em>An early look at ISLA's first Control Center window. The UI is continually being polished, so current versions may look different.</em></sub>
+  <sub><em>Historical screenshot of the first Control Center. Current source also includes Remastered research controls and improved LIVE device selection, which are not shown in this image.</em></sub>
 </p>
 
 ## ISLA Control Center — Graphical Interface
@@ -652,6 +649,29 @@ These records preserve the versions and procedures used during their original te
 - [ALIVE Python acceptance workflow](.github/workflows/alive.yml) and [Linux/JUCE build workflow](.github/workflows/ci.yml)
 - [sounddevice installation details](https://python-sounddevice.readthedocs.io/en/latest/installation.html)
 - [BlackHole driver information](https://github.com/ExistentialAudio/BlackHole)
+
+## Inspiration
+
+Phased Music Notes was conceived to explore the hidden texture of classical piano recordings—slowing musical passages to reveal their resonance, harmonic vibrations, and decaying notes, then using phase-aware signal processing to create smoother, more connected musical transitions while preserving the instrument's expressive character.
+
+### Hear the Difference
+
+**Historical v3.x production-LIVE comparison (not a v4 Remastered demonstration).** These licensed baseline listening samples and their analyses are preserved for reproducibility. New governed modes require separate creator listening evaluation.
+
+Compare the same short **Emotional Piano** passage by **triangelx**, published under **CC0**, through the original LIVE DSP baseline. Play or download each FLAC and keep your playback volume fixed:
+
+| Original / Bypass | Velvet · 0.35 | Legato · 0.55 | Melt · 0.75 |
+|---|---|---|---|
+| [Listen / download](docs/audio/live-baseline/bypass.flac?raw=1) | [Listen / download](docs/audio/live-baseline/velvet.flac?raw=1) | [Listen / download](docs/audio/live-baseline/legato.flac?raw=1) | [Listen / download](docs/audio/live-baseline/melt.flac?raw=1) |
+
+These reference samples retain the original strengths. No mode tuning or audible improvement is claimed. The [source, license and render details](docs/audio/live-baseline/PROVENANCE.md) identify the baseline, passage and level adjustments; the source description does not establish how the instrument was recorded.
+
+The [controlled study](docs/research/live-dsp-study/README.md) found three intensities of one harmonic operation. Explore the [mathematics](docs/research/live-dsp-study/LIVE_DSP_BASELINE_ANALYSIS.md), [same-passage measurements](docs/research/live-dsp-study/MODE_DIFFERENTIATION_RESULTS.md) and [listening guide](docs/research/live-dsp-study/LISTENING_GUIDE.md). Numerical separation does not establish musical quality or preference.
+
+The [numerical robustness corrections and before/after evidence](docs/research/live-dsp-study/IMPLEMENTATION_REVIEW.md) shipped in v3.1.0. The subsequent [bounded capture-loss recovery implementation](docs/alive/capture-recovery/ASSESSMENT.md) shipped in v3.1.1: isolated driver-reported capture loss can recover through safe silence, queue disposal and fresh DSP state while repeated or unsafe faults still stop LIVE. [Native Mac acceptance](docs/alive/capture-recovery/NATIVE_CHECKLIST.md) is pending; uninterrupted audio, restored lost samples, and independent musical retuning are not claimed.
+
+The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and [owner listening follow-up](docs/alive/OWNER_LISTENING_FOLLOWUP.json) document earlier Mac sessions, including subtle mode differences and a preference for Melt. That historical preference is separate from these samples. No terminal demo GIF or new native listening acceptance is claimed.
+
 
 ### What's next
 

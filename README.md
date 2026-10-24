@@ -258,6 +258,21 @@ If you prefer not to use Homebrew—or your system is not supported by current H
 
 ### 2. Set up the physical output and BlackHole routing
 
+#### BlackHole 2ch and macOS output volume — read before using 100%
+
+**IMPORTANT — LOWER YOUR SOURCE VOLUME BEFORE SETTING ANY OUTPUT TO 100%.** Pause playback first, reduce the source application's/player's volume (for example, your browser or music player), turn down the physical speakers/headphones, and lower ISLA's **LIVE Listening Volume** if monitoring is running. A 100% output setting can produce unexpectedly loud audio if the currently selected device is your physical listening output. Resume with a quiet source and increase gradually.
+
+If **BlackHole 2ch** exposes adjustable **Output** channel sliders in **Audio MIDI Setup**, inspect its levels there; 0 dB (unity gain) is the non-amplifying reference. The Mac volume commands below **do not directly set BlackHole's per-channel volume**, and some virtual devices ignore macOS output-volume changes.
+
+At the **macOS Terminal shell** (prompt ending in `%` or `$`, **not** inside `isla>`), these are the two commands to set the *currently selected macOS output volume* to 100% and then read back the reported percentage:
+
+~~~bash
+osascript -e 'set volume output volume 100'
+osascript -e 'output volume of (get volume settings)'
+~~~
+
+**Check the selected device before running the first command.** The second command may print `100`, but that does **not** confirm BlackHole 2ch's channel gain is 100% or 0 dB. These commands affect the macOS output-volume control where supported, not source-app volume, BlackHole capture gain, or ISLA's post-DSP listening-volume slider. If your speakers/headphones are selected as macOS output, use caution and do not assume the command targets BlackHole.
+
 **Do this before starting LIVE monitoring:**
 
 1. In **System Settings → Sound → Output**, note your **normal physical output** (such as `MacBook Pro Speakers` or `External Headphones`). Set a comfortable volume on that physical device **before** switching outputs.

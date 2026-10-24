@@ -180,26 +180,26 @@ Output: External Headphones
 isla>
 ~~~
 
-**Important — two different prompts:**
-
-- **macOS Terminal / zsh:** `(.venv) (base) ... ISLA %` means you are still at your Mac's shell prompt. Running `devices` here produces `zsh: command not found: devices`.
-- **ISLA:** `isla>` means the app is running. **Only here** can you use ISLA commands such as `devices`, `source system`, `monitor start`, and `mode melt`.
-
-**Now, at the `isla>` prompt, type this command and press Return** (type only `devices`—do not type the prompt itself):
-
-~~~text
-devices
-~~~
-
-**Recommended: guided audio setup.** At `isla>`, enter:
+**First command inside ISLA: `setup audio`.** Once you see the `isla>` prompt, type this command and press Return (type only the command, **not** `isla>`):
 
 ~~~text
 setup audio
 ~~~
 
-ISLA will list **BlackHole 2ch** as the capture input and only verified **physical stereo outputs** as playback choices. Enter the listed number or exact device name at each prompt. For example, if BlackHole is `0` and External Headphones is `1`, enter `0` when asked for the **input**, then `1` when asked for the **output**. Device numbers vary by Mac. Type `cancel` to leave the wizard without changing your route. The wizard selects `source system`, input, and output, but **does not start monitoring or change macOS Sound settings**.
+The guided setup will ask you to select **BlackHole 2ch** for capture and then choose **physical stereo speakers/headphones** for output. At its `Select input` and `Select output` prompts, enter a listed device number or exact name. For example, select `0` for BlackHole and `1` for External Headphones **only if those numbers appear in your own list**. Type `cancel` to leave without changing the route. The wizard configures ISLA's input and output but **does not automatically start monitoring or change macOS Sound settings**.
 
-**Manual alternative:** `devices` is a list, not a selection menu. From the normal `isla>` prompt, enter these commands one line at a time, replacing `External Headphones` with your own physical output (for example, `MacBook Pro Speakers`):
+**Important — two different prompts:**
+
+- **macOS Terminal / zsh:** `(.venv) (base) ... ISLA %` means you are still at your Mac's shell prompt. Running `devices` here produces `zsh: command not found: devices`.
+- **ISLA:** `isla>` means the app is running. **Only here** can you use ISLA commands such as `devices`, `source system`, `monitor start`, and `mode melt`.
+
+**Optional — manual device selection:** If you prefer the original commands instead of the wizard, type `devices` at the normal `isla>` prompt to view all devices:
+
+~~~text
+devices
+~~~
+
+The `devices` command **only displays a list; it does not open a selection menu**. From the normal `isla>` prompt, enter the following commands one line at a time, replacing `External Headphones` with your own physical output (for example, `MacBook Pro Speakers`):
 
 ~~~text
 source system

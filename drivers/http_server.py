@@ -12,6 +12,7 @@ from fastapi import FastAPI, UploadFile, File, Query, HTTPException, status
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from drivers.api import smooth
+from isla import __version__ as ISLA_VERSION
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -19,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 app = FastAPI(
     title="ISLA API",
     description="HTTP API for local in-memory audio smoothing with phase alignment.",
-    version="4.0.0"
+    version=ISLA_VERSION
 )
 
 

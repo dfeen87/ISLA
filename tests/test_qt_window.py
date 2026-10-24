@@ -261,7 +261,7 @@ def test_start_live_original_explicit_reset_and_listening_volume(app):
 
 
 def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
-    """No background CoreAudio scans while LIVE owns the stream; Stop is prompt."""
+    """No scan during LIVE/Stop; deferred refresh follows returned audio cleanup."""
     w, c, live, _, _, routing = window_session(app)
     try:
         w.capture.setCurrentIndex(1)
@@ -273,11 +273,23 @@ def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
         assert not w.refresh.isEnabled() and not w.recheck.isEnabled()
 
         rescans = []
+        stop_returned = threading.Event()
         service = w.worker.service
         original_scan = service.refresh_devices
-        def track_scan():
-            rescans.append('unexpected rescan')
-            return original_scan()
+        original_stop = service.stop_live
+        def track_stop():
+            result = original_stop()
+            stop_returned.set()
+            return result
+        def track_scan(*args,**kwargs):
+            # A post-Stop refresh may finish before this test thread consumes
+            # the Stop completion event. Prove causal ordering rather than
+            # assuming the GUI thread always wins that scheduling race.
+            assert stop_returned.is_set(), 'Rescan started inside/before Stop'
+            assert not c.live.running and live.streams[0].closed
+            rescans.append('after Stop returned and stream closed')
+            return original_scan(*args,**kwargs)
+        monkeypatch.setattr(service, 'stop_live', track_stop)
         monkeypatch.setattr(service, 'refresh_devices', track_scan)
         # Force the background two-second threshold without sleeping two
         # seconds: worker must skip it while LIVE is running.
@@ -286,9 +298,9 @@ def test_monitor_stop_is_not_blocked_by_gui_device_rescan(app, monkeypatch):
         assert not rescans
         click(app, w, w.stop_live)
         assert not c.live.running and live.streams[0].closed
-        assert not rescans, 'Stop LIVE must not enumerate native devices'
+        assert stop_returned.is_set()
+        wait_ui(app, lambda: bool(rescans) and w.state.routing_ready)
         assert w.refresh.isEnabled() and w.recheck.isEnabled()
-        assert not w.state.routing_ready
     finally:
         close_window(app, w, c)
 

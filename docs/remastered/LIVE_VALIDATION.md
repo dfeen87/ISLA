@@ -11,6 +11,7 @@ It does not modify frozen Experiment 02 evidence or publish a release.
 |---|---|
 | Complete Python suite with Qt installed | **791 passed, 8 skipped, 1 existing xfailed** |
 | Independent production-only acceptance | **438 passed, 8 skipped, 1 existing xfailed** |
+| Qt follow-up after CI ordering correction | **29 passed** |
 | Streaming matrix | **60/60 passed**, all bit-identical to the frozen float32 reference on this host |
 | Matrix formats | 3 modes × 0/25/50/75/100% × mono/stereo × 44.1/48 kHz |
 | Maximum sample error to float32 reference | **0.0** on the recorded matrix |
@@ -23,6 +24,17 @@ It does not modify frozen Experiment 02 evidence or publish a release.
 The eight skips are native macOS codec cases on this Linux host. They remain
 enabled on macOS CI. No test was newly marked xfail. One existing Starlette/httpx
 deprecation warning remains.
+
+The first PR head (`80ecc12`) passed all four ALIVE platform jobs and three Qt
+platform jobs. The macOS/Python 3.13 combined Qt run exposed an outdated
+post-Stop scheduling assertion: a correctly deferred refresh sometimes finished
+before the test thread inspected its rescan list. That run is retained in
+[GitHub Actions](https://github.com/dfeen87/ISLA/actions/runs/40124366377/job/120962512841).
+The follow-up test records Stop's return and requires the stream to be closed
+before a rescan may start, then requires the new post-Stop refresh to complete.
+The corrected Qt suites passed 29 tests locally; no DSP or device implementation
+was changed for this follow-up. Current-head CI results are tracked on PR #51.
+The follow-up log is [pytest-live-qt-followup.log](pytest-live-qt-followup.log).
 
 The complete run is in [pytest-live-complete.log](pytest-live-complete.log).
 [LIVE_MATRIX.json](LIVE_MATRIX.json) contains per-cell requested and applied

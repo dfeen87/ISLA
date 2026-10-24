@@ -2,6 +2,7 @@
 name = "isla-audio"
 version = "3.1.1"
 description = "ISLA: offline-first phase-aligned musical note smoothing DSP (formerly Phased-Music-Notes)"
+authors = [{ name = "Don Michael Feeney Jr." }]
 requires-python = ">=3.10"
 dependencies = ["numpy", "scipy", "soundfile>=0.12"]
 

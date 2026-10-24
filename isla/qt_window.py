@@ -414,15 +414,15 @@ class ControlWindow(QMainWindow):
         self.progress.setTextVisible(False)
         box.addWidget(self.progress)
         self.file_modes = self._modes(box, 'file')
-        self.research_toggle = QPushButton('Show v4.0 Remastered Research Preview')
+        self.research_toggle = QPushButton('Show v4.0 Remastered (Experimental ALIVE)')
         self.research_toggle.setCheckable(True)
         box.addWidget(self.research_toggle)
-        research = QGroupBox('v4.0 Remastered — Research Preview')
+        research = QGroupBox('v4.0 Remastered — Experimental ALIVE')
         self.research_panel = research
         research.setVisible(False)
         self.research_toggle.toggled.connect(research.setVisible)
         self.research_toggle.toggled.connect(lambda shown: self.research_toggle.setText(
-            ('Hide' if shown else 'Show') + ' v4.0 Remastered Research Preview'))
+            ('Hide' if shown else 'Show') + ' v4.0 Remastered (Experimental ALIVE)'))
         research_box = QVBoxLayout(research)
         research_box.addWidget(label('0% is exact original; 100% is the governed research baseline. Intensity controls permitted DSP depth, not volume.'))
         self.research_mode = QComboBox()

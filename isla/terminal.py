@@ -8,26 +8,7 @@ from isla.playback import AudioError, BufferPlayer, SoundDeviceBackend
 from isla.preparation import MODES, Preparation
 from isla.live import LiveMonitor, SystemCaptureBackend
 
-HELP = """load <path>      Load and prepare a local mono/stereo WAV (quote paths with spaces)
-play             Start or resume playback
-pause            Pause at the current position
-stop             Stop and reset to the beginning
-mode <name>      Select velvet, legato, or melt
-bypass           Select original audio for the active source
-devices          List input/output devices and channel counts
-setup audio      Guided LIVE setup: choose BlackHole input and physical output
-source system    Select LIVE system audio (BlackHole 2ch)
-source file      Return to the loaded-file player (stops LIVE)
-input [name|id]  Choose BlackHole; no argument opens the numbered input picker
-output [name|id] Choose speakers; no argument opens the numbered output picker
-monitor start [44100|48000]  Start LIVE; default 48000 Hz
-monitor stop     Stop LIVE and release the devices
-status           Show source, mode, file/monitor state, timing, and output
-window           Open the graphical controls for this session; close to return
-help             Show these commands
-exit             Stop audio, release resources, and return to the shell"""
-
-HELP += "\nLaunch from the shell: isla window or python -m isla window (optional .[gui] extra)."
+from isla.terminal_help import mode_name, next_step, render_help
 
 
 class TerminalController:
@@ -119,8 +100,7 @@ class TerminalController:
         """Select one verified device from a number-only terminal prompt."""
         if self.source != "system":
             raise ValueError("Select source system first; file playback still accepts output <name|id>.")
-        if self.live.running or self.player.stream is not None:
-            raise ValueError("Stop audio before changing devices.")
+        self._require_device_idle(direction)
         captures, outputs = self._audio_setup_devices()
         self._setup_inputs, self._setup_outputs = captures, outputs
         self._setup_input = None
@@ -130,6 +110,17 @@ class TerminalController:
         label = "Available BlackHole capture inputs:" if direction == "input" else "Available physical stereo outputs:"
         return ("Choose a listed number (or exact name), or type cancel.\n"
                 + self._audio_setup_menu(label, choices))
+
+    def _require_device_idle(self, direction):
+        if self.live.running or self.live.stream is not None:
+            raise ValueError(
+                f"Cannot change audio {direction} while LIVE is running or stopping.\n"
+                f"1. Type monitor stop.\n2. Type {direction}.\n"
+                "3. Choose a listed " + ("physical stereo output" if direction == "output" else "BlackHole capture input")
+                + " by number.\n4. Recheck macOS routing if required.\n5. Type monitor start.\n"
+                f"Your active {direction} has not been changed.")
+        if self.player.stream is not None:
+            raise ValueError("Stop audio before changing devices. ALIVE: type stop, then retry " + direction + ".")
 
     @staticmethod
     def _same_device(left, right):
@@ -235,6 +226,14 @@ class TerminalController:
         if command == "exit" and not values:
             self.close()
             return "Audio stopped.\nResources released.\nGoodbye from ISLA."
+        if command in ("help", "?"):
+            if len(values) > 1:
+                return "Usage: help [live|file|devices|modes|troubleshoot] (or ?)."
+            return render_help(self, values[0] if values else "")
+        # Cleanup must remain available even during a device picker or failed
+        # file preparation. Neither command starts or reconfigures audio.
+        if command == "monitor" and [v.lower() for v in values] == ["stop"]:
+            return self.live.stop() + "\nNEXT: " + next_step(self)
         if self._setup_stage is not None:
             return self._choose_audio_setup(line)
         if command == "setup":
@@ -262,8 +261,7 @@ class TerminalController:
         if command in ("input", "output"):
             if not values:
                 return self._begin_device_picker(command)
-            if self.live.running or self.player.stream is not None:
-                raise ValueError("Stop audio before changing devices.")
+            self._require_device_idle(command)
             selector = " ".join(values)
             if self.source == "system" and command == "output":
                 # Direct legacy commands remain usable without a native
@@ -292,8 +290,6 @@ class TerminalController:
             self.output = self.player.backend.select_output(selector)
             return f"Output selected: {self.output}"
         if command == "monitor":
-            if len(values) == 1 and values[0].lower() == "stop":
-                return self.live.stop()
             if len(values) in (1, 2) and values[0].lower() == "start":
                 if self.source != "system":
                     raise ValueError("Select source system before monitor start.")
@@ -302,7 +298,11 @@ class TerminalController:
                     if values[1] not in ("44100", "48000"):
                         raise ValueError("Usage: monitor start [44100|48000]")
                     rate = int(values[1])
-                return self.live.start(self.capture, self.output, rate)
+                if self.live.running and not self.live.halt.is_set():
+                    return ("LIVE monitoring is already active. Current mode: " + mode_name(self.live.mode)
+                            + ".\nNEXT: Choose mode velvet, mode legato, mode melt, or bypass. "
+                            "Use monitor stop before changing devices.")
+                return self.live.start(self.capture, self.output, rate) + "\nNEXT: " + next_step(self)
             raise ValueError("Usage: monitor start [44100|48000] | monitor stop")
         if command == "load":
             if self.source != "file":
@@ -326,7 +326,7 @@ class TerminalController:
                 raise ValueError("Usage: mode velvet|legato|melt")
             if self.source == "system":
                 self.live.select(values[0].lower())
-                return f"{self.live.mode.upper()} enabled (LIVE harmonic profile)."
+                return f"{self.live.mode.upper()} selected (LIVE harmonic profile; applied on the next processed block).\nNEXT: " + next_step(self)
             self._ready()
             self.player.select(values[0].lower())
             return f"{self.player.mode.upper()} enabled."
@@ -335,9 +335,14 @@ class TerminalController:
         if command in ("play", "bypass"):
             if self.source == "system":
                 if command == "play":
-                    raise ValueError("Use monitor start for system audio.")
+                    if self.live.running:
+                        return ("LIVE monitoring is already running; system audio is being captured. "
+                                "The 'play' command is for local WAV files.\nNEXT: " + next_step(self))
+                    raise ValueError("play is for ALIVE local WAV files. LIVE uses monitor start.\nNEXT: " + next_step(self))
                 self.live.select("bypass")
-                return "Original system audio enabled."
+                return ("Original system audio enabled (Bypass / unprocessed input). "
+                        + ("LIVE monitoring remains running in the existing stream." if self.live.running else
+                           "LIVE remains stopped; use monitor start when ready."))
             self._ready()
             if command == "play":
                 return self.player.play()
@@ -354,7 +359,7 @@ class TerminalController:
             return "Playback stopped."
         if command == "status":
             if self.source == "system":
-                return (self.live.status() + f"\nSelected input: {self.capture}\nSelected output: {self.output or 'None'}")
+                return (self.live.status() + f"\nSelected input: {self.capture}\nSelected output: {self.output or 'None'}\nNEXT: " + next_step(self))
             try:
                 output = (self.player.output if self.player.stream is not None
                           else self.player.backend.output_name())
@@ -368,8 +373,6 @@ class TerminalController:
                     f"Preparation: {preparation}\nMode: {player.mode}\nStatus: {player.state}\n"
                     f"Position: {position:.2f} / {duration:.2f} s\nOutput: {output}"
                     + (f"\nWarning: {player.warning}" if player.warning else ""))
-        if command == "help":
-            return HELP
         raise ValueError(f"Unknown command: {command}. Type help for commands.")
 
     def _ready(self):

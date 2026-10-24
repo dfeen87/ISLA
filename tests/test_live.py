@@ -608,7 +608,9 @@ def test_terminal_live_commands_preserve_file_buffers_and_exit_closes_audio():
     assert "Original system" in terminal.execute("bypass")
     status = terminal.execute("status")
     assert all(value in status for value in ("System Audio", "Bypass", "Running", "44100", "BlackHole", "Test speakers"))
-    for command in ('output "Test speakers"', 'input "BlackHole 2ch"', "play", "pause", "load example.wav"):
+    assert "already running" in terminal.execute("play")
+    assert len(backend.streams) == 1
+    for command in ('output "Test speakers"', 'input "BlackHole 2ch"', "pause", "load example.wav"):
         with pytest.raises(ValueError):
             terminal.execute(command)
     assert "stopped" in terminal.execute("MONITOR STOP")

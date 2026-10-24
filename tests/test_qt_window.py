@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 pytest.importorskip('PySide6.QtWidgets')
-from PySide6.QtCore import QEvent, QTimer, Qt
+from PySide6.QtCore import QEvent, QPoint, QTimer, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QFileDialog
 
@@ -61,13 +61,23 @@ def click(app, w, button):
     wait_ui(app, lambda: not w.busy)
 
 
-def choose_live_mode(app, window, mode):
-    """Exercise dropdown activation, including choosing an effect twice."""
+def activate_live_mode(app, window, mode):
+    """Open by mouse and select with native popup keys, never emit signals."""
     combo = window.live_mode_choice
     index = combo.findData(mode)
     assert index >= 0 and combo.isEnabled()
-    combo.setCurrentIndex(index)
-    combo.activated.emit(index)
+    QTest.mouseClick(combo, Qt.MouseButton.LeftButton)
+    assert combo.view().isVisible()
+    app.processEvents()  # Let the native popup lay out before hit-testing.
+    QTest.keyClick(combo.view(), Qt.Key.Key_Home)
+    for _ in range(index):
+        QTest.keyClick(combo.view(), Qt.Key.Key_Down)
+    QTest.keyClick(combo.view(), Qt.Key.Key_Return)
+
+
+
+def choose_live_mode(app, window, mode):
+    activate_live_mode(app, window, mode)
     wait_ui(app, lambda: not window.busy)
 
 
@@ -184,8 +194,8 @@ def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable
         close_window(app, w, c)
 
 
-def test_start_live_original_effect_toggle_and_listening_volume(app):
-    """Start resets Bypass; reselecting an effect in the dropdown resets Original."""
+def test_start_live_original_explicit_reset_and_listening_volume(app):
+    """Start resets Bypass; reselect is idempotent and Reset explicitly restores it."""
     w, c, backend, _, _, _ = window_session(app)
     try:
         w.capture.setCurrentIndex(1)
@@ -204,6 +214,8 @@ def test_start_live_original_effect_toggle_and_listening_volume(app):
             assert c.live.mode == name and w.live_mode_choice.currentData() == name
             assert w.live_mode_choice.count() == 4
             choose_live_mode(app, w, name)
+            assert c.live.mode == name and w.live_mode_choice.currentData() == name
+            click(app, w, w.reset_live_mode)
             assert c.live.mode == 'bypass' and w.live_mode_choice.currentData() == 'bypass'
             assert w.live_mode_choice.count() == 4
         choose_live_mode(app, w, 'velvet')
@@ -437,3 +449,241 @@ def test_real_preparation_process_from_window_worker(app, tmp_path):
     finally:
         close_window(app, w, c)
     assert not directory.exists()
+
+
+@pytest.mark.parametrize('running', [False, True])
+def test_live_mode_pending_selection_survives_old_snapshots(app, monkeypatch, running):
+    """Real key activation must retain intent before the command worker returns."""
+    w, c, backend, *_ = window_session(app)
+    entered, release = threading.Event(), threading.Event()
+    try:
+        w.capture.setCurrentIndex(1)
+        w.output.setCurrentIndex(1)
+        wait_ui(app, lambda: w.apply_devices.isEnabled())
+        click(app, w, w.apply_devices)
+        if running:
+            click(app, w, w.start_live)
+        original = w.worker.service.live_mode
+        def delayed(mode):
+            entered.set()
+            assert release.wait(5)
+            original(mode)
+        monkeypatch.setattr(w.worker.service, 'live_mode', delayed)
+        combo = w.live_mode_choice
+        combo.setFocus()
+        QTest.keyClick(combo, Qt.Key.Key_Down)
+        wait_ui(app, entered.is_set)
+        for _ in range(5):
+            w.apply_state()  # Last confirmed snapshot is still Bypass.
+            app.processEvents()
+            assert combo.currentData() == 'velvet'
+        release.set()
+        wait_ui(app, lambda: not w.busy)
+        assert combo.currentData() == c.live.mode == 'velvet'
+        assert len(backend.streams) == int(running)
+    finally:
+        release.set()
+        close_window(app, w, c)
+
+
+def test_live_mode_popup_survives_periodic_refresh(app):
+    w, c, *_ = window_session(app)
+    try:
+        w.submit('devices', w.state.captures[0], w.state.outputs[0], 48000)
+        wait_ui(app, lambda: not w.busy)
+        combo = w.live_mode_choice
+        QTest.mouseClick(combo, Qt.MouseButton.LeftButton)
+        assert combo.view().isVisible()
+        for _ in range(5):
+            w.apply_state()
+            app.processEvents()
+            assert combo.view().isVisible(), 'Health refresh dismissed the mode picker'
+        QTest.keyClick(combo, Qt.Key.Key_Escape)
+    finally:
+        close_window(app, w, c)
+
+
+def prepare_live(app, w, *, start=True):
+    w.submit('devices', w.state.captures[0], w.state.outputs[0], 48000)
+    wait_ui(app, lambda: not w.busy)
+    if start:
+        click(app, w, w.start_live)
+
+
+def test_rapid_native_modes_ordered_once_stale_snapshot_ignored_and_external_sync(app, monkeypatch):
+    w, c, live, *_ = window_session(app)
+    entered, release = threading.Event(), threading.Event()
+    try:
+        prepare_live(app, w)
+        old_sequence, old_state = w._state_sequence, w.state
+        original = w.worker.service.live_mode
+        calls, rescans = [], []
+        def delayed(mode):
+            calls.append(mode)
+            if len(calls) == 1:
+                entered.set()
+                assert release.wait(5)
+            return original(mode)
+        monkeypatch.setattr(w.worker.service, 'live_mode', delayed)
+        monkeypatch.setattr(w.worker.service, 'refresh_devices', lambda: rescans.append(1))
+        activate_live_mode(app, w, 'velvet')
+        wait_ui(app, entered.is_set)
+        # Native keyboard activations while the previous command is delayed.
+        QTest.keyClick(w.live_mode_choice, Qt.Key.Key_Down)  # Legato
+        QTest.keyClick(w.live_mode_choice, Qt.Key.Key_Down)  # Melt
+        assert w.live_mode_choice.currentData() == 'melt'
+        assert 'Requested: Melt' in w.live_mode_status.text()
+        # Delayed health events cannot restore an older confirmed choice.
+        for _ in range(6):
+            w.worker.events.put(('state', (old_sequence, old_state)))
+            w.drain_events()
+            assert w.live_mode_choice.currentData() == 'melt'
+        release.set()
+        wait_ui(app, lambda: not w.busy and not w._mode_requests)
+        assert calls == ['velvet', 'legato', 'melt']
+        assert w.state.live_mode == 'melt' and c.live.mode == 'melt'
+        w.worker.events.put(('state', (old_sequence, old_state)))
+        w.drain_events()
+        assert w.live_mode_choice.currentData() == 'melt'
+        w.output.setFocus()
+        app.processEvents()
+        assert w.live_mode_choice.currentData() == 'melt'
+        # The supported owning worker can also change the backend directly.
+        w.submit('live_mode', 'legato')
+        wait_ui(app, lambda: not w.busy)
+        assert w.live_mode_choice.currentData() == 'legato'
+        # Same-item mouse activation is idempotent, explicit Reset is testable.
+        choose_live_mode(app, w, 'legato')
+        assert calls == ['velvet', 'legato', 'melt', 'legato']
+        click(app, w, w.reset_live_mode)
+        assert calls[-1] == 'bypass'
+        assert not rescans and len(live.streams) == 1 and not live.streams[0].closed
+    finally:
+        release.set()
+        close_window(app, w, c)
+
+
+def test_rejected_live_mode_rolls_back_and_error_survives_healthy_poll(app, monkeypatch):
+    from dataclasses import replace
+    w, c, live, *_ = window_session(app)
+    try:
+        prepare_live(app, w)
+        choose_live_mode(app, w, 'velvet')
+        original = w.worker.service.live_mode
+        def rejected(mode):
+            raise RuntimeError('test mode selection rejected')
+        monkeypatch.setattr(w.worker.service, 'live_mode', rejected)
+        choose_live_mode(app, w, 'melt')
+        assert w.live_mode_choice.currentData() == c.live.mode == 'velvet'
+        assert 'test mode selection rejected' in w.live_error.text()
+        # Even a healthy later snapshot must not erase the operator's error.
+        sequence = w._state_sequence + 1
+        w.worker.events.put(('state', (sequence, replace(w.state, error=''))))
+        w.drain_events()
+        assert 'test mode selection rejected' in w.live_error.text()
+        assert w.live_mode_choice.isEnabled() and w.stop_live.isEnabled()
+        monkeypatch.setattr(w.worker.service, 'live_mode', original)
+        choose_live_mode(app, w, 'legato')
+        assert c.live.mode == 'legato' and not w.live_error.text()
+        assert len(live.streams) == 1 and not live.streams[0].closed
+    finally:
+        close_window(app, w, c)
+
+
+def test_mode_ack_and_last_applied_dsp_state_remain_distinct_during_block(app, monkeypatch):
+    import numpy as np
+    w, c, live, *_ = window_session(app)
+    entered, release = threading.Event(), threading.Event()
+    try:
+        prepare_live(app, w)
+        processor = c.live.processor
+        original = processor.process_block
+        def blocked(block):
+            entered.set()
+            assert release.wait(5)
+            return original(block)
+        monkeypatch.setattr(processor, 'process_block', blocked)
+        stream = live.streams[0]
+        # Feed startup hops one at a time without filling the bounded ring.
+        from isla.live import WARMUP_BLOCKS
+        for _ in range(WARMUP_BLOCKS + 1):
+            stream.pump(np.zeros((512, 2), np.float32))
+            if entered.wait(.02):
+                break
+        wait_ui(app, entered.is_set)
+        choose_live_mode(app, w, 'velvet')
+        assert w.state.live_mode == 'velvet' and w.state.live_applied_mode == 'bypass'
+        assert 'waiting for the next processed audio block' in w.live_mode_status.text()
+        release.set()
+        wait_ui(app, lambda: c.live.output.count > 0)
+        stream.pump(np.full((512, 2), .01, np.float32))
+        wait_ui(app, lambda: w.state.live_applied_mode == 'velvet')
+        assert 'DSP worker' in w.live_mode_status.text()
+        assert len(live.streams) == 1 and c.live.running
+    finally:
+        release.set()
+        close_window(app, w, c)
+
+
+@pytest.mark.parametrize('action', ['stop', 'close'])
+def test_stop_or_close_during_pending_mode_drops_only_unsent_modes(app, monkeypatch, action):
+    w, c, live, *_ = window_session(app)
+    entered, release = threading.Event(), threading.Event()
+    try:
+        prepare_live(app, w)
+        original = w.worker.service.live_mode
+        calls = []
+        def delayed(mode):
+            calls.append(mode)
+            entered.set()
+            assert release.wait(5)
+            return original(mode)
+        monkeypatch.setattr(w.worker.service, 'live_mode', delayed)
+        activate_live_mode(app, w, 'velvet')
+        wait_ui(app, entered.is_set)
+        QTest.keyClick(w.live_mode_choice, Qt.Key.Key_Down)  # Queued Legato.
+        if action == 'stop':
+            assert w.stop_live.isEnabled()
+            QTest.mouseClick(w.stop_live, Qt.MouseButton.LeftButton)
+        else:
+            w.close()
+        assert w.isVisible() and c._window_owner is not None
+        release.set()
+        wait_ui(app, lambda: w.closed_cleanly if action == 'close' else not w.busy and not c.live.running)
+        assert calls == ['velvet'] and len(live.streams) == 1 and live.streams[0].closed
+    finally:
+        release.set()
+        if not w.closed_cleanly:
+            close_window(app, w, c)
+        else:
+            w.worker.thread.join(2)
+            assert c._window_owner is None
+            c.close()
+
+
+def test_popup_mouse_item_selection_survives_snapshot_and_focus_change(app):
+    """Hit-test an actual native combo item with the mouse after a health tick."""
+    w, c, live, *_ = window_session(app)
+    try:
+        prepare_live(app, w)
+        combo = w.live_mode_choice
+        QTest.mouseClick(combo, Qt.MouseButton.LeftButton)
+        app.processEvents()
+        w.apply_state()
+        assert combo.view().isVisible()
+        item = combo.model().index(combo.findData('melt'), 0)
+        combo.view().scrollTo(item)
+        QTest.mouseMove(combo.view().viewport(), QPoint(2, 2))
+        QTest.mouseMove(combo.view().viewport(), combo.view().visualRect(item).center())
+        QTest.mouseClick(combo.view().viewport(), Qt.MouseButton.LeftButton,
+                         pos=combo.view().visualRect(item).center())
+        wait_ui(app, lambda: not w.busy and w.state.live_mode == 'melt')
+        assert combo.currentData() == 'melt'
+        w.reset_live_mode.setFocus()
+        app.processEvents()
+        assert combo.currentData() == 'melt'
+        QTest.keyClick(w.reset_live_mode, Qt.Key.Key_Space)
+        wait_ui(app, lambda: not w.busy and w.state.live_mode == 'bypass')
+        assert combo.currentData() == 'bypass' and len(live.streams) == 1
+    finally:
+        close_window(app, w, c)

@@ -99,3 +99,16 @@ def test_harmonic_blender_handles_empty_and_short_audio():
 
     integer_stereo = np.ones((32, 2), dtype=np.int16)
     assert np.issubdtype(blender.blend(integer_stereo, 44100).dtype, np.floating)
+
+
+def test_harmonic_blender_identity():
+    sr = 44100
+    signal = generate_harmonic_signal(sr)
+
+    blender = HarmonicBlender(strength=0.0, window_ms=40)
+    blended = blender.blend(signal, sr)
+
+    diff = np.abs(signal - blended)
+    max_diff = np.max(diff)
+
+    assert max_diff < 1e-5, f"Expected identity with strength=0.0, got max diff of {max_diff}"

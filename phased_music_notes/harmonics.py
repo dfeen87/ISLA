@@ -81,12 +81,18 @@ class HarmonicBlender:
     # -------------------------------------------------------------
     def _blend_mono(self, audio: np.ndarray, sr: int) -> np.ndarray:
         win = self._hann_window(sr)
-        if win.size < 2:
+        win_samples = win.size
+        if win_samples < 2:
             raise ValueError("window_ms is too small for the sample rate.")
-        hop = max(1, win.size // 2)
+        hop = max(1, win_samples // 2)
+
+        # Pad for WOLA
+        pad_front = win_samples - hop
+        pad_back = win_samples
+        audio_padded = np.pad(audio, (pad_front, pad_back), mode='constant')
 
         # STFT
-        frames = self._frame_audio(audio, hop, win.size)
+        frames = self._frame_audio(audio_padded, hop, win_samples)
         spectrum = np.fft.rfft(frames * win, axis=1)
         mag = np.abs(spectrum)
         phase = np.angle(spectrum)
@@ -97,9 +103,24 @@ class HarmonicBlender:
         # Reconstruct spectrum
         spectrum_blended = mag_smooth * np.exp(1j * phase)
 
-        # ISTFT
+        # ISTFT (WOLA applies synthesis window)
         frames_out = np.fft.irfft(spectrum_blended, axis=1)
+        frames_out *= win
         audio_out = self._overlap_add(frames_out, hop)
+
+        # Normalize envelope (sum of squares of window for WOLA)
+        out_len = len(audio_out)
+        envelope = np.zeros(out_len, dtype=np.float32)
+        win_sq = win**2
+        for i in range(len(frames_out)):
+            start = i * hop
+            envelope[start:start + win_samples] += win_sq
+
+        envelope[envelope < 1e-7] = 1.0
+        audio_out = audio_out / envelope
+
+        # Strip the padding
+        audio_out = audio_out[pad_front:pad_front + len(audio)]
 
         # Pad or truncate to match original length exactly
         if len(audio_out) < len(audio):
@@ -170,7 +191,9 @@ class HarmonicBlender:
     # -------------------------------------------------------------
     def _hann_window(self, sr: int) -> np.ndarray:
         win_samples = self._ms_to_samples(self.window_ms, sr)
-        return np.hanning(win_samples)
+        # Use periodic Hann window which sums to exactly 1.0 when overlapped by 50%
+        n = np.arange(win_samples)
+        return 0.5 - 0.5 * np.cos(2 * np.pi * n / win_samples)
 
     # -------------------------------------------------------------
     # Utility

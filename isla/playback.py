@@ -16,18 +16,47 @@ class SoundDeviceBackend:
             raise AudioError("Playback unavailable. Install: python -m pip install -e '.[playback]'") from exc
         self.sd = sd
         self.CallbackStop = sd.CallbackStop
+        self.output_device = None
+
+    def devices(self):
+        try:
+            return [dict(device, index=i) for i, device in enumerate(self.sd.query_devices())]
+        except Exception as exc:
+            raise AudioError(f"Cannot list audio devices: {exc}") from exc
+
+    def resolve_device(self, selector, kind):
+        devices = self.devices()
+        field = f"max_{kind}_channels"
+        matches = [d for d in devices if d[field] > 0 and
+                   (str(d['index']) == str(selector) or d['name'].casefold() == str(selector).casefold())]
+        if len(matches) != 1:
+            raise AudioError(f"{kind.title()} device missing or ambiguous: {selector}. Use devices and an exact name or index.")
+        return matches[0]
+
+    def select_output(self, selector):
+        device = self.resolve_device(selector, "output")
+        # Keep the name, not a transient PortAudio index, between sessions.
+        self.output_device = device["name"]
+        return self.output_device
+
+    def _output_id(self):
+        selected = getattr(self, "output_device", None)
+        return self.resolve_device(selected, "output")["index"] if selected is not None else None
 
     def output_name(self):
         try:
-            return self.sd.query_devices(kind="output")["name"]
+            selected = getattr(self, "output_device", None)
+            return (self.resolve_device(selected, "output")["name"] if selected is not None
+                    else self.sd.query_devices(kind="output")["name"])
         except Exception as exc:
             raise AudioError("No output device. Select speakers/headphones in macOS System Settings > Sound.") from exc
 
     def open(self, samplerate, channels, callback, finished_callback):
         try:
-            self.sd.check_output_settings(samplerate=samplerate, channels=channels, dtype="float32")
+            device = self._output_id()
+            self.sd.check_output_settings(device=device, samplerate=samplerate, channels=channels, dtype="float32")
             return self.sd.OutputStream(
-                samplerate=samplerate, channels=channels, dtype="float32",
+                device=device, samplerate=samplerate, channels=channels, dtype="float32",
                 blocksize=512, callback=callback, finished_callback=finished_callback,
             )
         except Exception as exc:

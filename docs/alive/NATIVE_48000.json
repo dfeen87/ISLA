@@ -1,0 +1,131 @@
+{
+  "kind": "native-coreaudio-youtube",
+  "macos": "26.7.2",
+  "python": "3.14.6",
+  "capture": "BlackHole 2ch",
+  "output": "External Headphones",
+  "original_output": "MacBook Pro Speakers",
+  "rate": 48000,
+  "source_url": "https://www.youtube.com/watch?v=UHd8jwXBzXE",
+  "transcript": [
+    {
+      "command": "devices",
+      "result": "0: BlackHole 2ch (input 2, output 2; default 48000 Hz)\n1: External Headphones (input 0, output 2; default 48000 Hz)\n2: MacBook Pro Microphone (input 1, output 0; default 48000 Hz)\n3: MacBook Pro Speakers (input 0, output 2; default 48000 Hz)\n4: Microsoft Teams Audio (input 1, output 1; default 48000 Hz)"
+    },
+    {
+      "command": "source system",
+      "result": "System audio selected. Use input/output, then monitor start."
+    },
+    {
+      "command": "input \"BlackHole 2ch\"",
+      "result": "Capture selected: BlackHole 2ch"
+    },
+    {
+      "command": "output \"External Headphones\"",
+      "result": "Output selected: External Headphones"
+    },
+    {
+      "command": "bypass",
+      "result": "Original system audio enabled."
+    },
+    {
+      "command": "monitor start",
+      "result": "LIVE monitoring active."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Bypass\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 48000\nLatency (ADC/DAC estimate): Pending audio\nSignal RMS (input/output): 0.00000 / 0.00000\nUnderflows: 0; Overflows: 0; Device status: 0; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Bypass\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 48000\nLatency (ADC/DAC estimate): 79.2 ms\nSignal RMS (input/output): 0.00072 / 0.00079\nUnderflows: 1; Overflows: 0; Device status: 2; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "mode velvet",
+      "result": "VELVET enabled (LIVE harmonic profile)."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Velvet\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 48000\nLatency (ADC/DAC estimate): 100.5 ms\nSignal RMS (input/output): 0.00410 / 0.00483\nUnderflows: 3; Overflows: 0; Device status: 2; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "mode legato",
+      "result": "LEGATO enabled (LIVE harmonic profile)."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Legato\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 48000\nLatency (ADC/DAC estimate): 100.5 ms\nSignal RMS (input/output): 0.02075 / 0.01675\nUnderflows: 3; Overflows: 0; Device status: 2; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "mode melt",
+      "result": "MELT enabled (LIVE harmonic profile)."
+    },
+    {
+      "command": "status",
+      "result": "Source: System Audio\nMode: Melt\nMonitor: Running\nInput: BlackHole 2ch\nOutput: External Headphones\nSample rate: 48000\nLatency (ADC/DAC estimate): 100.5 ms\nSignal RMS (input/output): 0.01736 / 0.01940\nUnderflows: 3; Overflows: 0; Device status: 2; Muted non-finite blocks: 0\nSelected input: BlackHole 2ch\nSelected output: External Headphones"
+    },
+    {
+      "command": "bypass",
+      "result": "Original system audio enabled."
+    },
+    {
+      "command": "monitor stop",
+      "result": "LIVE monitoring stopped."
+    },
+    {
+      "command": "exit",
+      "result": "Audio stopped.\nResources released.\nGoodbye from ISLA."
+    }
+  ],
+  "owner_listening": "Owner confirmed playback through plugged-in sound system at 48 kHz: yes its working now. After mode sequence: Audio works, but differences are subtle or quality needs work. Musical quality NOT accepted.",
+  "state_after_close": "Stopped",
+  "error": "",
+  "underflows": 3,
+  "overflows": 0,
+  "device_status": 2,
+  "last_adc_dac_latency_ms": 100.54170867078938,
+  "max_worker_ms": 6.2502920045517385,
+  "modes": {
+    "bypass": {
+      "blocks": 11138,
+      "samples": 11405312,
+      "input_energy": 739.1602388642642,
+      "output_energy": 739.1602388642642,
+      "error_energy": 0.0,
+      "peak_error": 0.0,
+      "relative_rms_change_percent": 0.0
+    },
+    "velvet": {
+      "blocks": 258,
+      "samples": 264192,
+      "input_energy": 7.90947646674032,
+      "output_energy": 7.353858510414284,
+      "error_energy": 0.018987298340105305,
+      "peak_error": 0.0013720793649554253,
+      "relative_rms_change_percent": 4.899567193844515
+    },
+    "legato": {
+      "blocks": 1053,
+      "samples": 1078272,
+      "input_energy": 66.06940702853434,
+      "output_energy": 58.06898207463862,
+      "error_energy": 0.41412291424233855,
+      "peak_error": 0.005658367648720741,
+      "relative_rms_change_percent": 7.91706893194597
+    },
+    "melt": {
+      "blocks": 8850,
+      "samples": 9062400,
+      "input_energy": 5394.149062444955,
+      "output_energy": 4466.907417313615,
+      "error_energy": 64.71620330690232,
+      "peak_error": 0.04975512623786926,
+      "relative_rms_change_percent": 10.953301533536974
+    }
+  },
+  "restored": true,
+  "driver_version": "BlackHole 2ch 0.7.1 (installed separately by owner)",
+  "source_note": "Started with Beethoven solo piano; YouTube autoplay later advanced to Mozart Requiem (https://www.youtube.com/watch?v=FKGjVMIALJo). No continuous browser-source audit was retained, so exact source identity for every mode interval is not asserted.",
+  "evidence_scope": "Core Audio capture, live worker signal comparison and output-stream delivery. No microphone/physical-output recording or acoustic latency measurement.",
+  "final_head_note": "Native DSP/device path verified. Subsequent terminal change isolates LIVE stop from pending file-preparation errors; covered by automated tests. See final-head CI for all regressions."
+}

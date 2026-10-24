@@ -123,6 +123,12 @@ You should see package information including `Name: isla-audio`. If the package 
 
 The environment must be activated in each new Terminal session. To use **local audio files only**, continue to [ALIVE](#alive-play-a-local-audio-file); BlackHole is unnecessary.
 
+## User Interface
+
+<p align="center">
+  <img src="ISLA_Window.png" width="420" alt="ISLA Window">
+</p>
+
 ## ISLA Control Center — Graphical Interface
 
 The optional **ISLA — Audio Control Center** provides clickable ALIVE playback and guided LIVE setup. The traditional terminal and offline exporter remain available. This is an optional experimental desktop feature; physical macOS GUI/audio acceptance is pending. It does not integrate the research-only v4.0 algorithms.

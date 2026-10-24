@@ -180,9 +180,9 @@ def test_gui_live_start_defaults_original_and_monitor_volume_is_bounded():
             assert s.snapshot().live_mode == mode
             assert len(backend.streams) == 1
         s.set_monitor_volume(0)
-        assert c.live.monitor_volume == 0
+        assert s.snapshot().monitor_volume == 0
         s.set_monitor_volume(100)
-        assert c.live.monitor_volume == 100
+        assert s.snapshot().monitor_volume == 100
         s.stop_live()
         assert backend.streams[0].closed
     finally:

@@ -8,6 +8,7 @@ import pytest
 
 from isla.coreaudio import CoreAudioRouting
 from isla.live import BLOCK, CAPACITY, WARMUP_BLOCKS, BlockRing, LiveConfig, LiveMonitor, SystemCaptureBackend
+from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.playback import AudioError, SoundDeviceBackend
 from isla.streaming import MODES, StreamingDSP
 from isla.terminal import TerminalController
@@ -143,8 +144,11 @@ def test_pass_a_bypass_waveform_fidelity_and_responsive_lifecycle():
 def test_live_listening_volume_attenuates_worker_output_without_changing_bypass():
     """The real worker scales its output queue, not the original capture input."""
     backend = FakeBackend()
+    volume = MonitorVolume()
     monitor = LiveMonitor(
-        backend, processor_factory=PassThrough,
+        backend,
+        processor_factory=lambda rate, channels: ListeningGainDSP(
+            rate, channels, volume, delegate_factory=PassThrough),
         monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
     )
     monitor.start("BlackHole 2ch", "Test speakers")
@@ -163,22 +167,22 @@ def test_live_listening_volume_attenuates_worker_output_without_changing_bypass(
         # Normal 100% output remains the exact float32 bypass waveform.
         dry = render_blocks(4)
         np.testing.assert_array_equal(dry[-1], signal)
-        monitor.set_monitor_volume(50)
+        volume.set_percent(50)
         quiet = render_blocks(4)
         np.testing.assert_allclose(quiet[-1], signal * .5, rtol=0, atol=1e-7)
         assert np.isfinite(quiet[1]).all()
         assert (quiet[1] <= signal).all() and (quiet[1] >= signal * .5).all()
-        assert monitor.mode == 'bypass' and monitor.monitor_volume == 50
-        monitor.set_monitor_volume(0)
+        assert monitor.mode == 'bypass' and volume.percent == 50
+        volume.set_percent(0)
         muted = render_blocks(4)
         assert np.count_nonzero(muted[-1]) == 0
-        monitor.set_monitor_volume(100)
+        volume.set_percent(100)
         restored = render_blocks(4)
         np.testing.assert_array_equal(restored[-1], signal)
-        assert 'ISLA listening volume: 100%' in monitor.status()
+        assert volume.percent == 100 and monitor.processor.mode == 'bypass'
         for invalid in (-1, 101, 50.0, True, None):
             with pytest.raises(ValueError, match="0 to 100"):
-                monitor.set_monitor_volume(invalid)
+                volume.set_percent(invalid)
         assert len(backend.streams) == 1
     finally:
         monitor.stop()

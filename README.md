@@ -669,7 +669,7 @@ The older records below preserve versions and procedures used during their origi
 - [sounddevice installation details](https://python-sounddevice.readthedocs.io/en/latest/installation.html)
 - [BlackHole driver information](https://github.com/ExistentialAudio/BlackHole)
 
-## Inspiration
+### Inspiration
 
 Phased Music Notes was conceived to explore the hidden texture of classical piano recordings—slowing musical passages to reveal their resonance, harmonic vibrations, and decaying notes, then using phase-aware signal processing to create smoother, more connected musical transitions while preserving the instrument's expressive character.
 

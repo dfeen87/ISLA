@@ -1,6 +1,8 @@
 """Post-freeze engineering checks; no recorded-source research gate is replaced."""
 import hashlib
 import json
+import re
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -124,15 +126,52 @@ def test_actual_variable_synthesis_increments_preserve_tonal_pitch(ratio):
     assert abs(1200 * np.log2(_pitch_hz(segment, sr) / frequency)) <= 3.0
 
 
-def test_all_original_freeze_hashes_remain_intact():
-    import subprocess
 
+def _neutralize_release_version(content):
+    """Ignore only the release-number literal, never other frozen Python code."""
+    normalized, count = re.subn(
+        rb'(?m)^__version__ = "[^"\r\n]+"$',
+        b'__version__ = "<release-version>"',
+        content,
+    )
+    assert count == 1, "expected exactly one top-level __version__ declaration"
+    return normalized
+
+
+def test_release_version_exception_rejects_nonversion_changes():
+    original = b'__version__ = "3.1.1"\nfrom .dsl import SmoothPhase\n'
+    bumped = b'__version__ = "3.2.0"\nfrom .dsl import SmoothPhase\n'
+    tampered = b'__version__ = "3.2.0"\nfrom .dsl import DifferentEngine\n'
+    assert _neutralize_release_version(original) == _neutralize_release_version(bumped)
+    assert _neutralize_release_version(original) != _neutralize_release_version(tampered)
+    with pytest.raises(AssertionError, match="exactly one"):
+        _neutralize_release_version(b'from .dsl import SmoothPhase\n')
+
+
+def test_all_original_freeze_hashes_remain_intact():
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "docs/research/phase-governed-resonance-02/FREEZE.json").read_text())
+
+    # Post-freeze application work legitimately changed these two production
+    # entry points: terminal.py gained the GUI launcher; the legacy package
+    # initializer changed its public release-number literal for v3.2.0.
+    # Verify their ORIGINAL bytes against the immutable freeze baseline.
+    historical_paths = {"isla/terminal.py", "phased_music_notes/__init__.py"}
     for name, expected in manifest["code_and_protocol"].items():
-        # The GUI extends the production terminal after the research freeze.
-        # Verify its original bytes in immutable history, not a rewritten hash.
-        # Every DSP/research file still passes the original worktree assertion.
-        content = (subprocess.check_output(['git', 'show', f"{manifest['baseline']}:{name}"], cwd=root)
-                   if name == 'isla/terminal.py' else (root / name).read_bytes())
+        if name in historical_paths:
+            content = subprocess.check_output(
+                ["git", "show", f"{manifest['baseline']}:{name}"], cwd=root
+            )
+        else:
+            # Every frozen DSP, protocol and research path still must match
+            # its original hash in the CURRENT working tree.
+            content = (root / name).read_bytes()
         assert hashlib.sha256(content).hexdigest() == expected, name
+
+        if name == "phased_music_notes/__init__.py":
+            # A release bump is allowed, not an arbitrary edit to legacy API
+            # imports or exports. Existing version tests check the live value.
+            current = (root / name).read_bytes()
+            assert _neutralize_release_version(current) == _neutralize_release_version(
+                content
+            ), "legacy package initializer changed beyond __version__"

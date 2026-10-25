@@ -105,6 +105,11 @@ class ControlState:
     save_status: str = 'No mix saved yet.'
     save_mode: str = ''
     saved_path: str = ''
+    research_workspace: bool = False
+    research_previous_mode: str = ''
+    alive_volume: int = 25
+    alive_applied_volume: float | None = None
+    save_candidate: str = ''
 
 
 class ControlService:
@@ -146,7 +151,7 @@ class ControlService:
         # The optional listening attenuation is a separate adapter. Never
         # change the byte-frozen LiveMonitor or StreamingDSP implementation.
         self._original_live_factory = controller.live.processor_factory
-        self._monitor_volume = MonitorVolume()
+        self._monitor_volume = MonitorVolume(50)
         self._live_settings = controller.live_settings
         factory = self._original_live_factory or StreamingDSP
         if not isinstance(factory,LiveEngineFactory):
@@ -258,7 +263,7 @@ class ControlService:
             raise AudioError("LIVE rate must be 44100 or 48000 Hz.")
         capture,output = self._fresh_selection(capture, output)
         c = self.controller
-        self.preview.cancel()
+        self.preview.reset()
         c.execute("source system")
         c.execute("input " + shlex.quote(capture.name))
         c.execute("output " + shlex.quote(output.name))
@@ -351,7 +356,9 @@ class ControlService:
             raise AudioError("Stop LIVE before using ALIVE playback.")
         if self.controller.source != 'file':
             self.controller.execute('source file')
-        if command in ('bypass', 'stop') or command.startswith('mode '):
+        if self.preview.workspace and (command == 'bypass' or command.startswith('mode ')):
+            raise AudioError('Return to Previous Mode before selecting traditional processing.')
+        if command == 'stop' and self.preview.workspace:
             self.preview.cancel()
         if command == 'play':
             # Install the GUI-only output wrapper before stream creation on
@@ -362,6 +369,22 @@ class ControlService:
         if command in ('play', 'pause', 'stop'):
             self._file_touched = True
         return result
+
+    def enter_remastered(self):
+        self._enter()
+        return self.preview.enter()
+
+    def return_previous_mode(self):
+        self._enter()
+        return self.preview.return_previous()
+
+    def set_alive_volume(self, percent):
+        self._enter()
+        p = self.controller.player
+        if p.stream is not None and p.backend is not self._alive_gui_backend:
+            raise AudioError('Stop and resume ALIVE from this window to enable listening volume.')
+        self._alive_gui_backend.set_percent(percent)
+        return f'ALIVE listening volume: {percent}%.'
 
     def prepare_remastered(self, mode, intensity):
         self._enter()
@@ -378,7 +401,8 @@ class ControlService:
         if not p.buffers or p.mode not in p.buffers:
             raise AudioError('Prepare a local recording and choose an ALIVE mode first.')
         if (p.stream is not None and p.state == 'playing'
-                and getattr(p, '_current', None) is not p._selected):
+                and (getattr(p, '_current', None) is not p._selected
+                     or p._fade_pos < len(p._fade))):
             raise AudioError('Wait for the active mode switch to finish before saving.')
         # The selected buffer is immutable and already prepared/validated.
         # This intentionally excludes Control Center's 25% speaker attenuation.
@@ -390,6 +414,8 @@ class ControlService:
 
     def cancel_remastered(self):
         self._enter()
+        if self.preview.workspace and self.preview.job is None and self.controller.player.mode.startswith('remastered_'):
+            raise AudioError('Remastered is active; use Return to Previous Mode.')
         self.preview.cancel()
 
     def live_mode(self, mode):
@@ -472,7 +498,8 @@ class ControlService:
             (f'{self.preview.requested.mode} / {self.preview.requested.intensity}% depth'
              if self.preview.requested else ''),
             p.output,
-            (p.mode if getattr(p, '_current', None) is getattr(p, '_selected', None) else
+            ((p.mode + (' — crossfading' if p._fade_pos < len(p._fade) else ''))
+             if getattr(p, '_current', None) is getattr(p, '_selected', None) else
              'previous buffer — selected mode awaits callback') if p.stream else 'No active stream',
             self._alive_gui_backend.diagnostics(),
             (f'{live.config.output_name} (PortAudio {live.config.output_id}; '
@@ -480,12 +507,20 @@ class ControlService:
             round(live.processor._applied * 100)
             if isinstance(getattr(live, 'processor', None), ListeningGainDSP) else None,
             self.mix_export.pending, self.mix_export.status,
-            self.mix_export.mode, self.mix_export.saved_path)
+            self.mix_export.mode, self.mix_export.saved_path,
+            self.preview.workspace, self.preview.previous_mode or '',
+            self._alive_gui_backend.output_level_percent,
+            self._alive_gui_backend.applied_percent
+            if p.backend is self._alive_gui_backend and p.stream is not None else None,
+            ('Unavailable — preparation pending' if self.preview.job is not None else
+             'Unavailable — mode transition pending' if p.stream is not None and
+             (getattr(p, '_current', None) is not p._selected or p._fade_pos < len(p._fade)) else
+             p.mode + ' — prepared buffer, unity export' if p.buffers else 'Unavailable — no recording'))
 
     def shutdown(self):
         self._enter()
         c = self.controller
-        self.preview.cancel()
+        self.preview.reset()
         self.mix_export.cancel()  # Abort partial exports before returning ownership.
         # Keep the lease on ANY cleanup failure. Returning a borrowed controller
         # while a worker is still stopping would allow competing streams.

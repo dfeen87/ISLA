@@ -104,7 +104,7 @@ def test_gui_play_forces_quarter_level_before_first_callback_and_on_resume():
         c.player.backend = original_backend
         s.file_command('play')
         assert c.player.backend is s._alive_gui_backend
-        assert s._monitor_volume.percent == 100  # LIVE untouched.
+        assert s._monitor_volume.percent == 50  # Independent LIVE default.
         assert not live.streams
     finally:
         s.shutdown()

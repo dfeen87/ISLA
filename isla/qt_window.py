@@ -59,6 +59,8 @@ def alive_next_step(state, *, busy=None):
     elif state.file_state == UIState.RECOVERABLE_ERROR:
         action = ('File preparation needs attention. Read the error below, '
                   'then choose Open Audio File… to retry.')
+    elif state.research_workspace:
+        action = 'Remastered workspace: choose mode/depth, Prepare, then listen. Cancel or Return restores ' + state.research_previous_mode.title() + '.'
     elif state.can_play:
         if state.file_state == UIState.PLAYING:
             action = ('ALIVE is playing. Compare Original / Bypass, Velvet, Legato '
@@ -112,6 +114,8 @@ class CommandWorker:
         self.controller = controller
         self.factory = factory or (lambda: TerminalController(SoundDeviceBackend()))
         self.service = None
+        self._volume_lock = threading.Lock()
+        self._volume_targets = {}
         self._sequence = 0
         self._last_device_refresh = 0.0
         self.thread = threading.Thread(target=self._run, name='isla-control', daemon=True)
@@ -121,6 +125,26 @@ class CommandWorker:
 
     def submit(self, action, *args):
         self.commands.put_nowait((action, args))
+
+    def request_volume(self, action, percent):
+        # Two scalar mailboxes, independent of the bounded command queue.
+        # Latest edit wins; locks are used only by GUI/control threads.
+        if action not in ('volume', 'alive_volume'):
+            raise ValueError('Unknown listening volume control.')
+        with self._volume_lock:
+            self._volume_targets[action] = percent
+
+    def _consume_volumes(self):
+        with self._volume_lock:
+            targets, self._volume_targets = self._volume_targets, {}
+        for action, percent in targets.items():
+            try:
+                method = (self.service.set_alive_volume if action == 'alive_volume'
+                          else self.service.set_monitor_volume)
+                method(percent)
+            except Exception as exc:
+                self.service.error = str(exc)
+                self.events.put(('error', (action, str(exc))))
 
     def _publish(self):
         self._sequence += 1
@@ -179,6 +203,8 @@ class CommandWorker:
             except queue.Empty:
                 action, args = 'poll', ()
             try:
+                if action != 'shutdown':
+                    self._consume_volumes()
                 if action == 'shutdown':
                     self.service.shutdown()
                     self.events.put(('closed', None))
@@ -205,6 +231,9 @@ class CommandWorker:
                               'file_output': self.service.select_file_output,
                               'refresh': self.service.refresh_devices, 'start': self.service.start_live,
                               'stop': self.service.stop_live, 'volume': self.service.set_monitor_volume,
+                              'enter_research': self.service.enter_remastered,
+                              'return_research': self.service.return_previous_mode,
+                              'alive_volume': self.service.set_alive_volume,
                               'research': self.service.prepare_remastered,
                               'cancel_research': self.service.cancel_remastered,
                               'save_mix': self.service.save_mix,
@@ -263,9 +292,12 @@ def audio_diagnostics(state):
              f'Opened output: {state.alive_output or "Not opened"}']
     if state.duration:
         lines.append(f'Source: {state.duration:.2f} s / {state.file_sample_rate:,} Hz')
-        lines.append('Control Center playback: 25% digital output amplitude')
+        lines.append(f'Requested ALIVE gain: {state.alive_volume}%; callback-applied gain: ' +
+                     (f'{state.alive_applied_volume:.2f}%' if state.alive_applied_volume is not None else 'not observed — use GUI Play'))
     _, readiness = remastered_readiness(state)
+    lines.append('Remastered workspace: ' + ('entered; previous mode ' + state.research_previous_mode if state.research_workspace else 'outside'))
     lines.append('Remastered stage: ' + state.research_stage)
+    lines.append('Save Mix would export: ' + state.save_candidate)
     lines.append('Remastered availability: ' + readiness)
     if state.research_requested:
         lines.append('Requested render: ' + state.research_requested)
@@ -300,7 +332,7 @@ def audio_diagnostics(state):
                   f'Requested gain: {state.monitor_volume}%; worker-applied gain: '
                   + (f'{state.monitor_applied_volume}%' if state.monitor_applied_volume is not None else
                      'unavailable — start LIVE from this window'),
-                  'Worker gain precedes the bounded output queue; hardware volume is unchanged.'])
+                  'Worker gain precedes the bounded output queue; queued audio can lag. Hardware volume is unchanged.'])
     if state.live_research_health:
         lines.append(state.live_research_health)
     if state.live_active:
@@ -333,6 +365,12 @@ class ControlWindow(QMainWindow):
         self._mode_inflight = None
         self._live_mode_error = ''
         self._stop_requested = False
+        self._volume_drafts = {}
+        self._volume_initialized = False
+        self.volume_timer = QTimer(self)
+        self.volume_timer.setSingleShot(True)
+        self.volume_timer.setInterval(80)
+        self.volume_timer.timeout.connect(self._flush_volumes)
         self.busy = 'initialize'
         self.started = time.monotonic()
         self.closing = self.closed_cleanly = self.failed_initialize = False
@@ -409,6 +447,35 @@ class ControlWindow(QMainWindow):
         layout.addLayout(row)
         return buttons
 
+    def _volume_control(self, kind, title, default):
+        group = QGroupBox(title)
+        box = QVBoxLayout(group)
+        slider = QSlider(Qt.Orientation.Horizontal)
+        slider.setRange(0, 100)
+        slider.setValue(default)
+        slider.setAccessibleName(title + ' (0 to 100 percent digital amplitude)')
+        value = label(f'{default}%')
+        value.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        font = value.font()
+        font.setPointSize(18)
+        font.setBold(True)
+        value.setFont(font)
+        slider.valueChanged.connect(lambda percent: value.setText(f'{percent}%'))
+        slider.valueChanged.connect(lambda percent: self._volume_edited(kind, percent))
+        box.addWidget(value)
+        box.addWidget(slider)
+        status = label('0% silence · 100% unity · hardware volume unchanged')
+        box.addWidget(status)
+        if kind == 'volume':
+            self.monitor_volume, self.monitor_volume_value = slider, value
+            self.monitor_volume_status = status
+            self.mute_volume = QPushButton('Mute')
+            self.mute_volume.clicked.connect(self._toggle_mute)
+            box.addWidget(self.mute_volume)
+        else:
+            self.alive_volume, self.alive_volume_value = slider, value
+        return group
+
     def _file_panel(self):
         panel = QGroupBox('ALIVE — Local Audio File')
         box = QVBoxLayout(panel)
@@ -428,14 +495,9 @@ class ControlWindow(QMainWindow):
         box.addWidget(guidance)
         self.file_error = label()
         box.addWidget(self.file_error)
-        # The Control Center reduces ALIVE's PCM output before opening a stream.
-        # This is not a macOS hardware-volume setting or a LIVE volume change.
-        self.alive_volume_notice = label(
-            f'ALIVE Play automatically starts at {ALIVE_GUI_PLAY_LEVEL_PERCENT}% software '
-            'output level. Mac system volume and LIVE volume stay unchanged. '
-            'Start with headphones/speakers turned down.')
-        self.alive_volume_notice.setAccessibleName('ALIVE automatic playback level')
+        self.alive_volume_notice = label('Initial ALIVE level: 25%. Start with speakers/headphones turned down.')
         box.addWidget(self.alive_volume_notice)
+        box.addWidget(self._volume_control('alive_volume', 'ALIVE Listening Volume', 25))
         row = QHBoxLayout()
         self.play, self.pause, self.stop_file = (QPushButton(text) for text in ('Play', 'Pause', 'Stop'))
         for button, cmd in [(self.play, 'play'), (self.pause, 'pause'), (self.stop_file, 'stop')]:
@@ -459,7 +521,10 @@ class ControlWindow(QMainWindow):
         self.research_toggle.toggled.connect(lambda shown: self.research_toggle.setText(
             ('Hide' if shown else 'Show') + ' v4.0 Remastered (Experimental ALIVE)'))
         research_box = QVBoxLayout(research)
-        research_box.addWidget(label('0% is exact original; 100% is the governed research baseline. Intensity controls permitted DSP depth, not volume.'))
+        self.enter_research = QPushButton('Enter Remastered')
+        self.enter_research.clicked.connect(lambda: self.submit('enter_research'))
+        research_box.addWidget(self.enter_research)
+        research_box.addWidget(label('Intensity controls research depth, independently of listening volume.'))
         self.research_mode = QComboBox()
         self.research_mode.setAccessibleName('Remastered research mode')
         for mode in ('velvet', 'legato', 'melt'):
@@ -476,7 +541,6 @@ class ControlWindow(QMainWindow):
         self.research_intensity_value = label('100% permitted depth')
         self.research_intensity.valueChanged.connect(
             lambda value: self.research_intensity_value.setText(f'{value * 5}% permitted depth'))
-        self.research_intensity.sliderReleased.connect(self._prepare_research)
         research_box.addWidget(self.research_intensity)
         research_box.addWidget(self.research_intensity_value)
         row = QHBoxLayout()
@@ -489,21 +553,19 @@ class ControlWindow(QMainWindow):
         self.cancel_research = QPushButton('Cancel Preparation')
         self.cancel_research.clicked.connect(self._cancel_audio_job)
         row.addWidget(self.apply_research)
-        row.addWidget(self.save_mix_button)
-        row.addWidget(self.cancel_research)
+        self.return_research = QPushButton('Return to Previous Mode')
+        self.return_research.clicked.connect(lambda: self.submit('return_research'))
         research_box.addLayout(row)
         self.export_status = label(
             'Save Mix… exports the selected prepared audio as a new 32-bit float WAV. '
-            'The 25% listening-only attenuation is not written to the file. '
+            'Listening attenuation is not written to the file. '
             'Saved audio may play louder elsewhere; lower device volume before listening.')
         self.export_status.setAccessibleName('ALIVE mix export status')
-        research_box.addWidget(self.export_status)
         self.export_progress = QProgressBar()
         self.export_progress.setAccessibleName('Saving mix in background, progress indeterminate')
         self.export_progress.setRange(0, 0)
         self.export_progress.setTextVisible(False)
         self.export_progress.setVisible(False)
-        research_box.addWidget(self.export_progress)
         self.research_progress = QProgressBar()
         self.research_progress.setAccessibleName('Remastered preparation active (duration unknown)')
         self.research_progress.setRange(0, 1)
@@ -519,6 +581,13 @@ class ControlWindow(QMainWindow):
                                      'mode (REVISE / INCONCLUSIVE). The loading '
                                      'bar indicates work, not a measured percent.'))
         box.addWidget(research)
+        save_row = QHBoxLayout()
+        save_row.addWidget(self.save_mix_button)
+        save_row.addWidget(self.cancel_research)
+        save_row.addWidget(self.return_research)
+        box.addLayout(save_row)
+        box.addWidget(self.export_progress)
+        box.addWidget(self.export_status)
         box.addWidget(label('Listening output (shared with LIVE)'))
         self.file_output = QComboBox()
         self.file_output.setAccessibleName('ALIVE physical listening output')
@@ -527,33 +596,6 @@ class ControlWindow(QMainWindow):
         self.apply_output.clicked.connect(lambda: self.submit('file_output', self.file_output.currentData()))
         box.addWidget(self.apply_output)
         box.addWidget(label('ALIVE can use the system default output without BlackHole. Physical output choices are offered when verified by macOS. Stop audio before changing devices.'))
-        # Use spare left-panel space for LIVE listening attenuation. This does
-        # not alter BlackHole capture gain, other apps or macOS output volume.
-        volume_group = QGroupBox('LIVE Listening Volume')
-        volume_box = QVBoxLayout(volume_group)
-        volume_box.addWidget(label('Controls only the ISLA sound sent to selected headphones/speakers. BlackHole capture and macOS volume do not change. 100% is original/unity; 0% is muted.'))
-        self.monitor_volume = QSlider(Qt.Orientation.Horizontal)
-        self.monitor_volume.setAccessibleName('LIVE listening volume (0 to 100 percent)')
-        self.monitor_volume.setRange(0, 100)
-        self.monitor_volume.setValue(100)
-        self.monitor_volume_value = label('100%')
-        self.monitor_volume.valueChanged.connect(lambda value: self.monitor_volume_value.setText(f'{value}%'))
-        self._volume_dirty = False
-        self.monitor_volume.valueChanged.connect(self._volume_edited)
-        self.monitor_volume.sliderReleased.connect(self._apply_volume)
-        volume_box.addWidget(self.monitor_volume)
-        row = QHBoxLayout()
-        row.addWidget(self.monitor_volume_value)
-        self.apply_volume = QPushButton('Apply Volume')
-        self.apply_volume.clicked.connect(self._apply_volume)
-        row.addWidget(self.apply_volume)
-        self.mute_volume = QPushButton('Mute')
-        self.mute_volume.clicked.connect(self._toggle_mute)
-        row.addWidget(self.mute_volume)
-        volume_box.addLayout(row)
-        self.monitor_volume_status = label('LIVE listening level: 100% (unity)')
-        volume_box.addWidget(self.monitor_volume_status)
-        box.addWidget(volume_group)
         box.addStretch()
         return panel
 
@@ -644,6 +686,7 @@ class ControlWindow(QMainWindow):
         self.live_status, self.live_error = label(), label()
         box.addWidget(self.live_status)
         box.addWidget(self.live_error)
+        box.addWidget(self._volume_control('volume', 'LIVE Listening Volume', 50))
         box.addWidget(label('Diagnostics — ALIVE / LIVE (scroll for render status and counters)'))
         self.health = QPlainTextEdit()
         self.health.setReadOnly(True)
@@ -694,29 +737,29 @@ class ControlWindow(QMainWindow):
             self.submit('stop')
         self.apply_state()
 
-    def _volume_edited(self, value):
-        # Retain keyboard edits after focus moves to Apply. Health snapshots
-        # are committed state, not permission to overwrite a user's draft.
-        self._volume_dirty = True
+    def _volume_edited(self, kind, value):
+        self._volume_drafts[kind] = value
+        if not self.volume_timer.isActive():
+            self.volume_timer.start()  # Bounded 80 ms cadence even while dragging.
 
-    def _apply_volume(self):
-        accepted = self.submit('volume', self.monitor_volume.value())
-        if accepted:
-            self._volume_dirty = False
-        return accepted
+    def _flush_volumes(self):
+        if self.closing or self.closed_cleanly:
+            self._volume_drafts.clear()
+            return
+        for kind, value in self._volume_drafts.items():
+            self.worker.request_volume(kind, value)
+        self._volume_drafts.clear()
 
     def _toggle_mute(self):
-        if self.state is None:
-            return False
-        if self.state.monitor_volume:
-            self._last_nonzero_volume = self.state.monitor_volume
+        current = self.monitor_volume.value()
+        if current:
+            self._last_nonzero_volume = current
             target = 0
         else:
-            target = getattr(self, '_last_nonzero_volume', 100)
-        accepted = self.submit('volume', target)
-        if accepted:
-            self._volume_dirty = False
-        return accepted
+            target = getattr(self, '_last_nonzero_volume', 50)
+        self.monitor_volume.setValue(target)
+        self._flush_volumes()
+        return True
 
     def choose_file(self):
         if not self.open_file.isEnabled():
@@ -751,7 +794,7 @@ class ControlWindow(QMainWindow):
             return False
         if self.state.save_pending:
             return self.submit('cancel_mix_save')
-        if self.state.research_pending:
+        if self.state.research_pending or self.state.research_workspace:
             return self.submit('cancel_research')
         return False
 
@@ -791,7 +834,7 @@ class ControlWindow(QMainWindow):
                 self.activity.setText(value)
             elif kind == 'error':
                 action, message = value
-                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
+                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'enter_research', 'return_research', 'alive_volume', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
                 target.setText('Action required: ' + message)
                 if action == 'live_mode':
                     self._live_mode_error = message
@@ -874,29 +917,33 @@ class ControlWindow(QMainWindow):
     def apply_state(self):
         s = self.state
         available = s is not None and not self.busy and not self.closing
-        for button in (self.open_file, self.play, self.pause, self.stop_file, self.start_live, self.stop_live,
-                       self.apply_devices, self.apply_output, self.refresh, self.recheck, self.settings,
-                       self.apply_volume, self.mute_volume, self.apply_research, self.cancel_research):
-            button.setEnabled(bool(available))
+        self.settings.setEnabled(bool(available))
         for combo in (self.capture, self.output, self.file_output, self.rate):
             combo.setEnabled(bool(available and s.can_configure))
-        self.monitor_volume.setEnabled(bool(available))
+        self.monitor_volume.setEnabled(bool(s is not None and not self.closing))
+        self.alive_volume.setEnabled(bool(s is not None and not self.closing))
+        self.mute_volume.setEnabled(bool(s is not None and not self.closing))
         self.live_engine.setEnabled(bool(available and s.source == 'system'))
         self.live_intensity.setEnabled(bool(available and s.source == 'system'))
         self.apply_live_intensity.setEnabled(bool(available and s.source == 'system'))
         admitted, admission_note = remastered_readiness(s)
         pending = bool(s is not None and s.research_pending)
         prepared = bool(available and s is not None and s.can_play)
-        self.research_mode.setEnabled(prepared and not pending)
-        self.research_intensity.setEnabled(prepared and not pending)
-        self.apply_research.setEnabled(bool(available and admitted and not pending))
+        workspace = bool(s and s.research_workspace)
+        self.research_mode.setEnabled(prepared and workspace and not pending)
+        self.research_intensity.setEnabled(prepared and workspace and not pending)
+        self.enter_research.setEnabled(bool(available and admitted and not workspace))
+        self.enter_research.setToolTip(admission_note if not workspace else 'Remastered workspace already entered.')
+        self.enter_research.setAccessibleDescription(self.enter_research.toolTip())
+        self.apply_research.setEnabled(bool(available and admitted and workspace and not pending))
+        self.return_research.setEnabled(bool(available and workspace and not pending))
+        self.return_research.setToolTip('Restore ' + (s.research_previous_mode.title() if s else 'previous mode') + ' using the existing playback transition.')
         saving = bool(s is not None and s.save_pending)
         self.cancel_research.setText('Cancel Save' if saving else 'Cancel Preparation')
-        self.cancel_research.setEnabled(bool(available and (pending or saving)))
+        self.cancel_research.setEnabled(bool(available and (pending or saving or (workspace and not s.research_active))))
         save_ready = bool(available and prepared and s.source == 'file'
                           and not s.live_active and not pending and not saving
-                          and s.alive_applied_mode !=
-                          'previous buffer — selected mode awaits callback')
+                          and not s.save_candidate.startswith('Unavailable'))
         if self.save_mix_button.isEnabled() != save_ready:
             self.save_mix_button.setEnabled(save_ready)
         self.save_mix_button.setToolTip(
@@ -907,13 +954,13 @@ class ControlWindow(QMainWindow):
         self.export_status.setText(
             s.save_status if s is not None and s.save_status != 'No mix saved yet.' else
             'Save Mix… exports a separate 32-bit float WAV; '
-            'your original and 25% GUI listening gain are unchanged.')
+            'listening attenuation is excluded. Saved audio may play louder elsewhere.')
         apply_reason = ('Wait for the current audio command to finish.' if not available else
                         'A preparation is already running; cancel it before starting another.' if pending else
-                        admission_note)
+                        'Click Enter Remastered first.' if not workspace and admitted else admission_note)
         cancel_reason = ('Wait for the current audio command to finish.' if not available else
                          'Cancel the background mix save; no partial WAV is published.' if saving else
-                         'Cancel the pending render; existing audio will be preserved.' if pending else
+                         'Cancel the pending render and restore the previous traditional mode.' if pending or workspace else
                          'No preparation or mix save is pending. Existing audio is preserved.')
         for button, reason in ((self.apply_research, apply_reason), (self.cancel_research, cancel_reason)):
             button.setToolTip(reason)
@@ -937,6 +984,10 @@ class ControlWindow(QMainWindow):
         self.live_mode_choice.setEnabled(mode_available)
         self.reset_live_mode.setEnabled(mode_available)
         if s is None:
+            for button in (self.open_file, self.play, self.pause, self.stop_file,
+                           self.start_live, self.stop_live, self.apply_devices,
+                           self.apply_output, self.refresh, self.recheck):
+                button.setEnabled(False)
             return
         self._choices(self.capture, s.captures, s.selected_capture)
         self._choices(self.output, s.outputs, s.selected_output)
@@ -965,7 +1016,7 @@ class ControlWindow(QMainWindow):
                   if s.research_active else 'Now playing: ' + s.file_mode.title())
         if s.research_pending:
             self.research_status.setText(active + '\nPreparing separately: ' + s.research_stage)
-        elif s.research_stage in ('Canceled', 'Failed', 'Applying'):
+        elif s.research_stage in ('Entered', 'Canceled', 'Failed', 'Applying', 'Returning', 'Returned'):
             self.research_status.setText(active + '\n' + s.research_stage + ' — see Diagnostics.')
         else:
             self.research_status.setText(active)
@@ -994,7 +1045,9 @@ class ControlWindow(QMainWindow):
         self.refresh.setEnabled(bool(available and not s.stream_active))
         self.recheck.setEnabled(bool(available and not s.stream_active))
         for mode, button in self.file_modes.items():
-            enabled = bool(available and s.can_play)
+            enabled = bool(available and s.can_play and not workspace)
+            button.setToolTip('Return to Previous Mode to leave Remastered.' if workspace else 'Select traditional ALIVE processing.')
+            button.setAccessibleDescription(button.toolTip())
             if button.isEnabled() != enabled:
                 button.setEnabled(enabled)
             # A mouse press should not be reconciled against the previous
@@ -1003,18 +1056,16 @@ class ControlWindow(QMainWindow):
                 selected = ('original' if mode == 'bypass' else mode) == s.file_mode
                 if button.isChecked() != selected:
                     button.setChecked(selected)
-        if (not self._volume_dirty and self.busy != 'volume' and not self.apply_volume.isDown()
-                and not self.monitor_volume.isSliderDown() and not self.monitor_volume.hasFocus()):
-            if self.monitor_volume.value() != s.monitor_volume:
-                self.monitor_volume.blockSignals(True)
-                self.monitor_volume.setValue(s.monitor_volume)
-                self.monitor_volume.blockSignals(False)
-                self.monitor_volume_value.setText(f'{s.monitor_volume}%')
+        if not self._volume_initialized:
+            for slider, value in ((self.monitor_volume, s.monitor_volume), (self.alive_volume, s.alive_volume)):
+                slider.setValue(value)
+            self._volume_drafts.clear()
+            self._volume_initialized = True
+        # This window exclusively owns edits. Polling never writes slider drafts.
         self.monitor_volume_status.setText(
-            f'LIVE listening level: {s.monitor_volume}% '
-            + ('(muted)' if s.monitor_volume == 0 else '(unity)' if s.monitor_volume == 100
-               else '(ISLA output attenuation)'))
-        self.mute_volume.setText('Unmute' if s.monitor_volume == 0 else 'Mute')
+            f'Requested {self.monitor_volume.value()}% · worker applied '
+            + (f'{s.monitor_applied_volume}%' if s.monitor_applied_volume is not None else 'on LIVE start'))
+        self.mute_volume.setText('Unmute' if self.monitor_volume.value() == 0 else 'Mute')
         # Choosing a LIVE mode keeps the existing DSP worker and stream.
         desired = self._pending_live_mode or s.live_mode
         if (not self.live_mode_choice.view().isVisible()

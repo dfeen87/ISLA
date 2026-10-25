@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+from isla.playback import AudioError
 from isla.control import ControlService
 from isla.remastered import RenderRequest, output_metrics, render_preview
 from isla.remastered_preparation import RemasteredPreparation
@@ -100,6 +101,7 @@ def test_async_swap_preserves_cursor_stream_and_existing_crossfade(tmp_path):
         s.file_command('play')
         stream = c.player.stream
         stream.pump()
+        s.enter_remastered()
         s.prepare_remastered('legato', 50)
         job = s.preview.job
         for _ in range(3):
@@ -123,6 +125,7 @@ def test_async_swap_preserves_cursor_stream_and_existing_crossfade(tmp_path):
         # Pause retains position/state when a completed render is published.
         s.file_command('pause')
         paused = c.player.cursor
+        s.enter_remastered()
         s.prepare_remastered('melt', 0)
         s.preview.job.complete()
         s.poll()
@@ -139,15 +142,23 @@ def test_async_swap_preserves_cursor_stream_and_existing_crossfade(tmp_path):
 def test_superseded_jobs_cannot_publish_stale_results(tmp_path, action):
     s, c, files = ready_service(tmp_path)
     try:
+        s.enter_remastered()
         s.prepare_remastered('velvet', 25)
         old = s.preview.job
         old.complete()  # Ready but not yet polled; cancellation must still win.
         if action == 'replacement':
+            s.enter_remastered()
             s.prepare_remastered('melt', 75)
-        elif action in ('bypass', 'stop'):
+        elif action == 'bypass':
+            with pytest.raises(AudioError, match='Return to Previous Mode'):
+                s.file_command(action)
+            s.cancel_remastered()
+        elif action == 'stop':
             s.file_command(action)
         elif action == 'production':
-            s.file_command('mode legato')
+            with pytest.raises(AudioError, match='Return to Previous Mode'):
+                s.file_command('mode legato')
+            s.cancel_remastered()
         elif action == 'reload':
             s.load_file('new.wav')
         elif action == 'cancel':
@@ -171,6 +182,7 @@ def test_failed_worker_and_bad_buffer_preserve_active_audio_and_allow_retry(tmp_
         s.file_command('play')
         stream, selected = c.player.stream, c.player._selected
         for bad in ('worker', 'buffer'):
+            s.enter_remastered()
             s.prepare_remastered('melt', 50)
             job = s.preview.job
             if bad == 'worker':
@@ -185,6 +197,7 @@ def test_failed_worker_and_bad_buffer_preserve_active_audio_and_allow_retry(tmp_
             assert job.closed and s.preview.job is None
             assert c.player._selected is selected and c.player.stream is stream
             assert c.player.state == 'playing'
+        s.enter_remastered()
         s.prepare_remastered('velvet', 25)
         s.preview.job.complete()
         s.poll()

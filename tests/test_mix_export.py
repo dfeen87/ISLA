@@ -88,6 +88,7 @@ def test_save_completed_governed_remastered_buffer_exactly(tmp_path):
     from test_remastered_preparation import ready_service
     service, controller, _ = ready_service(tmp_path)
     try:
+        service.enter_remastered()
         service.prepare_remastered('velvet', 50)
         service.preview.job.complete()
         service.poll()

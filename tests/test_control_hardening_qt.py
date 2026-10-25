@@ -14,7 +14,7 @@ from isla.control import UIState
 from test_live import BLOCK, PassThrough, wait_for, warmup
 
 
-def test_volume_keyboard_edit_survives_focus_loss_and_refresh_during_apply(app):
+def test_volume_keyboard_edit_auto_applies_and_survives_focus_loss_and_refresh(app):
     w, c, *_ = window_session(app)
     try:
         w.monitor_volume.setFocus()
@@ -22,10 +22,9 @@ def test_volume_keyboard_edit_survives_focus_loss_and_refresh_during_apply(app):
         for _ in range(25):
             QTest.keyClick(w.monitor_volume, Qt.Key.Key_Right)
         assert w.monitor_volume.value() == 25
-        QTest.mousePress(w.apply_volume, Qt.MouseButton.LeftButton)
+        w.research_toggle.setFocus()
         QTest.qWait(180)  # At least three real 50 ms refreshes before release.
         assert w.monitor_volume.value() == 25
-        QTest.mouseRelease(w.apply_volume, Qt.MouseButton.LeftButton)
         wait_ui(app, lambda: not w.busy and w.state.monitor_volume == 25)
         processor = c.live.processor_factory(48000, 2)
         # The actual output adapter consumes the command, not just the label.
@@ -83,15 +82,15 @@ def test_native_volume_clicks_reach_live_callback_pcm_and_single_selected_output
                 assert not c.live.halt.is_set(), c.live.error
             return pcm
 
-        for percent in (100, 25, 0, 100):
+        for percent in (100, 50, 25, 0, 100):
             w.monitor_volume.setValue(percent)
-            QTest.mousePress(w.apply_volume, Qt.MouseButton.LeftButton)
+            w.research_toggle.setFocus()
             QTest.qWait(160)
-            QTest.mouseRelease(w.apply_volume, Qt.MouseButton.LeftButton)
             wait_ui(app, lambda: not w.busy and w.state.monitor_volume == percent)
             np.testing.assert_allclose(output(), signal * (percent / 100), atol=1e-7, rtol=0)
             np.testing.assert_array_equal(signal, np.full((BLOCK, 2), .4, np.float32))
         click(app, w, w.mute_volume)
+        wait_ui(app, lambda: w.state.monitor_volume == 0)
         assert not np.any(output())
         assert len(backend.streams) == 1
         assert 'native 11' in w.state.live_opened_output

@@ -1,0 +1,1273 @@
+{
+  "schema": 1,
+  "scope": "Offline float32 PCM and manually pumped callback; no native audio",
+  "thresholds": "Step counts are descriptive, not audibility or scientific acceptance gates.",
+  "sources": [
+    {
+      "name": "sustained_997Hz_44100",
+      "rate": 44100,
+      "channels": 1,
+      "samples": 132300,
+      "source_pcm_sha256": "33bbd7cc79574dc759b21e3429b52e9875d390770393dca17e0c9f0b8829af45",
+      "modes": {
+        "original": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03548225946724415,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24999472553192287,
+          "envelope_p95": 0.2500052837112687,
+          "envelope_cv": 0.0032532916586334405,
+          "finite": true
+        },
+        "velvet": {
+          "peak": 0.24843469262123108,
+          "relative_residual_rms": 0.17509340059063033,
+          "fitted_gain": 0.913911538085068,
+          "gain_matched_residual_rms": 0.1524679496009317,
+          "max_adjacent_step": 0.12156421318650246,
+          "adjacent_steps_over_005": 60,
+          "residual_steps_over_002": 1428,
+          "envelope_p05": 0.21993498204923811,
+          "envelope_p95": 0.24016814669852463,
+          "envelope_cv": 0.03444545496759542,
+          "finite": true,
+          "render_seconds": 0.022367454000004727
+        },
+        "remastered_velvet_0": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03548225946724415,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24999472553192287,
+          "envelope_p95": 0.2500052837112687,
+          "envelope_cv": 0.0032532916586334405,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.06988445499996487
+        },
+        "remastered_velvet_100": {
+          "peak": 0.2500143349170685,
+          "relative_residual_rms": 0.008333589442174527,
+          "fitted_gain": 0.9917453823423263,
+          "gain_matched_residual_rms": 0.0011445524524238307,
+          "max_adjacent_step": 0.03548374865204096,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24782567604486724,
+          "envelope_p95": 0.24794581254329412,
+          "envelope_cv": 0.0032557294423979162,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.08193907500003661
+        },
+        "legato": {
+          "peak": 0.24840275943279266,
+          "relative_residual_rms": 0.2517498813806682,
+          "fitted_gain": 0.8807736006686171,
+          "gain_matched_residual_rms": 0.22172746441894417,
+          "max_adjacent_step": 0.13144057244062424,
+          "adjacent_steps_over_005": 61,
+          "residual_steps_over_002": 3013,
+          "envelope_p05": 0.20212373535070172,
+          "envelope_p95": 0.24004047993767733,
+          "envelope_cv": 0.053620970690898016,
+          "finite": true,
+          "render_seconds": 0.02195347999997921
+        },
+        "remastered_legato_0": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03548225946724415,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24999472553192287,
+          "envelope_p95": 0.2500052837112687,
+          "envelope_cv": 0.0032532916586334405,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.082954786000073
+        },
+        "remastered_legato_100": {
+          "peak": 0.2500157654285431,
+          "relative_residual_rms": 0.0009730566034043505,
+          "fitted_gain": 0.999826655427061,
+          "gain_matched_residual_rms": 0.0009574919385882603,
+          "max_adjacent_step": 0.03548478148877621,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24998341782296044,
+          "envelope_p95": 0.25000365208236924,
+          "envelope_cv": 0.0032568624582346222,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.10251324599994405
+        },
+        "melt": {
+          "peak": 0.254343718290329,
+          "relative_residual_rms": 0.3624325255366899,
+          "fitted_gain": 0.8302673928960553,
+          "gain_matched_residual_rms": 0.32023144388488994,
+          "max_adjacent_step": 0.17678093165159225,
+          "adjacent_steps_over_005": 56,
+          "residual_steps_over_002": 5037,
+          "envelope_p05": 0.1950420976967074,
+          "envelope_p95": 0.24017003490968586,
+          "envelope_cv": 0.0675181881707798,
+          "finite": true,
+          "render_seconds": 0.02905635699994491
+        },
+        "remastered_melt_0": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03548225946724415,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24999472553192287,
+          "envelope_p95": 0.2500052837112687,
+          "envelope_cv": 0.0032532916586334405,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.07516181000005417
+        },
+        "remastered_melt_100": {
+          "peak": 0.25284603238105774,
+          "relative_residual_rms": 0.002518368918001543,
+          "fitted_gain": 0.9997800379156563,
+          "gain_matched_residual_rms": 0.00250874444465902,
+          "max_adjacent_step": 0.035884592682123184,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24956127847906057,
+          "envelope_p95": 0.2500023890010907,
+          "envelope_cv": 0.003340947127830364,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.11625427100000252
+        }
+      },
+      "ablation": {
+        "boundary_count": 54,
+        "first_boundary_seconds": [
+          0.02,
+          0.03,
+          0.04,
+          0.18,
+          0.19,
+          0.2,
+          0.35,
+          0.36
+        ],
+        "smoother_only": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.35203058694785805,
+          "fitted_gain": 0.8917351243882041,
+          "gain_matched_residual_rms": 0.3349690296962032,
+          "max_adjacent_step": 0.17770998924970627,
+          "adjacent_steps_over_005": 56,
+          "residual_steps_over_002": 5093,
+          "envelope_p05": 0.21388014510220707,
+          "envelope_p95": 0.2502468326845619,
+          "envelope_cv": 0.05797969592053234,
+          "finite": true
+        },
+        "harmonic_only": {
+          "peak": 0.24840275943279266,
+          "relative_residual_rms": 0.08488599520608166,
+          "fitted_gain": 0.9291786083198131,
+          "gain_matched_residual_rms": 0.04679703689987729,
+          "max_adjacent_step": 0.03528246935456991,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.22070829593380314,
+          "envelope_p95": 0.23990836994642253,
+          "envelope_cv": 0.029432321944426465,
+          "finite": true
+        }
+      },
+      "mode_switch_transport": {
+        "callback_pcm_max_error": {
+          "original": 0.0,
+          "velvet": 0.0,
+          "legato": 0.0,
+          "melt": 0.0
+        },
+        "consumed_frames": {
+          "original": 512,
+          "velvet": 512,
+          "legato": 512,
+          "melt": 512
+        },
+        "callback_max_ms": 0.03375099993263575,
+        "block_budget_ms": 11.609977324263038,
+        "counters": "callbacks=4; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)",
+        "stream_restarts": 0
+      },
+      "uninterrupted_transport": {
+        "original": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.2062510000087059,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "velvet": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.03433200004110404,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "legato": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.034622000043782464,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "melt": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.024306000000251515,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        }
+      }
+    },
+    {
+      "name": "attacks_and_decays_44100",
+      "rate": 44100,
+      "channels": 2,
+      "samples": 132300,
+      "source_pcm_sha256": "88a15bf2d5a4cc026e93cab8aeea422562d124228a5a6c293cf346ef1e070ad7",
+      "modes": {
+        "original": {
+          "peak": 0.1771746575832367,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.0068351170048176245,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004655466872133101,
+          "envelope_p95": 0.11643824062832399,
+          "envelope_cv": 0.9785894588870853,
+          "finite": true
+        },
+        "velvet": {
+          "peak": 0.08906355500221252,
+          "relative_residual_rms": 0.8384749835499211,
+          "fitted_gain": 0.302725659687942,
+          "gain_matched_residual_rms": 0.4656702614312245,
+          "max_adjacent_step": 0.09180368855595589,
+          "adjacent_steps_over_005": 4,
+          "residual_steps_over_002": 78,
+          "envelope_p05": 0.0042411020011979975,
+          "envelope_p95": 0.0583780027477899,
+          "envelope_cv": 0.7397729080710653,
+          "finite": true,
+          "render_seconds": 0.03967414299995653
+        },
+        "remastered_velvet_0": {
+          "peak": 0.1771746575832367,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.0068351170048176245,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004655466872133101,
+          "envelope_p95": 0.11643824062832399,
+          "envelope_cv": 0.9785894588870853,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.12338551799996367
+        },
+        "remastered_velvet_100": {
+          "peak": 0.1771746575832367,
+          "relative_residual_rms": 0.0002189226352545291,
+          "fitted_gain": 0.9998212652577039,
+          "gain_matched_residual_rms": 0.00012641602795174304,
+          "max_adjacent_step": 0.006835117004817622,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004655471811058568,
+          "envelope_p95": 0.1164214982136021,
+          "envelope_cv": 0.9785906972174416,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.17707087200005844
+        },
+        "legato": {
+          "peak": 0.08236819505691528,
+          "relative_residual_rms": 1.0035846205978693,
+          "fitted_gain": 0.13237015986184245,
+          "gain_matched_residual_rms": 0.5043813549313698,
+          "max_adjacent_step": 0.07064748555421829,
+          "adjacent_steps_over_005": 6,
+          "residual_steps_over_002": 12,
+          "envelope_p05": 0.004398729285343881,
+          "envelope_p95": 0.057639671365933454,
+          "envelope_cv": 0.7487342943542019,
+          "finite": true,
+          "render_seconds": 0.03419661800000995
+        },
+        "remastered_legato_0": {
+          "peak": 0.1771746575832367,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.0068351170048176245,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004655466872133101,
+          "envelope_p95": 0.11643824062832399,
+          "envelope_cv": 0.9785894588870853,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.11282402599999841
+        },
+        "remastered_legato_100": {
+          "peak": 0.1771746575832367,
+          "relative_residual_rms": 0.04019677998271364,
+          "fitted_gain": 1.0257949973597023,
+          "gain_matched_residual_rms": 0.030828545735918745,
+          "max_adjacent_step": 0.006835117004817622,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.0050229988476700755,
+          "envelope_p95": 0.11801302186485449,
+          "envelope_cv": 0.9409915555643854,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.1317490789999738
+        },
+        "melt": {
+          "peak": 0.08162126690149307,
+          "relative_residual_rms": 0.6909622297536826,
+          "fitted_gain": 0.4402881402325122,
+          "gain_matched_residual_rms": 0.40515606496978546,
+          "max_adjacent_step": 0.044930155389010906,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 20,
+          "envelope_p05": 0.004855497254608612,
+          "envelope_p95": 0.05985866901066688,
+          "envelope_cv": 0.6953280777375106,
+          "finite": true,
+          "render_seconds": 0.0338729999999714
+        },
+        "remastered_melt_0": {
+          "peak": 0.1771746575832367,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.0068351170048176245,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004655466872133101,
+          "envelope_p95": 0.11643824062832399,
+          "envelope_cv": 0.9785894588870853,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.12289251999993667
+        },
+        "remastered_melt_100": {
+          "peak": 0.1771746575832367,
+          "relative_residual_rms": 7.717890518731381e-08,
+          "fitted_gain": 0.9999999999999908,
+          "gain_matched_residual_rms": 7.717890518731382e-08,
+          "max_adjacent_step": 0.006835117004817622,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004655466872133101,
+          "envelope_p95": 0.11643824062832399,
+          "envelope_cv": 0.9785894588870855,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.14013039999997545
+        }
+      },
+      "mode_switch_transport": {
+        "callback_pcm_max_error": {
+          "original": 0.0,
+          "velvet": 0.0,
+          "legato": 0.0,
+          "melt": 0.0
+        },
+        "consumed_frames": {
+          "original": 512,
+          "velvet": 512,
+          "legato": 512,
+          "melt": 512
+        },
+        "callback_max_ms": 0.021261999904709228,
+        "block_budget_ms": 11.609977324263038,
+        "counters": "callbacks=4; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)",
+        "stream_restarts": 0
+      },
+      "uninterrupted_transport": {
+        "original": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.11948999997457577,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "velvet": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.04002000002856221,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "legato": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.026380000008430216,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "melt": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.007511999911002931,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        }
+      }
+    },
+    {
+      "name": "sustained_997Hz_48000",
+      "rate": 48000,
+      "channels": 1,
+      "samples": 144000,
+      "source_pcm_sha256": "2aed2c9c06675e4f9655bbd08453da76b56bc56e5a5c581c4203f1d4f37c2c74",
+      "modes": {
+        "original": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03260359913110733,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.2499951383608998,
+          "envelope_p95": 0.25000485996595145,
+          "envelope_cv": 0.003227155451900995,
+          "finite": true
+        },
+        "velvet": {
+          "peak": 0.24844025075435638,
+          "relative_residual_rms": 0.16170097445639817,
+          "fitted_gain": 0.9169522346156349,
+          "gain_matched_residual_rms": 0.13874535597565835,
+          "max_adjacent_step": 0.10678999498486519,
+          "adjacent_steps_over_005": 42,
+          "residual_steps_over_002": 534,
+          "envelope_p05": 0.22040250085398808,
+          "envelope_p95": 0.24041846829992805,
+          "envelope_cv": 0.03331507980237496,
+          "finite": true,
+          "render_seconds": 0.021704431000102886
+        },
+        "remastered_velvet_0": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03260359913110733,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.2499951383608998,
+          "envelope_p95": 0.25000485996595145,
+          "envelope_cv": 0.003227155451900995,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.06968425100001241
+        },
+        "remastered_velvet_100": {
+          "peak": 0.2499912977218628,
+          "relative_residual_rms": 0.008508008308214215,
+          "fitted_gain": 0.9915692292271918,
+          "gain_matched_residual_rms": 0.001143813598890085,
+          "max_adjacent_step": 0.03260280378162861,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24773306875271342,
+          "envelope_p95": 0.24795956744388942,
+          "envelope_cv": 0.003238162782072505,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.08571541100002378
+        },
+        "legato": {
+          "peak": 0.24842597544193268,
+          "relative_residual_rms": 0.224938717583379,
+          "fitted_gain": 0.8920441561773397,
+          "gain_matched_residual_rms": 0.19733971331841063,
+          "max_adjacent_step": 0.11570296436548233,
+          "adjacent_steps_over_005": 55,
+          "residual_steps_over_002": 1571,
+          "envelope_p05": 0.2074629317647142,
+          "envelope_p95": 0.23999729774799625,
+          "envelope_cv": 0.04587257891390496,
+          "finite": true,
+          "render_seconds": 0.021375765000016145
+        },
+        "remastered_legato_0": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03260359913110733,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.2499951383608998,
+          "envelope_p95": 0.25000485996595145,
+          "envelope_cv": 0.003227155451900995,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.0732266800000616
+        },
+        "remastered_legato_100": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0018527110496607655,
+          "fitted_gain": 0.9996349511498105,
+          "gain_matched_residual_rms": 0.00181639135940203,
+          "max_adjacent_step": 0.03260359913110733,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.24995569661268355,
+          "envelope_p95": 0.25000258592091,
+          "envelope_cv": 0.0032319796357033353,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.08710956200002329
+        },
+        "melt": {
+          "peak": 0.25404438376426697,
+          "relative_residual_rms": 0.3624330908850352,
+          "fitted_gain": 0.8302666657062924,
+          "gain_matched_residual_rms": 0.3202316983029954,
+          "max_adjacent_step": 0.17944195121526718,
+          "adjacent_steps_over_005": 55,
+          "residual_steps_over_002": 5155,
+          "envelope_p05": 0.19509252525096352,
+          "envelope_p95": 0.24017105020929988,
+          "envelope_cv": 0.06751308962010147,
+          "finite": true,
+          "render_seconds": 0.03412667199995667
+        },
+        "remastered_melt_0": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.03260359913110733,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.2499951383608998,
+          "envelope_p95": 0.25000485996595145,
+          "envelope_cv": 0.003227155451900995,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.07880454499991174
+        },
+        "remastered_melt_100": {
+          "peak": 0.25331050157546997,
+          "relative_residual_rms": 0.001750728129091258,
+          "fitted_gain": 0.9997225206389764,
+          "gain_matched_residual_rms": 0.0017285989084218703,
+          "max_adjacent_step": 0.033018188551068306,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.2495570535371014,
+          "envelope_p95": 0.2500021243020153,
+          "envelope_cv": 0.0033294136882935058,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.09373289400002704
+        }
+      },
+      "ablation": {
+        "boundary_count": 54,
+        "first_boundary_seconds": [
+          0.02,
+          0.03,
+          0.04,
+          0.18,
+          0.19,
+          0.2,
+          0.35,
+          0.36
+        ],
+        "smoother_only": {
+          "peak": 0.25,
+          "relative_residual_rms": 0.3520252905361335,
+          "fitted_gain": 0.8917367134222995,
+          "gain_matched_residual_rms": 0.3349639771026788,
+          "max_adjacent_step": 0.1802951842546463,
+          "adjacent_steps_over_005": 56,
+          "residual_steps_over_002": 5189,
+          "envelope_p05": 0.2138806441835678,
+          "envelope_p95": 0.2502455155123884,
+          "envelope_cv": 0.05798255656616407,
+          "finite": true
+        },
+        "harmonic_only": {
+          "peak": 0.24842597544193268,
+          "relative_residual_rms": 0.08488599384101433,
+          "fitted_gain": 0.9291786099697543,
+          "gain_matched_residual_rms": 0.046797036920733816,
+          "max_adjacent_step": 0.032417939975857735,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.2207095505302949,
+          "envelope_p95": 0.23990820844128818,
+          "envelope_cv": 0.029429327233158605,
+          "finite": true
+        }
+      },
+      "mode_switch_transport": {
+        "callback_pcm_max_error": {
+          "original": 0.0,
+          "velvet": 0.0,
+          "legato": 0.0,
+          "melt": 0.0
+        },
+        "consumed_frames": {
+          "original": 512,
+          "velvet": 512,
+          "legato": 512,
+          "melt": 512
+        },
+        "callback_max_ms": 0.015602999951624952,
+        "block_budget_ms": 10.666666666666666,
+        "counters": "callbacks=4; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)",
+        "stream_restarts": 0
+      },
+      "uninterrupted_transport": {
+        "original": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.008223000008911185,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "velvet": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.021481999965544674,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "legato": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.026851000029637362,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "melt": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.020301000063227548,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        }
+      }
+    },
+    {
+      "name": "attacks_and_decays_48000",
+      "rate": 48000,
+      "channels": 2,
+      "samples": 144000,
+      "source_pcm_sha256": "e17e8676f719d2278d578846d8309eb97696691600ba9f18b59464e066556581",
+      "modes": {
+        "original": {
+          "peak": 0.17717967927455902,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.006280067842459579,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004656850950264319,
+          "envelope_p95": 0.1164625195487701,
+          "envelope_cv": 0.978589290336553,
+          "finite": true
+        },
+        "velvet": {
+          "peak": 0.08903322368860245,
+          "relative_residual_rms": 0.8372209540986506,
+          "fitted_gain": 0.3043050593792412,
+          "gain_matched_residual_rms": 0.4657762076110519,
+          "max_adjacent_step": 0.09667770005762577,
+          "adjacent_steps_over_005": 4,
+          "residual_steps_over_002": 74,
+          "envelope_p05": 0.0042448872720030496,
+          "envelope_p95": 0.058392478416761505,
+          "envelope_cv": 0.7388915451503804,
+          "finite": true,
+          "render_seconds": 0.050582572000053005
+        },
+        "remastered_velvet_0": {
+          "peak": 0.17717967927455902,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.006280067842459579,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004656850950264319,
+          "envelope_p95": 0.1164625195487701,
+          "envelope_cv": 0.978589290336553,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.12986839300003794
+        },
+        "remastered_velvet_100": {
+          "peak": 0.17717969417572021,
+          "relative_residual_rms": 0.0002216730281884324,
+          "fitted_gain": 0.9998108097347553,
+          "gain_matched_residual_rms": 0.00011552478073088787,
+          "max_adjacent_step": 0.0062800678424595685,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.00465632936194957,
+          "envelope_p95": 0.11643410332654815,
+          "envelope_cv": 0.9785988021417916,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.15774602800001958
+        },
+        "legato": {
+          "peak": 0.08234766125679016,
+          "relative_residual_rms": 1.004709333334921,
+          "fitted_gain": 0.13103754096644712,
+          "gain_matched_residual_rms": 0.504326371787816,
+          "max_adjacent_step": 0.07040476892143488,
+          "adjacent_steps_over_005": 6,
+          "residual_steps_over_002": 12,
+          "envelope_p05": 0.004397121475812909,
+          "envelope_p95": 0.05761614000873706,
+          "envelope_cv": 0.7490380459082616,
+          "finite": true,
+          "render_seconds": 0.040533878000019286
+        },
+        "remastered_legato_0": {
+          "peak": 0.17717967927455902,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.006280067842459579,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004656850950264319,
+          "envelope_p95": 0.1164625195487701,
+          "envelope_cv": 0.978589290336553,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.15901046900000892
+        },
+        "remastered_legato_100": {
+          "peak": 0.17717894911766052,
+          "relative_residual_rms": 0.04452230452133847,
+          "fitted_gain": 1.029452702047783,
+          "gain_matched_residual_rms": 0.03338823059066343,
+          "max_adjacent_step": 0.0062800678424595685,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.005062631845702223,
+          "envelope_p95": 0.11830131504159257,
+          "envelope_cv": 0.9403885427855612,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.1463069579999683
+        },
+        "melt": {
+          "peak": 0.08162253350019455,
+          "relative_residual_rms": 0.6909580818696095,
+          "fitted_gain": 0.4402892402262074,
+          "gain_matched_residual_rms": 0.40515051066779345,
+          "max_adjacent_step": 0.04492160095833242,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 20,
+          "envelope_p05": 0.0048556543794759125,
+          "envelope_p95": 0.05985991583320546,
+          "envelope_cv": 0.6953294785444358,
+          "finite": true,
+          "render_seconds": 0.04219019499998922
+        },
+        "remastered_melt_0": {
+          "peak": 0.17717967927455902,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.006280067842459579,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004656850950264319,
+          "envelope_p95": 0.1164625195487701,
+          "envelope_cv": 0.978589290336553,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.13807848700002978
+        },
+        "remastered_melt_100": {
+          "peak": 0.17717967927455902,
+          "relative_residual_rms": 9.098786962337139e-07,
+          "fitted_gain": 0.9999999999917975,
+          "gain_matched_residual_rms": 9.098786961967465e-07,
+          "max_adjacent_step": 0.0062800678424595685,
+          "adjacent_steps_over_005": 0,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.004656850950181147,
+          "envelope_p95": 0.11646251954920878,
+          "envelope_cv": 0.9785892869767222,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.19963668100001541
+        }
+      },
+      "mode_switch_transport": {
+        "callback_pcm_max_error": {
+          "original": 0.0,
+          "velvet": 0.0,
+          "legato": 0.0,
+          "melt": 0.0
+        },
+        "consumed_frames": {
+          "original": 512,
+          "velvet": 512,
+          "legato": 512,
+          "melt": 512
+        },
+        "callback_max_ms": 0.017125999988820695,
+        "block_budget_ms": 10.666666666666666,
+        "counters": "callbacks=4; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)",
+        "stream_restarts": 0
+      },
+      "uninterrupted_transport": {
+        "original": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.009354000098937831,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "velvet": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.039909999941301066,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "legato": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.038727999935872504,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "melt": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.059869999972761434,
+          "counters": "callbacks=282; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        }
+      }
+    },
+    {
+      "name": "ember_preserved_excerpt_first_3s",
+      "rate": 44100,
+      "channels": 2,
+      "samples": 132300,
+      "source_pcm_sha256": "78496571d8b1116eba277a218fbd8141beab34f3deeb8967fb48324c15abe1e6",
+      "modes": {
+        "original": {
+          "peak": 0.2584679126739502,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.26795172691345215,
+          "adjacent_steps_over_005": 289,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.024062667507004268,
+          "envelope_p95": 0.16421640947645796,
+          "envelope_cv": 0.4827646901259452,
+          "finite": true
+        },
+        "velvet": {
+          "peak": 0.22719135880470276,
+          "relative_residual_rms": 0.4732427805884821,
+          "fitted_gain": 0.7858415742425406,
+          "gain_matched_residual_rms": 0.4220129121913274,
+          "max_adjacent_step": 0.2177070900797844,
+          "adjacent_steps_over_005": 133,
+          "residual_steps_over_002": 2087,
+          "envelope_p05": 0.021545301398351153,
+          "envelope_p95": 0.1474061659312355,
+          "envelope_cv": 0.4888539782083667,
+          "finite": true,
+          "render_seconds": 0.03514735099997779
+        },
+        "remastered_velvet_0": {
+          "peak": 0.2584679126739502,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.26795172691345215,
+          "adjacent_steps_over_005": 289,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.024062667507004268,
+          "envelope_p95": 0.16421640947645796,
+          "envelope_cv": 0.4827646901259452,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.11683196599994972
+        },
+        "remastered_velvet_100": {
+          "peak": 0.2584556043148041,
+          "relative_residual_rms": 0.0008138770387466865,
+          "fitted_gain": 0.9998698363526989,
+          "gain_matched_residual_rms": 0.0008034010574553089,
+          "max_adjacent_step": 0.26792024075984955,
+          "adjacent_steps_over_005": 289,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.02406792236956668,
+          "envelope_p95": 0.1641784741030781,
+          "envelope_cv": 0.4826999226720723,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.1851483159999816
+        },
+        "legato": {
+          "peak": 0.22719135880470276,
+          "relative_residual_rms": 0.622356195062772,
+          "fitted_gain": 0.6257815466772811,
+          "gain_matched_residual_rms": 0.49728038642778094,
+          "max_adjacent_step": 0.23627816885709763,
+          "adjacent_steps_over_005": 96,
+          "residual_steps_over_002": 2429,
+          "envelope_p05": 0.01757903483137124,
+          "envelope_p95": 0.13268736513725068,
+          "envelope_cv": 0.5212817067064551,
+          "finite": true,
+          "render_seconds": 0.05641888900004233
+        },
+        "remastered_legato_0": {
+          "peak": 0.2584679126739502,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.26795172691345215,
+          "adjacent_steps_over_005": 289,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.024062667507004268,
+          "envelope_p95": 0.16421640947645796,
+          "envelope_cv": 0.4827646901259452,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.15870935999998892
+        },
+        "remastered_legato_100": {
+          "peak": 0.25898587703704834,
+          "relative_residual_rms": 0.012794955358062554,
+          "fitted_gain": 0.9930963712524573,
+          "gain_matched_residual_rms": 0.010772687349538993,
+          "max_adjacent_step": 0.2683015912771225,
+          "adjacent_steps_over_005": 291,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.02404846581068323,
+          "envelope_p95": 0.16273323027605954,
+          "envelope_cv": 0.4816215055800933,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.17235056799995618
+        },
+        "melt": {
+          "peak": 0.22719135880470276,
+          "relative_residual_rms": 0.7359353287569316,
+          "fitted_gain": 0.536760147336949,
+          "gain_matched_residual_rms": 0.5718475732372115,
+          "max_adjacent_step": 0.16940493509173393,
+          "adjacent_steps_over_005": 95,
+          "residual_steps_over_002": 2557,
+          "envelope_p05": 0.017894573572060556,
+          "envelope_p95": 0.12937403064742778,
+          "envelope_cv": 0.5108667844895426,
+          "finite": true,
+          "render_seconds": 0.03502101000003677
+        },
+        "remastered_melt_0": {
+          "peak": 0.2584679126739502,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.26795172691345215,
+          "adjacent_steps_over_005": 289,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.024062667507004268,
+          "envelope_p95": 0.16421640947645796,
+          "envelope_cv": 0.4827646901259452,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.1248423439999442
+        },
+        "remastered_melt_100": {
+          "peak": 0.25847646594047546,
+          "relative_residual_rms": 0.002266821472812781,
+          "fitted_gain": 0.9999889724951064,
+          "gain_matched_residual_rms": 0.002266794649663027,
+          "max_adjacent_step": 0.26793282479047775,
+          "adjacent_steps_over_005": 290,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.0240561323792189,
+          "envelope_p95": 0.16422429461442759,
+          "envelope_cv": 0.4827641121489679,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.14013665899994976
+        }
+      },
+      "mode_switch_transport": {
+        "callback_pcm_max_error": {
+          "original": 0.0,
+          "velvet": 0.0,
+          "legato": 0.0,
+          "melt": 0.0
+        },
+        "consumed_frames": {
+          "original": 512,
+          "velvet": 512,
+          "legato": 512,
+          "melt": 512
+        },
+        "callback_max_ms": 0.016404999996666447,
+        "block_budget_ms": 11.609977324263038,
+        "counters": "callbacks=4; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)",
+        "stream_restarts": 0
+      },
+      "uninterrupted_transport": {
+        "original": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.10761200007891603,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "velvet": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.04060100002334366,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "legato": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.025538999921081995,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "melt": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.21486299999651237,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        }
+      }
+    },
+    {
+      "name": "outbreaker_preserved_excerpt_first_3s",
+      "rate": 44100,
+      "channels": 2,
+      "samples": 132300,
+      "source_pcm_sha256": "20caa7a2b077849ff6c19a679c48ed153b1d26ac0616aa260c6c79b7426cb3bf",
+      "modes": {
+        "original": {
+          "peak": 0.14526450634002686,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.13871097564697266,
+          "adjacent_steps_over_005": 3473,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.0202489629136409,
+          "envelope_p95": 0.12489302937130616,
+          "envelope_cv": 0.4589513550589229,
+          "finite": true
+        },
+        "velvet": {
+          "peak": 0.14374850690364838,
+          "relative_residual_rms": 0.2627691938293757,
+          "fitted_gain": 0.9094637497362125,
+          "gain_matched_residual_rms": 0.24667962342664793,
+          "max_adjacent_step": 0.2153002917766571,
+          "adjacent_steps_over_005": 2483,
+          "residual_steps_over_002": 3355,
+          "envelope_p05": 0.018558942799791235,
+          "envelope_p95": 0.11858583764635626,
+          "envelope_cv": 0.468806630751012,
+          "finite": true,
+          "render_seconds": 0.03343544100005147
+        },
+        "remastered_velvet_0": {
+          "peak": 0.14526450634002686,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.13871097564697266,
+          "adjacent_steps_over_005": 3473,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.0202489629136409,
+          "envelope_p95": 0.12489302937130616,
+          "envelope_cv": 0.4589513550589229,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.11242357300000094
+        },
+        "remastered_velvet_100": {
+          "peak": 0.14513564109802246,
+          "relative_residual_rms": 0.0012619644027556233,
+          "fitted_gain": 0.9995964039995188,
+          "gain_matched_residual_rms": 0.001195685753957943,
+          "max_adjacent_step": 0.13863126374781132,
+          "adjacent_steps_over_005": 3438,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.020240952932062455,
+          "envelope_p95": 0.12482819554919286,
+          "envelope_cv": 0.45884004658553723,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.1336405490000061
+        },
+        "legato": {
+          "peak": 0.14374850690364838,
+          "relative_residual_rms": 0.3255017614516379,
+          "fitted_gain": 0.8692937797376458,
+          "gain_matched_residual_rms": 0.2981061567509936,
+          "max_adjacent_step": 0.20283126831054688,
+          "adjacent_steps_over_005": 2037,
+          "residual_steps_over_002": 6886,
+          "envelope_p05": 0.01755910584512252,
+          "envelope_p95": 0.11635942681512049,
+          "envelope_cv": 0.4773667766713928,
+          "finite": true,
+          "render_seconds": 0.03355895699996836
+        },
+        "remastered_legato_0": {
+          "peak": 0.14526450634002686,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.13871097564697266,
+          "adjacent_steps_over_005": 3473,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.0202489629136409,
+          "envelope_p95": 0.12489302937130616,
+          "envelope_cv": 0.4589513550589229,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.11200240800008032
+        },
+        "remastered_legato_100": {
+          "peak": 0.1429884135723114,
+          "relative_residual_rms": 0.012909117724401066,
+          "fitted_gain": 0.99339924091416,
+          "gain_matched_residual_rms": 0.011093930769260548,
+          "max_adjacent_step": 0.1387364100664854,
+          "adjacent_steps_over_005": 3399,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.020147381865457902,
+          "envelope_p95": 0.12408226490376431,
+          "envelope_cv": 0.45896943662099754,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.13115272900006403
+        },
+        "melt": {
+          "peak": 0.14374850690364838,
+          "relative_residual_rms": 0.36884835523929216,
+          "fitted_gain": 0.85330274420565,
+          "gain_matched_residual_rms": 0.3384213709344286,
+          "max_adjacent_step": 0.13304567709565163,
+          "adjacent_steps_over_005": 1970,
+          "residual_steps_over_002": 10226,
+          "envelope_p05": 0.01794074772067873,
+          "envelope_p95": 0.11543035118564679,
+          "envelope_cv": 0.47000140650759953,
+          "finite": true,
+          "render_seconds": 0.03385158699995827
+        },
+        "remastered_melt_0": {
+          "peak": 0.14526450634002686,
+          "relative_residual_rms": 0.0,
+          "fitted_gain": 1.0,
+          "gain_matched_residual_rms": 0.0,
+          "max_adjacent_step": 0.13871097564697266,
+          "adjacent_steps_over_005": 3473,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.0202489629136409,
+          "envelope_p95": 0.12489302937130616,
+          "envelope_cv": 0.4589513550589229,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.1160593219999555
+        },
+        "remastered_melt_100": {
+          "peak": 0.1451830118894577,
+          "relative_residual_rms": 0.004563498590445737,
+          "fitted_gain": 0.9999626418593146,
+          "gain_matched_residual_rms": 0.004563345675524127,
+          "max_adjacent_step": 0.1387743391096592,
+          "adjacent_steps_over_005": 3472,
+          "residual_steps_over_002": 0,
+          "envelope_p05": 0.020242302601334736,
+          "envelope_p95": 0.12490315082084505,
+          "envelope_cv": 0.458939250734476,
+          "finite": true,
+          "numerical_pass": true,
+          "render_seconds": 0.14442105600005561
+        }
+      },
+      "mode_switch_transport": {
+        "callback_pcm_max_error": {
+          "original": 0.0,
+          "velvet": 0.0,
+          "legato": 0.0,
+          "melt": 0.0
+        },
+        "consumed_frames": {
+          "original": 512,
+          "velvet": 512,
+          "legato": 512,
+          "melt": 512
+        },
+        "callback_max_ms": 0.016796000068097783,
+        "block_budget_ms": 11.609977324263038,
+        "counters": "callbacks=4; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)",
+        "stream_restarts": 0
+      },
+      "uninterrupted_transport": {
+        "original": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.02556799995545589,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "velvet": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.041221999936169595,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "legato": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.02367599995523051,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        },
+        "melt": {
+          "outgoing_pcm_max_error": 0.0,
+          "tail_nonzero": 0,
+          "callback_max_ms": 0.023785999928804813,
+          "counters": "callbacks=259; status events=0; underflows=0; DAC gaps=0 (timestamp deviation >2 samples; not an acoustic measurement)"
+        }
+      }
+    }
+  ]
+}

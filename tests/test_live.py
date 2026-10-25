@@ -520,36 +520,62 @@ def test_pass_b_underflow_zero_fill_overflow_shutdown_and_memory_bound():
 
 
 def test_pass_b_bad_input_device_status_and_processor_failure_are_safe():
-    # This test manually pumps a fake stream. Wall-clock watchdog time can
-    # advance on a busy hosted Mac runner while no fake callback is scheduled,
-    # causing an unrelated disconnect before the intended recovery assertions.
-    # Production monitoring and separate watchdog tests still use real time.
+    # A manually pumped fake has no continuous callback schedule. Hold the
+    # worker's DSP step while each callback runs, as in the bypass/gain tests:
+    # otherwise ring contention can correctly fail-close the LIVE monitor
+    # before this test reaches the intended device-status recovery assertions.
+    # Production callbacks, watchdogs and safety guards remain unchanged.
     backend = FakeBackend()
+    gate = threading.Event()
+    gate.set()
+
+    class ScheduledPassThrough(PassThrough):
+        def process_block(self, block):
+            assert gate.wait(2), "test DSP worker was not released after callback"
+            return super().process_block(block)
+
     monitor = LiveMonitor(
-        backend, processor_factory=PassThrough,
+        backend, processor_factory=ScheduledPassThrough,
         monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
     )
     monitor.start("BlackHole 2ch", "Test speakers")
     warmup(monitor)
+    stream = monitor.stream
+
+    def pump(block, status=None):
+        gate.clear()
+        try:
+            assert not monitor.halt.is_set(), monitor.error
+            return stream.pump(block, status)
+        finally:
+            gate.set()
+
     try:
-        monitor.stream.pump(np.full((BLOCK, 2), np.nan, np.float32))
-        wait_for(lambda: monitor.output.count == 1)
-        out = monitor.stream.pump(np.zeros((BLOCK, 2), np.float32))
+        pump(np.full((BLOCK, 2), np.nan, np.float32))
+        wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
+        assert not monitor.halt.is_set(), monitor.error
+        out = pump(np.zeros((BLOCK, 2), np.float32))
         assert not out.any() and monitor.nonfinite == 1
-        monitor.stream.pump(np.zeros((BLOCK, 2), np.float32),
-                            SimpleNamespace(input_overflow=True, input_underflow=False))
-        assert monitor.recovery_attempts == 1 and not monitor.halt.is_set()
-        monitor.stream.pump(np.zeros((BLOCK, 2), np.float32),
-                            SimpleNamespace(input_overflow=True, input_underflow=False))
+        wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
+        assert not monitor.halt.is_set(), monitor.error
+        pump(np.zeros((BLOCK, 2), np.float32),
+             SimpleNamespace(input_overflow=True, input_underflow=False))
+        assert monitor.recovery_attempts == 1 and not monitor.halt.is_set(), monitor.error
+        pump(np.zeros((BLOCK, 2), np.float32),
+             SimpleNamespace(input_overflow=True, input_underflow=False))
         wait_for(lambda: not monitor.running)
         assert monitor.device_status == 2 and "discontinuity" in monitor.error
         assert monitor.failed_recoveries == 1
     finally:
+        gate.set()
         monitor.stop()
     class Broken(PassThrough):
         def process_block(self, block):
             raise RuntimeError("DSP failed")
-    monitor = LiveMonitor(backend, Broken)
+    monitor = LiveMonitor(
+        backend, Broken,
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.,
+    )
     monitor.start("BlackHole 2ch", "Test speakers")
     warmup(monitor)
     monitor.stream.pump(np.zeros((BLOCK, 2), np.float32))

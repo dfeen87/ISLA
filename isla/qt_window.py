@@ -904,7 +904,7 @@ class ControlWindow(QMainWindow):
             'Finish loading, Remastered preparation, or the current mix save.')
         self.export_progress.setVisible(saving)
         self.export_status.setText(
-            s.save_status if s.save_status != 'No mix saved yet.' else
+            s.save_status if s is not None and s.save_status != 'No mix saved yet.' else
             'Save Mix… exports a separate 32-bit float WAV; '
             'your original and 25% GUI listening gain are unchanged.')
         apply_reason = ('Wait for the current audio command to finish.' if not available else

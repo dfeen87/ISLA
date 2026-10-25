@@ -845,6 +845,11 @@ class ControlWindow(QMainWindow):
                 action, message = value
                 target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'enter_research', 'return_research', 'alive_volume', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
                 target.setText('Action required: ' + message)
+                if action == 'processing':
+                    # Engine activation auto-applies. A rejected request must
+                    # reconcile both controls to the worker's final snapshot;
+                    # ordinary polls still preserve unapplied depth drafts.
+                    self._live_processing_initialized = False
                 if action == 'live_mode':
                     self._live_mode_error = message
                     self._mode_requests.clear()
@@ -1037,6 +1042,11 @@ class ControlWindow(QMainWindow):
             self.global_error.setText(self.cleanup_error)
         elif s.error:
             self.global_error.setText('Action required: ' + s.error)
+        elif not self.busy:
+            # submit() can render the previous error snapshot while waiting.
+            # Clear that banner once a healthy completion is authoritative,
+            # retaining slow-operation and cleanup messages while still busy.
+            self.global_error.setText('')
         self.position.setText(f'{s.position:.2f} / {s.duration:.2f} seconds')
         self.progress.setValue(round(1000 * s.position / s.duration) if s.duration else 0)
         self.open_file.setEnabled(bool(available and s.can_prepare))

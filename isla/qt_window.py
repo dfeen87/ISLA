@@ -494,7 +494,8 @@ class ControlWindow(QMainWindow):
         research_box.addLayout(row)
         self.export_status = label(
             'Save Mix… exports the selected prepared audio as a new 32-bit float WAV. '
-            'The 25% listening-only attenuation is not written to the file.')
+            'The 25% listening-only attenuation is not written to the file. '
+            'Saved audio may play louder elsewhere; lower device volume before listening.')
         self.export_status.setAccessibleName('ALIVE mix export status')
         research_box.addWidget(self.export_status)
         self.export_progress = QProgressBar()

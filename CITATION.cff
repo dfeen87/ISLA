@@ -24,7 +24,5 @@ keywords:
   - Python
 license: MIT
 repository-code: "https://github.com/dfeen87/ISLA"
-url: "https://github.com/dfeen87/ISLA/releases/tag/v3.3.0"
-# Cite an actual published release, not the unreleased v4.0.0 source candidate.
-version: "4.0.0"
+url: "https://github.com/dfeen87/ISLA/releases/tag/v4.0.0"
 date-released: "2026-10-24"

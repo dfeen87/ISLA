@@ -14,6 +14,7 @@ import threading
 
 from isla.playback import AudioError
 from isla.alive_listening_gain import AttenuatedALIVEBackend
+from isla.mix_export import MixExport
 from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.streaming import StreamingDSP
 from isla.live_engine import LiveEngineFactory, current_engine
@@ -100,6 +101,10 @@ class ControlState:
     alive_health: str = ''
     live_opened_output: str = ''
     monitor_applied_volume: int | None = None
+    save_pending: bool = False
+    save_status: str = 'No mix saved yet.'
+    save_mode: str = ''
+    saved_path: str = ''
 
 
 class ControlService:
@@ -120,6 +125,7 @@ class ControlService:
         if not hasattr(controller, '_remastered'):
             controller._remastered = RemasteredSession(controller)
         self.preview = controller._remastered
+        self.mix_export = MixExport()
         self.owns_controller = owns_controller
         self.closed = False
         self.error = ""
@@ -319,6 +325,8 @@ class ControlService:
     def load_file(self, path):
         self._enter()
         self._idle()
+        if self.mix_export.pending:
+            raise AudioError('Finish or cancel Save Mix before opening another file.')
         c = self.controller
         self.preview.reset()
         c.execute('source file')
@@ -358,6 +366,27 @@ class ControlService:
     def prepare_remastered(self, mode, intensity):
         self._enter()
         return self.preview.prepare(mode, intensity)
+
+    def save_mix(self, destination):
+        """Export one committed ALIVE mode, never live routing or listening gain."""
+        self._enter()
+        c, p = self.controller, self.controller.player
+        if c.source != 'file' or c.live.running or c.live.stream is not None:
+            raise AudioError('Select ALIVE and stop LIVE before saving a mix.')
+        if self.preview.job is not None:
+            raise AudioError('Wait for Remastered preparation or cancel it before saving.')
+        if not p.buffers or p.mode not in p.buffers:
+            raise AudioError('Prepare a local recording and choose an ALIVE mode first.')
+        if (p.stream is not None and p.state == 'playing'
+                and getattr(p, '_current', None) is not p._selected):
+            raise AudioError('Wait for the active mode switch to finish before saving.')
+        # The selected buffer is immutable and already prepared/validated.
+        # This intentionally excludes Control Center's 25% speaker attenuation.
+        return self.mix_export.start(p.buffers[p.mode], p.sr, p.mode, destination)
+
+    def cancel_mix_save(self):
+        self._enter()
+        return self.mix_export.cancel()
 
     def cancel_remastered(self):
         self._enter()
@@ -449,12 +478,15 @@ class ControlService:
             (f'{live.config.output_name} (PortAudio {live.config.output_id}; '
              f'native {live.config.identity[1]})' if live.config else 'Not opened'),
             round(live.processor._applied * 100)
-            if isinstance(getattr(live, 'processor', None), ListeningGainDSP) else None)
+            if isinstance(getattr(live, 'processor', None), ListeningGainDSP) else None,
+            self.mix_export.pending, self.mix_export.status,
+            self.mix_export.mode, self.mix_export.saved_path)
 
     def shutdown(self):
         self._enter()
         c = self.controller
         self.preview.cancel()
+        self.mix_export.cancel()  # Abort partial exports before returning ownership.
         # Keep the lease on ANY cleanup failure. Returning a borrowed controller
         # while a worker is still stopping would allow competing streams.
         if self.owns_controller:

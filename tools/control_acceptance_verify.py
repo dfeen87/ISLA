@@ -61,6 +61,13 @@ def verify(rate):
     x = np.full((BLOCK, 2), .4, np.float32)
     source_hash = hashlib.sha256(x.tobytes()).hexdigest()
     backend = MemoryBackend()
+    opened = []
+    original_open = backend.open
+    def record_open(*args):
+        stream = original_open(*args)
+        opened.append(stream)
+        return stream
+    backend.open = record_open
     adapter = AttenuatedALIVEBackend(backend)
     player = BufferPlayer(adapter)
     player.install({'original':np.tile(x, (32, 1))}, rate)
@@ -110,7 +117,7 @@ def verify(rate):
     assert all(row['max_absolute_pcm_error'] == 0 for row in alive+live)
     assert hashlib.sha256(x.tobytes()).hexdigest() == source_hash
     return dict(rate=rate, source_pcm_sha256=source_hash, alive=alive, live=live,
-                alive_stream_restarts=0, live_stream_count=len(duplex.streams),
+                alive_stream_restarts=len(opened)-1, live_stream_count=len(duplex.streams),
                 live_counters=counters, capture_unchanged=True)
 
 

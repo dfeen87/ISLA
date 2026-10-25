@@ -152,3 +152,30 @@ def test_failed_render_keeps_workspace_bypass_then_restores_and_can_retry(tmp_pa
     finally:
         s.shutdown()
         c.close()
+
+
+def test_return_superseded_by_rapid_traditional_choice_does_not_stick(tmp_path):
+    s, c, files = ready_service(tmp_path)
+    try:
+        s.file_command('mode legato')
+        s.file_command('play')
+        s.enter_remastered()
+        s.prepare_remastered('velvet', 0)
+        s.preview.job.complete()
+        s.poll()
+        c.player.stream.pump()
+        s.poll()
+        s.return_previous_mode()
+        assert s.snapshot().research_stage == 'Returning'
+        # A later explicit choice wins before the callback consumes Return.
+        s.file_command('mode melt')
+        s.poll()
+        assert s.snapshot().research_stage == 'Returned'
+        assert c.player.mode == 'melt'
+        c.player.stream.pump()
+        s.poll()
+        assert c.player._current is c.player.buffers['melt']
+        assert not s.preview.workspace and len(files.streams) == 1
+    finally:
+        s.shutdown()
+        c.close()

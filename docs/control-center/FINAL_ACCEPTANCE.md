@@ -73,7 +73,7 @@ handoff, before a memory device stands in for speaker delivery.
 | 100% | 1.00 | 0.40 | 0 |
 
 All **16 gain cells** (two paths × two rates × four levels) pass exactly; source
-capture is unchanged and there is one LIVE stream per rate. Ramps settle over
+capture is unchanged and there is one LIVE stream per rate. The dry LIVE fixture records one initial empty-pipeline output and zero ring failures per rate; this is not a native device underrun measurement. Ramps settle over
 5 ms, including across short blocks. Tests separately change volume during a
 real prepared-mode crossfade, verify sample continuity against its mathematical
 expectation, and confirm saved PCM excludes every listening-gain setting.
@@ -103,7 +103,7 @@ Local final code results (Linux Python 3.12, optional GUI installed):
 
 | Check | Result |
 | --- | --- |
-| Complete suite | **873 passed, 8 skipped, 1 existing xfailed** |
+| Complete suite | **874 passed, 8 skipped, 1 existing xfailed** |
 | Production-only suite | **492 passed, 8 skipped, 1 existing xfailed** |
 | Remastered intensity matrix | **60 cells PASS** |
 | LIVE Remastered equivalence matrix | **60 cells PASS** |
@@ -122,7 +122,7 @@ python -m tools.remastered_live_verify --output remastered-live-verification.jso
 ```
 
 The new tests cover every traditional mode × playing/paused/stopped restoration,
-rapid cancellation/supersession, rejected admission before any playback change,
+rapid cancellation/supersession (including a newer traditional choice during Return), rejected admission before any playback change,
 ready-result cancellation, load/source identity invalidation, shutdown, failed
 render retry/restore, deliberate return, all gain levels, short ramps, live worker
 output, no gain-induced restart, export PCM and fade guards, held native clicks,

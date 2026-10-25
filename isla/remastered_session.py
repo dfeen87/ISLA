@@ -134,6 +134,9 @@ class RemasteredSession:
             return
         if self.job is None:
             p = self.controller.player
+            if self._stage == 'Returning' and p._selected is not self._published_buffer:
+                self._stage = 'Returned'
+                self.state = 'Return superseded by a newer traditional selection.'
             if self._stage in ('Applying', 'Returning') and (p.state != 'playing' or
                     (getattr(p, '_current', None) is self._published_buffer and
                      p._fade_pos >= len(p._fade))):

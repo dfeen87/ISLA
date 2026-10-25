@@ -13,6 +13,7 @@ def test_invalid_render_report_or_pcm_cannot_replace_active_audio(tmp_path, bad)
     try:
         s.file_command('play')
         stream, selected, buffers = c.player.stream, c.player._selected, c.player.buffers
+        s.enter_remastered()
         s.prepare_remastered('velvet', 50)
         job = s.preview.job
         job.complete()
@@ -26,6 +27,7 @@ def test_invalid_render_report_or_pcm_cannot_replace_active_audio(tmp_path, bad)
         assert c.player.stream is stream and not stream.closed
         assert job.closed and s.preview.job is None
         assert s.snapshot().research_stage == 'Failed'
+        s.enter_remastered()
         s.prepare_remastered('melt', 0)
         s.preview.job.complete()
         s.poll()
@@ -47,6 +49,7 @@ def test_real_background_render_preserves_every_outgoing_playback_sample(tmp_pat
     try:
         s.file_command('play')
         stream = c.player.stream
+        s.enter_remastered()
         s.prepare_remastered('melt', 50)
         count = 0
         while c.player.cursor < len(c.player._selected):

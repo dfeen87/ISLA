@@ -89,8 +89,8 @@ def test_widgets_disable_unprepared_controls_and_real_file_lifecycle(app, monkey
         assert w.windowTitle() == 'ISLA — Audio Control Center'
         assert w.file_status.text() == 'Open an audio file to begin'
         assert 'Open Audio File' in w.file_next_step.text()
-        assert '25% software output level' in w.alive_volume_notice.text()
-        assert 'Mac system volume and LIVE volume stay unchanged' in w.alive_volume_notice.text()
+        assert 'Initial ALIVE level: 25%' in w.alive_volume_notice.text()
+        assert w.alive_volume.value() == 25 and w.monitor_volume.value() == 50
         assert not w.play.isEnabled() and not w.pause.isEnabled()
         assert not any(b.isEnabled() for b in w.file_modes.values())
         assert not w.start_live.isEnabled()
@@ -257,7 +257,8 @@ def test_remastered_preflight_blocks_full_songs_but_keeps_production_modes(app):
         assert remastered_readiness(good)[0]
         w.state = good
         w.apply_state()
-        assert w.apply_research.isEnabled()
+        assert w.enter_research.isEnabled()
+        assert not w.apply_research.isEnabled()
         assert 'Eligible local excerpt' in w.research_admission.text()
 
         bad_rate = replace(good, file_sample_rate=32000)
@@ -276,7 +277,7 @@ def test_remastered_preparation_indicator_and_unified_diagnostics(app):
     try:
         current = replace(w.state, file_state=UIState.PLAYING, can_play=True,
                           duration=12.0, file_sample_rate=44100, file_channels=2,
-                          file_mode='legato', research_pending=True,
+                          file_mode='legato', research_pending=True, research_workspace=True,
                           research_status='Rendering Velvet in a separate process…',
                           research_active=False)
         w.state = current
@@ -303,6 +304,7 @@ def test_remastered_preparation_indicator_and_unified_diagnostics(app):
         assert 'Remastered — 60%' in w.research_status.text()
         assert 'verified peak 0.42' in w.health.toPlainText()
         assert w.apply_research.isEnabled()
+        assert w.return_research.isEnabled()
         assert not w.cancel_research.isEnabled()
 
         canceled = replace(current, research_pending=False,
@@ -445,14 +447,16 @@ def test_start_live_original_explicit_reset_and_listening_volume(app):
         assert c.live.mode == 'bypass'
 
         w.monitor_volume.setValue(35)
-        click(app, w, w.apply_volume)
+        wait_ui(app, lambda: w.state.monitor_volume == 35)
         assert w.state.monitor_volume == 35
         assert c.live.processor.volume.percent == 35
         assert '35%' in w.monitor_volume_status.text()
         click(app, w, w.mute_volume)
+        wait_ui(app, lambda: w.state.monitor_volume == 0)
         assert w.state.monitor_volume == 0
         assert w.mute_volume.text() == 'Unmute'
         click(app, w, w.mute_volume)
+        wait_ui(app, lambda: w.state.monitor_volume == 35)
         assert w.state.monitor_volume == 35
         assert len(backend.streams) == 1
         click(app, w, w.stop_live)

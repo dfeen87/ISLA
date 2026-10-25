@@ -21,6 +21,9 @@ class RemasteredSession:
         self.state = 'Opt-in research preview — production modes remain available.'
         self._stage = 'Ready'
         self._published_buffer = None
+        self.workspace = False
+        self.previous_mode = None
+        self._source = None
 
     @property
     def stage(self):
@@ -35,32 +38,86 @@ class RemasteredSession:
                 return 'Unavailable'
         return self._stage
 
-    def cancel(self):
+    def _close_job(self):
         if self.job is not None:
             self.job.close()
             self.job = None
-            self.state = 'Research preparation canceled; active audio preserved.'
-            self._stage = 'Canceled'
         self.requested = None
 
+    def _same_source(self):
+        return (not self.controller.closed and self.controller.source == 'file' and
+                self.controller.player.buffers.get('original') is self._source)
+
+    def admit(self):
+        c, p = self.controller, self.controller.player
+        if c.source != 'file' or c.live.running or c.live.stream is not None:
+            raise AudioError('Use an ALIVE local file and stop LIVE before entering Remastered.')
+        if not p.buffers or c.job is None or not c.job.done:
+            raise AudioError('Load and finish preparing an ALIVE file first.')
+        original = p.buffers['original']
+        if p.sr not in (44100, 48000):
+            raise AudioError('Remastered ALIVE requires a 44.1/48 kHz source.')
+        if original.ndim != 2 or original.shape[1] not in (1, 2):
+            raise AudioError('Remastered ALIVE requires mono or stereo audio.')
+        if not 0 < len(original) <= p.sr * MAX_SECONDS:
+            raise AudioError('Remastered ALIVE requires a non-empty excerpt of at most 30 seconds.')
+
+    def enter(self):
+        self.admit()  # All admission checks precede any playback change.
+        if self.workspace:
+            if self._same_source():
+                return self.state
+            self.reset()
+        p = self.controller.player
+        if p.mode not in ('original', 'velvet', 'legato', 'melt'):
+            raise AudioError('Return to a traditional mode before entering Remastered.')
+        self.previous_mode, self._source = p.mode, p.buffers['original']
+        p.select('original')  # Existing block-edge crossfade; cursor/stream untouched.
+        self.workspace = True
+        self._stage = 'Entered'
+        self.state = 'Remastered workspace entered; Original / Bypass selected.'
+        return self.state
+
+    def cancel(self):
+        self._close_job()  # Cancellation wins even over a completed, unpolled result.
+        self._restore('Canceled')
+
+    def return_previous(self):
+        if self.job is not None:
+            raise AudioError('Cancel Preparation before returning to the previous mode.')
+        self._restore('Returning')
+
+    def _restore(self, stage):
+        p = self.controller.player
+        if self.workspace and self._same_source() and self.previous_mode in p.buffers:
+            p.select(self.previous_mode)
+            self._published_buffer = p._selected
+            self._stage = stage
+            self.state = ('Preparation canceled; ' if stage == 'Canceled' else '') + \
+                f'Returning to previous mode: {self.previous_mode.title()}.'
+        else:
+            self._stage = 'Canceled'
+            self.state = 'Workspace closed; no previous recording restored.'
+        self.workspace = False
+        self.previous_mode = self._source = None
+
     def reset(self):
-        self.cancel()
+        self._close_job()
         self.applied = self.report = None
         self.state = 'Opt-in research preview — production modes remain available.'
         self._stage = 'Ready'
         self._published_buffer = None
+        self.workspace = False
+        self.previous_mode = self._source = None
 
     def prepare(self, mode, intensity):
         c = self.controller
         request = RenderRequest(mode, intensity)
-        if c.source != 'file' or c.live.running or c.live.stream is not None:
-            raise AudioError('Use an ALIVE local file and stop LIVE before preparing Remastered.')
-        if not c.player.buffers or c.job is None or not c.job.done:
-            raise AudioError('Load and finish preparing an ALIVE file first.')
-        # Render the exact decoded source, never a processed buffer or a file
-        # that might have changed since ALIVE loaded it.
+        self.admit()
+        if not self.workspace or not self._same_source():
+            raise AudioError('Enter Remastered before preparing a research mode.')
         source = Path(c.job.directory.name, 'original.npy')
-        self.cancel()
+        self._close_job()
         try:
             self.job = self.factory(source, c.player.sr, request)
         except Exception as exc:
@@ -72,13 +129,18 @@ class RemasteredSession:
         return self.state
 
     def poll(self):
+        if self.workspace and not self._same_source():
+            self.reset()
+            return
         if self.job is None:
             p = self.controller.player
-            if self._stage == 'Applying' and (p.state != 'playing' or
+            if self._stage in ('Applying', 'Returning') and (p.state != 'playing' or
                     (getattr(p, '_current', None) is self._published_buffer and
                      p._fade_pos >= len(p._fade))):
-                self._stage = 'Completed'
-                self.state = 'Validated Remastered buffer selected; transition handed to playback.'
+                returning = self._stage == 'Returning'
+                self._stage = 'Returned' if returning else 'Completed'
+                self.state = ('Previous traditional mode restored.' if returning else
+                              'Validated Remastered buffer selected; transition handed to playback.')
             return
         try:
             result = self.job.poll()
@@ -129,7 +191,7 @@ class RemasteredSession:
             self.state = f'Remastered {request.mode.title()} — {request.intensity}% ready'
         except Exception as exc:
             self.state = str(exc)
-            self.cancel()
+            self._close_job()
             self.state = str(exc)
             self._stage = 'Failed'
             raise

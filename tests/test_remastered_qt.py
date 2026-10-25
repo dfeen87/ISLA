@@ -33,6 +33,7 @@ def test_native_widgets_control_actual_render_without_restarting_audio(app, tmp_
         stream.pump()
         click(app, w, w.research_toggle)
         assert w.research_panel.isVisible()
+        click(app, w, w.enter_research)
         # Real keyboard events exercise both the combo and exact 5% ticks.
         w.research_mode.setFocus()
         QTest.keyClick(w.research_mode, Qt.Key.Key_End)
@@ -61,7 +62,7 @@ def test_native_widgets_control_actual_render_without_restarting_audio(app, tmp_
         click(app, w, w.apply_research)
         wait_ui(app, lambda: w.state.research_intensity == 0 and not w.state.research_pending, timeout=15)
         assert c.player._selected.tobytes() == source.tobytes()
-        click(app, w, w.file_modes['bypass'])
+        click(app, w, w.return_research)
         assert not w.state.research_active and c.player.mode == 'original'
         assert c.player.stream is stream and len(files.streams) == 1
     finally:

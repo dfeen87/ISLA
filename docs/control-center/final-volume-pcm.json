@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "scope": "Outgoing memory-device callback PCM, not physical or acoustic output",
+  "ramp_ms": 5,
+  "cases": [
+    {
+      "rate": 44100,
+      "source_pcm_sha256": "b78d8c78d20c80a28b0204fbedee7036dee7172b5e77d245f8ace4b694c528ee",
+      "alive": [
+        {
+          "percent": 0,
+          "expected_multiplier": 0.0,
+          "measured_multiplier": 0.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": true
+        },
+        {
+          "percent": 25,
+          "expected_multiplier": 0.25,
+          "measured_multiplier": 0.25,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 50,
+          "expected_multiplier": 0.5,
+          "measured_multiplier": 0.5,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 100,
+          "expected_multiplier": 1.0,
+          "measured_multiplier": 1.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        }
+      ],
+      "live": [
+        {
+          "percent": 0,
+          "expected_multiplier": 0.0,
+          "measured_multiplier": 0.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": true
+        },
+        {
+          "percent": 25,
+          "expected_multiplier": 0.25,
+          "measured_multiplier": 0.25,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 50,
+          "expected_multiplier": 0.5,
+          "measured_multiplier": 0.5,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 100,
+          "expected_multiplier": 1.0,
+          "measured_multiplier": 1.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        }
+      ],
+      "alive_stream_restarts": 0,
+      "live_stream_count": 1,
+      "live_counters": {
+        "underflows": 1,
+        "ring_failures": 0
+      },
+      "capture_unchanged": true
+    },
+    {
+      "rate": 48000,
+      "source_pcm_sha256": "b78d8c78d20c80a28b0204fbedee7036dee7172b5e77d245f8ace4b694c528ee",
+      "alive": [
+        {
+          "percent": 0,
+          "expected_multiplier": 0.0,
+          "measured_multiplier": 0.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": true
+        },
+        {
+          "percent": 25,
+          "expected_multiplier": 0.25,
+          "measured_multiplier": 0.25,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 50,
+          "expected_multiplier": 0.5,
+          "measured_multiplier": 0.5,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 100,
+          "expected_multiplier": 1.0,
+          "measured_multiplier": 1.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        }
+      ],
+      "live": [
+        {
+          "percent": 0,
+          "expected_multiplier": 0.0,
+          "measured_multiplier": 0.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": true
+        },
+        {
+          "percent": 25,
+          "expected_multiplier": 0.25,
+          "measured_multiplier": 0.25,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 50,
+          "expected_multiplier": 0.5,
+          "measured_multiplier": 0.5,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        },
+        {
+          "percent": 100,
+          "expected_multiplier": 1.0,
+          "measured_multiplier": 1.0,
+          "max_absolute_pcm_error": 0.0,
+          "all_zero": false
+        }
+      ],
+      "alive_stream_restarts": 0,
+      "live_stream_count": 1,
+      "live_counters": {
+        "underflows": 1,
+        "ring_failures": 0
+      },
+      "capture_unchanged": true
+    }
+  ]
+}

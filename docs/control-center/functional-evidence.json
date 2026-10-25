@@ -1,0 +1,224 @@
+{
+  "scope": "Linux offscreen Qt, fake native devices, real processing/preparation/export; no physical or acoustic acceptance",
+  "tested_baseline": "f643eac259594422b9ff189e97b11a7e2fa5ee3a",
+  "followup_base_identical_tree": "d44561950884b436e85ec8e7354582f0a1eac593",
+  "runtime": {
+    "python": "3.12.14",
+    "system": "Linux",
+    "qt": "6.12.0",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0"
+  },
+  "full_suite": {
+    "command": "python -m pytest -q tests",
+    "passed": 887,
+    "skipped": 8,
+    "xfailed": 1,
+    "failures": 0,
+    "summary": "887 passed, 8 skipped, 1 xfailed, 1 warning in 103.49s (0:01:43)"
+  },
+  "targeted_suite": {
+    "passed": 428,
+    "failures": 0,
+    "summary": "428 passed in 87.18s (0:01:27)"
+  },
+  "new_ui_cases": 10,
+  "pre_repair_new_cases": {
+    "failed": 3,
+    "passed": 4,
+    "failures": [
+      "stale error after valid-file reload",
+      "stale error after output recovery",
+      "rejected LIVE engine displayed as selected"
+    ]
+  },
+  "live_sync_repetitions": {
+    "passed": 200,
+    "test": "test_pass_b_bad_input_device_status_and_processor_failure_are_safe",
+    "production_safeguards_unchanged": true
+  },
+  "remastered_intensity": {
+    "cells": 60,
+    "passed": true
+  },
+  "live_remastered_equivalence": {
+    "cells": 60,
+    "passed": true,
+    "bounded_state": true
+  },
+  "outgoing_gain": {
+    "cells": 16,
+    "cases": [
+      {
+        "rate": 44100,
+        "source_pcm_sha256": "b78d8c78d20c80a28b0204fbedee7036dee7172b5e77d245f8ace4b694c528ee",
+        "alive": [
+          {
+            "percent": 0,
+            "expected_multiplier": 0.0,
+            "measured_multiplier": 0.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": true
+          },
+          {
+            "percent": 25,
+            "expected_multiplier": 0.25,
+            "measured_multiplier": 0.25,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 50,
+            "expected_multiplier": 0.5,
+            "measured_multiplier": 0.5,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 100,
+            "expected_multiplier": 1.0,
+            "measured_multiplier": 1.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          }
+        ],
+        "live": [
+          {
+            "percent": 0,
+            "expected_multiplier": 0.0,
+            "measured_multiplier": 0.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": true
+          },
+          {
+            "percent": 25,
+            "expected_multiplier": 0.25,
+            "measured_multiplier": 0.25,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 50,
+            "expected_multiplier": 0.5,
+            "measured_multiplier": 0.5,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 100,
+            "expected_multiplier": 1.0,
+            "measured_multiplier": 1.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          }
+        ],
+        "alive_stream_restarts": 0,
+        "live_stream_count": 1,
+        "live_counters": {
+          "underflows": 1,
+          "ring_failures": 0
+        },
+        "capture_unchanged": true
+      },
+      {
+        "rate": 48000,
+        "source_pcm_sha256": "b78d8c78d20c80a28b0204fbedee7036dee7172b5e77d245f8ace4b694c528ee",
+        "alive": [
+          {
+            "percent": 0,
+            "expected_multiplier": 0.0,
+            "measured_multiplier": 0.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": true
+          },
+          {
+            "percent": 25,
+            "expected_multiplier": 0.25,
+            "measured_multiplier": 0.25,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 50,
+            "expected_multiplier": 0.5,
+            "measured_multiplier": 0.5,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 100,
+            "expected_multiplier": 1.0,
+            "measured_multiplier": 1.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          }
+        ],
+        "live": [
+          {
+            "percent": 0,
+            "expected_multiplier": 0.0,
+            "measured_multiplier": 0.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": true
+          },
+          {
+            "percent": 25,
+            "expected_multiplier": 0.25,
+            "measured_multiplier": 0.25,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 50,
+            "expected_multiplier": 0.5,
+            "measured_multiplier": 0.5,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          },
+          {
+            "percent": 100,
+            "expected_multiplier": 1.0,
+            "measured_multiplier": 1.0,
+            "max_absolute_pcm_error": 0.0,
+            "all_zero": false
+          }
+        ],
+        "alive_stream_restarts": 0,
+        "live_stream_count": 1,
+        "live_counters": {
+          "underflows": 1,
+          "ring_failures": 0
+        },
+        "capture_unchanged": true
+      }
+    ]
+  },
+  "layout_sizes": [
+    [
+      1040,
+      830
+    ],
+    [
+      800,
+      600
+    ],
+    [
+      1440,
+      900
+    ]
+  ],
+  "sha256": {
+    "isla/qt_window.py": "e44cb64435bff2651822ceb89b930b2952e3b5af5b43a37e19660848ef81515c",
+    "tests/test_control_acceptance_qt.py": "2b7d54b08c42572dd24e60ab79861a3b205761134a2337922192191be88b0db7",
+    "tests/test_control_layout_qt.py": "4f48430367f921b25d130bc8647852f2d155ffb506447e39d2f0953810482dfd",
+    "tests/test_live.py": "09cb015d52d8db72b852d8d26750b39555a7f7d091e3d0686eb37fed13fa907f",
+    "isla/playback.py": "6f271d1212ee4fa5083ac3f6ddfdd49c26b001b251cc410d43e62f2887c396a3",
+    "isla/live.py": "98dce915a5c64f05ee85ebd343076c4bdf214e52c92c744400c4519cd02d38b4",
+    "isla/streaming.py": "221a99a03a7425595a79bb8d86460e3d0c43c4a1233ca9576d8431796983413f",
+    "isla/remastered.py": "daca187a2d6e47a11313b540ab1becece7274d8b045f11532aefd88455bb486b",
+    "isla/remastered_session.py": "98eee9cb1125d086ca307a4c229ac26a751b64616585b81a736ed8cbb91c888e",
+    "isla/mix_export.py": "c42013289e10ece53b10d96d2209d9c5f2d5e07fb2d10e731da9ee5cf5d5c339",
+    "tools/resonance02/core.py": "91a673b9c894d4af768ae966177d0f38c3f17d8e2b9e898e82e2082e083158a0"
+  },
+  "release": "HOLD: native macOS routing, attenuation, export/listening, scheduling and historical symptoms remain creator checks"
+}

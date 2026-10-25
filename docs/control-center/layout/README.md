@@ -26,7 +26,7 @@ routing and export buttons stack vertically to preserve their complete labels.
   the collapsible research settings.
 - LIVE engine, depth, effects, volume, Mute, Start/Stop, recovery guidance and
   diagnostics retained. No LIVE export added.
-- Only layout construction changed in application code. Event handlers, worker,
+- The initial presentation commit changed only layout construction. Event handlers, worker,
   control service, callbacks, DSP, routing, export and research files unchanged.
 
 ## Verification
@@ -45,6 +45,22 @@ routing and export buttons stack vertically to preserve their complete labels.
   horizontal scrolling at the default size.
 - Before/after offscreen screenshots reviewed. Original-string multiset and
   runtime control inventory compared; `git diff --check` passes.
+
+### Subsequent functional acceptance
+
+The branch also contains a **test-only** synchronization change in
+`tests/test_live.py` (`f643eac`). The manually pumped recovery-status test uses
+its fake stream clock for watchdog time and gates DSP completion during each
+callback. It still asserts nonfinite-input silencing, one admitted recovery,
+fail-closed repeated capture loss, retained failure counters and processor-error
+shutdown. It does not change production monitoring, timing, ring contention or
+recovery safeguards. The functional pass repeated this test 200 times successfully;
+separate real-clock watchdog, ring contention, starvation and routing-loss tests
+remain in the suite. This scheduling test is not native device evidence.
+
+The later [functional acceptance pass](../FUNCTIONAL_ACCEPTANCE.md) adds two
+small Qt state-recovery repairs and interaction regressions. Therefore the final
+PR is no longer strictly layout-only; audio/DSP/backend implementation is unchanged.
 
 ## Deliberate deviations and limitations
 

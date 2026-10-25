@@ -24,12 +24,26 @@ def test_columns_and_collapsed_research_keep_controls_reachable(app, size):
             w.research_toggle.setChecked(expanded)
             app.processEvents()
             assert w.research_panel.isVisible() == expanded
-            assert w.save_mix_button.isVisible() and w.return_research.isVisible()
+            assert all(control.isVisible() for control in (
+                w.save_mix_button, w.cancel_research, w.return_research))
             assert all(a.geometry().right() < b.geometry().left()
                        for a, b in zip(panels, panels[1:]))
-            for control in (w.open_file, w.apply_output, w.research_toggle,
-                            w.save_mix_button, w.return_research, w.start_live,
-                            w.monitor_volume, w.health):
+            controls = (w.open_file, w.play, w.pause, w.stop_file,
+                        w.alive_volume, w.file_output, w.apply_output,
+                        *w.file_modes.values(), w.research_toggle,
+                        w.save_mix_button, w.cancel_research, w.return_research,
+                        w.capture, w.output, w.rate, w.apply_devices, w.settings,
+                        w.recheck, w.start_live, w.stop_live, w.live_engine,
+                        w.live_intensity, w.apply_live_intensity,
+                        w.live_mode_choice, w.reset_live_mode,
+                        w.monitor_volume, w.mute_volume, w.health)
+            if expanded:
+                controls += (w.enter_research, w.research_mode,
+                             w.research_intensity, w.apply_research)
+            for control in controls:
+                assert control.parentWidget().rect().contains(control.geometry())
+                if hasattr(control, 'text') and control.text():
+                    assert control.width() >= control.minimumSizeHint().width()
                 target = control.mapTo(scroll.widget(), control.rect().center())
                 scroll.ensureVisible(target.x(), target.y())
                 app.processEvents()

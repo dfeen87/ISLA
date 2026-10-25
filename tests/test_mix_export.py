@@ -81,3 +81,27 @@ def test_nonfinite_and_invalid_or_overwrite_targets_fail_closed(tmp_path):
     with pytest.raises(FileExistsError):
         export.start(np.zeros((512, 1), np.float32), 48000, 'melt', str(existing))
     assert existing.read_bytes() == b'protected original'
+
+
+def test_save_completed_governed_remastered_buffer_exactly(tmp_path):
+    """Remastered saving uses only the validated, applied DSP result."""
+    from test_remastered_preparation import ready_service
+    service, controller, _ = ready_service(tmp_path)
+    try:
+        service.prepare_remastered('velvet', 50)
+        service.preview.job.complete()
+        service.poll()
+        assert controller.player.mode == 'remastered_velvet'
+        expected = controller.player.buffers['remastered_velvet'].copy()
+        output = tmp_path / 'governed-velvet.wav'
+        service.save_mix(str(output))
+        done(service.mix_export)
+        assert output.is_file(), service.mix_export.status
+        actual, sr = sf.read(str(output), always_2d=True, dtype='float32')
+        assert sr == 48000
+        np.testing.assert_array_equal(actual, expected)
+        assert controller.player.buffers['original'].shape == expected.shape
+        assert service.snapshot().research_active
+    finally:
+        service.shutdown()
+        controller.close()

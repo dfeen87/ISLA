@@ -8,7 +8,8 @@ dependencies = ["numpy", "scipy", "soundfile>=0.12"]
 
 [project.optional-dependencies]
 playback = ["sounddevice>=0.5,<0.6"]
-gui = ["sounddevice>=0.5,<0.6", "PySide6-Essentials>=6.8,<7"]
+# 6.12.0 miscounts None references on Linux/Python 3.10 (fatal Qt binding abort).
+gui = ["sounddevice>=0.5,<0.6", "PySide6-Essentials>=6.8,<7,!=6.12.0"]
 
 [project.scripts]
 isla = "drivers.cli:main"

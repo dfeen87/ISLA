@@ -36,11 +36,25 @@ remains **REVISE / INCONCLUSIVE**; application release remains **HOLD**.
    Unapplied depth drafts still survive ordinary polling; the rejection stays
    visible and the controls remain usable for retry.
 
-These are the only additional production changes: **10 lines in
-`isla/qt_window.py`**. No DSP math, audio callback, LIVE transport, gain adapter,
+3. **Python 3.10 Qt binding abort — corrected dependency compatibility.** The
+   first hosted Linux 3.10 full suite aborted at `af230c8`. Local reproduction
+   identified `Fatal Python error: none_dealloc: deallocating None`. A standalone
+   QApplication/QComboBox/QPushButton probe, importing no ISLA implementation,
+   showed `currentData()`, `itemData(0)` and `setEnabled(True)` each losing 200
+   references to `None` in 200 calls with PySide6/Shiboken **6.12.0**. The same
+   probe with **6.11.2** has zero reference drift and exits normally. This is a
+   pre-existing dependency compatibility defect exposed by sustained interaction
+   coverage. `pyproject.toml` now excludes exactly `6.12.0`; no broader version
+   series is excluded. A subprocess regression checks all three bindings without
+   allowing a fatal dependency failure to kill pytest. No upstream issue ID or
+   fix is asserted; this conclusion comes from direct reproduction.
+
+Production changes are **10 lines in `isla/qt_window.py`** plus the one exact
+optional-GUI dependency exclusion and its comment. No DSP math, audio callback, LIVE transport, gain adapter,
 renderer, export writer, resource-ownership or CI safeguard changes.
 
-`tests/test_control_acceptance_qt.py` adds ten interaction cases, reusing the
+`tests/test_control_acceptance_qt.py` adds ten interaction cases and the isolated
+Qt binding regression, reusing the
 existing fake-device/window fixtures and predicate/event synchronization. They
 exercise file-picker cancellation and real invalid-file/reload preparation,
 replacing an interrupted preparation, output/rate draft persistence and stale
@@ -81,7 +95,7 @@ still deliberately exercise real-time watchdog and contention safeguards. No
 production timing/recovery limits were changed. See the
 [updated layout documentation](layout/README.md).
 
-No independent new backend defect was confirmed in this environment, so no
+No independent new audio backend defect was confirmed in this environment, so no
 speculative backend repair or separate corrective PR was created. Native brief
 playback/failure, speaker attenuation and reported bubbling remain **unverified
 hardware/perceptual release blockers**, not claims of resolution.
@@ -100,7 +114,7 @@ python -m tools.remastered_live_verify --output live-remastered-verification.jso
 git diff --check
 ```
 
-Exact local counts and matrix summaries are recorded in
+Exact final local counts (Python 3.10 and 3.12 with Qt 6.11.2) and matrix summaries are recorded in
 [`functional-evidence.json`](functional-evidence.json). The existing eight Linux
 skips are native macOS codec tests. The existing strict expected failure concerns
 nonzero-strength harmonic chunk continuity (`Residual Risk #1`), not a newly

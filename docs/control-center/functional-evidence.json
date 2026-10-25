@@ -5,22 +5,22 @@
   "runtime": {
     "python": "3.12.14",
     "system": "Linux",
-    "qt": "6.12.0",
+    "qt": "6.11.2",
     "numpy": "2.3.5",
     "scipy": "1.17.0"
   },
   "full_suite": {
     "command": "python -m pytest -q tests",
-    "passed": 887,
+    "passed": 888,
     "skipped": 8,
     "xfailed": 1,
     "failures": 0,
-    "summary": "887 passed, 8 skipped, 1 xfailed, 1 warning in 103.49s (0:01:43)"
+    "summary": "888 passed, 8 skipped, 1 xfailed, 1 warning in 110.62s (0:01:50)"
   },
   "targeted_suite": {
-    "passed": 428,
+    "passed": 429,
     "failures": 0,
-    "summary": "428 passed in 87.18s (0:01:27)"
+    "summary": "429 passed in 90.33s (0:01:30)"
   },
   "new_ui_cases": 10,
   "pre_repair_new_cases": {
@@ -209,7 +209,7 @@
   ],
   "sha256": {
     "isla/qt_window.py": "e44cb64435bff2651822ceb89b930b2952e3b5af5b43a37e19660848ef81515c",
-    "tests/test_control_acceptance_qt.py": "2b7d54b08c42572dd24e60ab79861a3b205761134a2337922192191be88b0db7",
+    "tests/test_control_acceptance_qt.py": "c33c554763be43a480b2949d1cc4172dd65ce6b9f71b0dbd7228287935e8aa1a",
     "tests/test_control_layout_qt.py": "4f48430367f921b25d130bc8647852f2d155ffb506447e39d2f0953810482dfd",
     "tests/test_live.py": "09cb015d52d8db72b852d8d26750b39555a7f7d091e3d0686eb37fed13fa907f",
     "isla/playback.py": "6f271d1212ee4fa5083ac3f6ddfdd49c26b001b251cc410d43e62f2887c396a3",
@@ -218,7 +218,39 @@
     "isla/remastered.py": "daca187a2d6e47a11313b540ab1becece7274d8b045f11532aefd88455bb486b",
     "isla/remastered_session.py": "98eee9cb1125d086ca307a4c229ac26a751b64616585b81a736ed8cbb91c888e",
     "isla/mix_export.py": "c42013289e10ece53b10d96d2209d9c5f2d5e07fb2d10e731da9ee5cf5d5c339",
-    "tools/resonance02/core.py": "91a673b9c894d4af768ae966177d0f38c3f17d8e2b9e898e82e2082e083158a0"
+    "tools/resonance02/core.py": "91a673b9c894d4af768ae966177d0f38c3f17d8e2b9e898e82e2082e083158a0",
+    "pyproject.toml": "d97ecdcca2783928c6127f481efcf11b2be8b99b9a3251ab30007d0dfe1ef979"
   },
-  "release": "HOLD: native macOS routing, attenuation, export/listening, scheduling and historical symptoms remain creator checks"
+  "release": "HOLD: native macOS routing, attenuation, export/listening, scheduling and historical symptoms remain creator checks",
+  "full_suite_python310": {
+    "python": "3.10.22",
+    "qt": "6.11.2",
+    "passed": 888,
+    "skipped": 8,
+    "xfailed": 1,
+    "failures": 0,
+    "summary": "888 passed, 8 skipped, 1 xfailed, 1 warning in 109.59s (0:01:49)"
+  },
+  "new_qt_runtime_cases": 1,
+  "qt_runtime_compatibility": {
+    "initial_hosted_sha": "af230c8fe5f9cf55a95bfe3cf487e61f9ee32082",
+    "failed_job": 121057865209,
+    "classification": "Pre-existing optional dependency compatibility defect, reproduced outside ISLA",
+    "bad_version": "6.12.0",
+    "reproduced_platform": "Linux x86_64 / Python 3.10.22",
+    "fatal_error": "none_dealloc: deallocating None",
+    "probe_calls_per_method": 200,
+    "bad_none_reference_delta": {
+      "currentData": -200,
+      "itemData": -200,
+      "setEnabled": -200
+    },
+    "verified_version": "6.11.2",
+    "good_none_reference_delta": {
+      "currentData": 0,
+      "itemData": 0,
+      "setEnabled": 0
+    },
+    "fix": "Exclude exactly PySide6-Essentials==6.12.0; retain every interaction assertion and safeguard"
+  }
 }

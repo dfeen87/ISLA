@@ -1,6 +1,9 @@
 """Dashboard interaction acceptance with fake devices, never acoustic evidence."""
 from pathlib import Path
 from types import SimpleNamespace
+import os
+import subprocess
+import sys
 import threading
 
 import numpy as np
@@ -18,6 +21,35 @@ from test_control import prepared_buffers
 from isla.qt_window import CommandWorker, ControlWindow
 from test_qt_window import app, click, close_window, wait_ui, window_session
 from test_remastered_preparation import DeferredRender
+
+
+def test_qt_none_returning_bindings_preserve_python_reference_ownership():
+    # Isolate fatal binding failures from pytest. 6.12.0 decrefs None on every
+    # currentData/itemData/setEnabled call under 3.10, even without ISLA code.
+    probe = '''
+import sys
+from PySide6.QtWidgets import QApplication, QComboBox, QPushButton
+app = QApplication([])
+combo = QComboBox()
+combo.addItem('placeholder', None)
+button = QPushButton('probe')
+for name, action in [('currentData', combo.currentData),
+                     ('itemData', lambda: combo.itemData(0)),
+                     ('setEnabled', lambda: button.setEnabled(True))]:
+    for _ in range(20):
+        action()
+    before = sys.getrefcount(None)
+    for _ in range(200):
+        action()
+    delta = sys.getrefcount(None) - before
+    print(name, delta, flush=True)
+    assert delta == 0, (name, delta)
+'''
+    result = subprocess.run([sys.executable, '-c', probe], capture_output=True,
+                            text=True, timeout=15,
+                            env=dict(os.environ, QT_QPA_PLATFORM='offscreen'))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.splitlines() == ['currentData 0', 'itemData 0', 'setEnabled 0']
 
 
 def held_click(app, w, button):

@@ -18,12 +18,21 @@ def test_columns_and_collapsed_research_keep_controls_reachable(app, size):
         assert panels[0].isAncestorOf(w.play)
         assert panels[1].isAncestorOf(w.research_panel)
         assert panels[1].isAncestorOf(w.save_mix_button)
+        # LIVE diagnostics and volume remain in the center, with effects and
+        # routing in the right panel even when Remastered is collapsed.
+        for widget in (w.live_status, w.live_error, w.monitor_volume,
+                       w.mute_volume, w.health):
+            assert panels[1].isAncestorOf(widget)
+            assert not panels[2].isAncestorOf(widget)
         assert panels[2].isAncestorOf(w.live_engine)
+        assert panels[2].isAncestorOf(w.start_live)
+        assert panels[2].isAncestorOf(w.stop_live)
         assert w.timer.interval() == 50
         for expanded in (True, False, True):
             w.research_toggle.setChecked(expanded)
             app.processEvents()
             assert w.research_panel.isVisible() == expanded
+            assert w.health.isVisible() and w.monitor_volume.isVisible()
             assert all(control.isVisible() for control in (
                 w.save_mix_button, w.cancel_research, w.return_research))
             assert all(a.geometry().right() < b.geometry().left()

@@ -94,6 +94,43 @@ def test_split_telemetry_retains_every_original_diagnostic_line(app):
         close_window(app, w, controller)
 
 
+
+@pytest.mark.parametrize('width', [1100, 800, 640])
+def test_footer_wave_signature_stays_between_original_buttons(app, width):
+    w, controller, *_ = window_session(app)
+    try:
+        w.resize(width, 900)
+        app.processEvents()
+        footer = w.centralWidget().layout().itemAt(
+            w.centralWidget().layout().count() - 1
+        ).layout()
+        assert footer.indexOf(w.refresh) < footer.indexOf(w.wave_signature)
+        assert footer.indexOf(w.wave_signature) < footer.indexOf(w.close_button)
+        signature = w.wave_signature
+        assert signature.isVisible()
+        assert signature.objectName() == 'footerWaveSignature'
+        assert signature.accessibleName() == (
+            'Decorative Velvet, Legato, and Melt waveform signature'
+        )
+        assert 'not live audio' in signature.toolTip()
+        assert tuple(wave[0] for wave in signature._WAVES) == (
+            'VELVET', 'LEGATO', 'MELT')
+        assert len({wave[1] for wave in signature._WAVES}) == 3
+        assert signature._wave_timer.interval() == 80
+        assert signature._wave_timer.isActive()
+        assert w.timer.interval() == 50  # Original polling, unchanged.
+        assert w.refresh.isVisible() and w.close_button.isVisible()
+        assert w.refresh.geometry().right() < signature.geometry().left()
+        assert signature.geometry().right() < w.close_button.geometry().left()
+        assert not signature.grab().isNull()
+        signature.hide()
+        assert not signature._wave_timer.isActive()
+        signature.show()
+        assert signature._wave_timer.isActive()
+    finally:
+        close_window(app, w, controller)
+
+
 def test_capture_control_center_reference(app):
     directory = os.environ.get('ISLA_UI_SCREENSHOT_DIR')
     if not directory:

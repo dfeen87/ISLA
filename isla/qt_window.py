@@ -16,7 +16,7 @@ import threading
 import time
 
 from PySide6.QtCore import QEvent, QTimer, Qt
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QFontDatabase, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QButtonGroup, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
     QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
@@ -34,6 +34,49 @@ SOUND_SETTINGS_URL = 'x-apple.systempreferences:com.apple.Sound-Settings.extensi
 MANUAL_SETTINGS = 'Open Apple menu → System Settings → Sound → Output and select BlackHole 2ch. Keep physical speakers/headphones selected inside ISLA.'
 RESTORE_OUTPUT = 'After LIVE stops: if macOS still uses BlackHole, restore your normal speakers/headphones in System Settings → Sound → Output to hear ordinary Mac audio.'
 _application = None  # Reuse our Qt instance across terminal window/close cycles.
+
+# Presentation only: audio, routing, and diagnostic values remain unchanged.
+CONTROL_CENTER_STYLE = """
+QGroupBox#alivePanel, QGroupBox#remasteredPanel, QGroupBox#livePanel,
+QGroupBox#monitorPanel, QGroupBox#telemetryPanel {
+    border: 1px solid #B7D4FF; border-radius: 8px;
+    margin-top: 14px; padding-top: 8px;
+}
+QGroupBox#alivePanel::title, QGroupBox#remasteredPanel::title,
+QGroupBox#livePanel::title, QGroupBox#monitorPanel::title,
+QGroupBox#telemetryPanel::title {
+    subcontrol-origin: margin; left: 10px; padding: 0 5px;
+    color: #2F80ED; font-weight: bold;
+}
+QLabel#telemetryHeading { color: #1D5FA9; font-weight: bold; padding: 3px 0; }
+QLabel#sessionActivity { color: #1C5DA3; font-weight: bold; }
+QPlainTextEdit#telemetryText {
+    background: #F5F9FF; color: #152C46;
+    border: 1px solid #B7D4FF; border-radius: 5px;
+    selection-background-color: #2F80ED;
+}
+QPushButton#primaryAction {
+    background: #2F80ED; color: white;
+    border: 1px solid #246DC9; border-radius: 6px;
+    padding: 5px 9px; font-weight: bold;
+}
+QPushButton#primaryAction:hover:enabled { background: #4A90FF; }
+QPushButton#primaryAction:pressed:enabled { background: #215FAF; }
+QPushButton#primaryAction:disabled {
+    background: #E2E8F0; border: 1px solid #CED8E5; color: #758399;
+}
+QSlider#audioLevelSlider::groove:horizontal {
+    height: 6px; background: #D8E7F8; border-radius: 3px;
+}
+QSlider#audioLevelSlider::sub-page:horizontal {
+    background: #2F80ED; border-radius: 3px;
+}
+QSlider#audioLevelSlider::handle:horizontal {
+    background: #F7FBFF; border: 2px solid #2F80ED;
+    width: 14px; margin: -6px 0; border-radius: 8px;
+}
+"""
+
 
 
 def alive_next_step(state, *, busy=None):
@@ -378,9 +421,15 @@ class ControlWindow(QMainWindow):
         self.cleanup_error = ''
         self.worker_failed = False
         self.setWindowTitle('ISLA — Audio Control Center')
-        self.resize(1040, 830)
+        # Taller by default, but respect the usable macOS display size.
+        screen = QApplication.primaryScreen()
+        usable = screen.availableGeometry() if screen is not None else None
+        width = min(1100, max(640, usable.width() - 48)) if usable else 1100
+        height = min(950, max(500, usable.height() - 56)) if usable else 950
+        self.resize(width, height)
         root = QWidget()
         outer = QVBoxLayout(root)
+        self.setStyleSheet(CONTROL_CENTER_STYLE)
         title = label('ISLA — Audio Control Center')
         font = title.font()
         font.setPointSize(20)
@@ -389,17 +438,24 @@ class ControlWindow(QMainWindow):
         outer.addWidget(title)
         outer.addWidget(label('ALIVE plays a prepared local file. LIVE listens to Mac system audio through BlackHole. One session owns the audio.'))
         self.activity = label('Connecting to the audio session…')
+        self.activity.setObjectName('sessionActivity')
         outer.addWidget(self.activity)
         self.global_error = label()
         outer.addWidget(self.global_error)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         contents = QWidget()
-        columns = QHBoxLayout(contents)
-        columns.setSpacing(12)
-        columns.addWidget(self._file_panel(), 1)
-        columns.addWidget(self._remastered_panel(), 1)
-        columns.addWidget(self._live_panel(), 1)
+        columns = QGridLayout(contents)
+        columns.setHorizontalSpacing(12)
+        columns.setVerticalSpacing(12)
+        for col in range(3):
+            columns.setColumnStretch(col, 1)
+        # LIVE keeps its full routing workflow on the right; the lower
+        # ALIVE/Remastered width is dedicated to readable telemetry.
+        columns.addWidget(self._file_panel(), 0, 0)
+        columns.addWidget(self._remastered_panel(), 0, 1)
+        columns.addWidget(self._live_panel(), 0, 2, 2, 1)
+        columns.addWidget(self._diagnostics_panel(), 1, 0, 1, 2)
         columns.setAlignment(Qt.AlignmentFlag.AlignTop)
         scroll.setWidget(contents)
         outer.addWidget(scroll, 1)
@@ -452,6 +508,7 @@ class ControlWindow(QMainWindow):
         group = QGroupBox(title)
         box = QVBoxLayout(group)
         slider = QSlider(Qt.Orientation.Horizontal)
+        slider.setObjectName('audioLevelSlider')
         slider.setRange(0, 100)
         slider.setValue(default)
         slider.setAccessibleName(title + ' (0 to 100 percent digital amplitude)')
@@ -479,8 +536,10 @@ class ControlWindow(QMainWindow):
 
     def _file_panel(self):
         panel = QGroupBox('ALIVE — Local Audio File')
+        panel.setObjectName('alivePanel')
         box = QVBoxLayout(panel)
         self.open_file = QPushButton('Open Audio File…')
+        self.open_file.setObjectName('primaryAction')
         self.open_file.setToolTip('WAV and other local audio; on macOS, DRM-free purchased M4A / AAC and Apple Lossless.')
         self.open_file.clicked.connect(self.choose_file)
         box.addWidget(self.open_file)
@@ -526,6 +585,7 @@ class ControlWindow(QMainWindow):
     def _remastered_panel(self):
         # Presentation only: ALIVE research keeps its existing signals/state.
         panel = QGroupBox('v4.0 Remastered')
+        panel.setObjectName('remasteredPanel')
         box = QVBoxLayout(panel)
         self.research_toggle = QPushButton('Show v4.0 Remastered (Experimental ALIVE)')
         self.research_toggle.setCheckable(True)
@@ -606,7 +666,8 @@ class ControlWindow(QMainWindow):
         box.addWidget(self.export_status)
         # The centre workspace remains useful even when Remastered is collapsed.
         # Create the monitoring host here, then populate it while building LIVE.
-        monitoring = QGroupBox('LIVE — Monitoring & Diagnostics')
+        monitoring = QGroupBox('LIVE — Listening Monitor')
+        monitoring.setObjectName('monitorPanel')
         self.live_monitoring_layout = QVBoxLayout(monitoring)
         box.addWidget(monitoring)
         box.addStretch()
@@ -614,6 +675,7 @@ class ControlWindow(QMainWindow):
 
     def _live_panel(self):
         panel = QGroupBox('LIVE — Mac System Audio')
+        panel.setObjectName('livePanel')
         box = QVBoxLayout(panel)
         form = QFormLayout()
         form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
@@ -631,6 +693,7 @@ class ControlWindow(QMainWindow):
         form.addRow('Sample rate', self.rate)
         box.addLayout(form)
         self.apply_devices = QPushButton('Apply LIVE Devices / Select LIVE Source')
+        self.apply_devices.setObjectName('primaryAction')
         self.apply_devices.clicked.connect(lambda: self.submit('devices', self.capture.currentData(), self.output.currentData(), self.rate.currentData()))
         box.addWidget(self.apply_devices)
         self.device_status = label('Device discovery pending.')
@@ -652,6 +715,7 @@ class ControlWindow(QMainWindow):
         box.addWidget(label('Step 4 — Start Monitoring'))
         row = QHBoxLayout()
         self.start_live = QPushButton('Start LIVE')
+        self.start_live.setObjectName('primaryAction')
         self.start_live.clicked.connect(lambda: self.submit('start'))
         self.stop_live = QPushButton('Stop LIVE')
         self.stop_live.clicked.connect(self._request_live_stop)
@@ -678,6 +742,7 @@ class ControlWindow(QMainWindow):
         box.addWidget(self.live_intensity)
         box.addWidget(self.live_intensity_value)
         self.apply_live_intensity = QPushButton('Apply LIVE Engine / Depth')
+        self.apply_live_intensity.setObjectName('primaryAction')
         self.apply_live_intensity.clicked.connect(self._apply_live_processing)
         box.addWidget(self.apply_live_intensity)
         self.live_processing_status = label()
@@ -705,15 +770,33 @@ class ControlWindow(QMainWindow):
         monitor.addWidget(self.live_status)
         monitor.addWidget(self.live_error)
         monitor.addWidget(self._volume_control('volume', 'LIVE Listening Volume', 50))
-        monitor.addWidget(label('Diagnostics — ALIVE / LIVE (scroll for render status and counters)'))
-        self.health = QPlainTextEdit()
-        self.health.setReadOnly(True)
-        self.health.setAccessibleName('ALIVE and LIVE diagnostics (scrollable)')
-        self.health.setMinimumHeight(230)
-        self.health.setMaximumHeight(300)
-        self.health.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        monitor.addWidget(self.health)
         monitor.addWidget(label(RESTORE_OUTPUT))
+        return panel
+
+    def _diagnostics_panel(self):
+        # Split one authoritative immutable diagnostic report for readability.
+        panel = QGroupBox('Diagnostics — ALIVE / LIVE')
+        panel.setObjectName('telemetryPanel')
+        panes = QHBoxLayout(panel)
+        panes.setSpacing(10)
+        for heading, accessible_name, attribute in (
+            ('ALIVE Telemetry', 'ALIVE diagnostics (scrollable)', 'health'),
+            ('LIVE Telemetry', 'LIVE diagnostics (scrollable)', 'live_health'),
+        ):
+            column = QVBoxLayout()
+            caption = label(heading)
+            caption.setObjectName('telemetryHeading')
+            column.addWidget(caption)
+            view = QPlainTextEdit()
+            view.setObjectName('telemetryText')
+            view.setAccessibleName(accessible_name)
+            view.setReadOnly(True)
+            view.setFont(QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont))
+            view.setMinimumHeight(320)
+            view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+            setattr(self, attribute, view)
+            column.addWidget(view, 1)
+            panes.addLayout(column, 1)
         return panel
 
     def _choose_live_mode(self, mode):
@@ -922,20 +1005,31 @@ class ControlWindow(QMainWindow):
                 combo.setCurrentIndex(i)
                 break
 
-    def _update_health(self, value):
-        # LIVE metrics refresh continuously. setPlainText() resets the viewport
-        # unless we restore it, making the lower counters effectively unreadable.
-        old_text = self.health.toPlainText()
+    @staticmethod
+    def _update_telemetry_view(view, value):
+        # LIVE counters refresh at 50 ms; preserve each pane's reading position.
+        old_text = view.toPlainText()
         if value == old_text:
             return
-        scroll = self.health.verticalScrollBar()
+        scroll = view.verticalScrollBar()
         old_position, old_maximum = scroll.value(), scroll.maximum()
         follow_tail = bool(old_text) and old_position >= old_maximum - 1
-        self.health.setPlainText(value)
+        view.setPlainText(value)
         if follow_tail:
             scroll.setValue(scroll.maximum())
         else:
             scroll.setValue(min(old_position, scroll.maximum()))
+
+    def _update_health(self, value):
+        # Presentation split only; audio_diagnostics remains the sole source.
+        marker = '\nLIVE — Transport'
+        if marker in value:
+            alive, live = value.split(marker, 1)
+            live = 'LIVE — Transport' + live
+        else:
+            alive, live = value, ''
+        self._update_telemetry_view(self.health, alive)
+        self._update_telemetry_view(self.live_health, live)
 
     def apply_state(self):
         s = self.state

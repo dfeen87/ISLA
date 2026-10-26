@@ -7,6 +7,7 @@ session lease until cleanup completes; it never hands a busy engine to the CLI.
 """
 from __future__ import annotations
 
+import math
 import queue
 from pathlib import Path
 from collections import deque
@@ -15,12 +16,12 @@ import sys
 import threading
 import time
 
-from PySide6.QtCore import QEvent, QTimer, Qt
-from PySide6.QtGui import QFontDatabase, QKeySequence, QShortcut
+from PySide6.QtCore import QEvent, QRectF, QSize, QTimer, Qt
+from PySide6.QtGui import QColor, QFontDatabase, QKeySequence, QPainter, QPainterPath, QPen, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QButtonGroup, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
     QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
-    QSlider, QVBoxLayout, QWidget,
+    QSizePolicy, QSlider, QVBoxLayout, QWidget,
 )
 
 from isla.control import ControlService, UIState
@@ -396,6 +397,95 @@ def audio_diagnostics(state):
     return '\n'.join(lines)
 
 
+
+class FooterWaveSignature(QWidget):
+    """Three small, decorative mode motifs; never reads or writes audio state.
+
+    The waves are illustrations, not microphone capture, audio metering, or
+    evidence that a processing mode is active. All painting stays on the UI
+    thread. Hide/close automatically stops the animation timer.
+    """
+
+    _WAVES = (
+        ('VELVET', 2.0, 3.4, 0.65, '#2F80ED'),
+        ('LEGATO', 3.0, 4.4, 0.90, '#4A90FF'),
+        ('MELT', 4.5, 5.4, 0.50, '#7DB7FF'),
+    )
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName('footerWaveSignature')
+        self.setAccessibleName('Decorative Velvet, Legato, and Melt waveform signature')
+        self.setToolTip('Illustrative mode waveforms — not live audio levels or measurements.')
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+        self.setFixedHeight(42)
+        self.setMinimumWidth(156)
+        self.setMaximumWidth(360)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self._phase = 0.0
+        self._wave_timer = QTimer(self)
+        self._wave_timer.setInterval(80)
+        self._wave_timer.timeout.connect(self._animate)
+
+    def sizeHint(self):
+        return QSize(342, 42)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._wave_timer.start()
+
+    def hideEvent(self, event):
+        self._wave_timer.stop()
+        super().hideEvent(event)
+
+    def _animate(self):
+        self._phase = (self._phase + 0.16) % (2 * math.pi)
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        area = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        painter.setPen(QPen(QColor('#B7D4FF'), 1))
+        painter.setBrush(QColor('#F5F9FF'))
+        painter.drawRoundedRect(area, 7, 7)
+
+        inner_left = area.left() + 6
+        lane_width = (area.width() - 12) / 3
+        font = painter.font()
+        font.setPointSize(7)
+        painter.setFont(font)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+
+        for index, (name, cycles, amplitude, speed, color) in enumerate(self._WAVES):
+            x0 = inner_left + index * lane_width + 5
+            x1 = inner_left + (index + 1) * lane_width - 5
+            if x1 <= x0:
+                continue
+            waveform = QPainterPath()
+            for step in range(49):
+                progress = step / 48
+                x = x0 + (x1 - x0) * progress
+                y = 16 + amplitude * math.sin(
+                    2 * math.pi * cycles * progress + self._phase * speed
+                )
+                if step == 0:
+                    waveform.moveTo(x, y)
+                else:
+                    waveform.lineTo(x, y)
+            pen = QPen(QColor(color))
+            pen.setWidthF(1.8)
+            painter.setPen(pen)
+            painter.drawPath(waveform)
+            painter.setPen(QColor('#1D5FA9'))
+            painter.drawText(
+                QRectF(x0, 26, x1 - x0, 12),
+                Qt.AlignmentFlag.AlignCenter,
+                name,
+            )
+        painter.end()
+
+
 class ControlWindow(QMainWindow):
     def __init__(self, worker):
         super().__init__()
@@ -463,7 +553,11 @@ class ControlWindow(QMainWindow):
         self.refresh = QPushButton('Refresh Devices')
         self.refresh.clicked.connect(lambda: self.submit('refresh'))
         bottom.addWidget(self.refresh)
-        bottom.addStretch()
+        bottom.addStretch(1)
+        # Purely decorative, low-cost footer signature between existing actions.
+        self.wave_signature = FooterWaveSignature(self)
+        bottom.addWidget(self.wave_signature, 0, Qt.AlignmentFlag.AlignVCenter)
+        bottom.addStretch(1)
         self.close_button = QPushButton('Close Window / Return to CLI')
         self.close_button.clicked.connect(self.close)
         bottom.addWidget(self.close_button)

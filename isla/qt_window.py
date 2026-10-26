@@ -604,6 +604,11 @@ class ControlWindow(QMainWindow):
         box.addLayout(save_row)
         box.addWidget(self.export_progress)
         box.addWidget(self.export_status)
+        # The centre workspace remains useful even when Remastered is collapsed.
+        # Create the monitoring host here, then populate it while building LIVE.
+        monitoring = QGroupBox('LIVE — Monitoring & Diagnostics')
+        self.live_monitoring_layout = QVBoxLayout(monitoring)
+        box.addWidget(monitoring)
         box.addStretch()
         return panel
 
@@ -692,19 +697,23 @@ class ControlWindow(QMainWindow):
         box.addWidget(self.reset_live_mode)
         self.live_mode_status = label('Select a mode for LIVE monitoring.')
         box.addWidget(self.live_mode_status)
+        # Monitoring and telemetry belong in the centre, not below the long
+        # routing and processing form on the right. Keep the same Qt widgets,
+        # signals, state bindings, read-only diagnostics and safety guidance.
+        monitor = self.live_monitoring_layout
         self.live_status, self.live_error = label(), label()
-        box.addWidget(self.live_status)
-        box.addWidget(self.live_error)
-        box.addWidget(self._volume_control('volume', 'LIVE Listening Volume', 50))
-        box.addWidget(label('Diagnostics — ALIVE / LIVE (scroll for render status and counters)'))
+        monitor.addWidget(self.live_status)
+        monitor.addWidget(self.live_error)
+        monitor.addWidget(self._volume_control('volume', 'LIVE Listening Volume', 50))
+        monitor.addWidget(label('Diagnostics — ALIVE / LIVE (scroll for render status and counters)'))
         self.health = QPlainTextEdit()
         self.health.setReadOnly(True)
         self.health.setAccessibleName('ALIVE and LIVE diagnostics (scrollable)')
         self.health.setMinimumHeight(230)
         self.health.setMaximumHeight(300)
         self.health.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        box.addWidget(self.health)
-        box.addWidget(label(RESTORE_OUTPUT))
+        monitor.addWidget(self.health)
+        monitor.addWidget(label(RESTORE_OUTPUT))
         return panel
 
     def _choose_live_mode(self, mode):

@@ -439,7 +439,9 @@ class FooterWaveSignature(QWidget):
         super().hideEvent(event)
 
     def _animate(self):
-        self._phase = (self._phase + 0.16) % (2 * math.pi)
+        # The fractional lane speeds align at this common phase period;
+        # wrapping at a single turn would cause an obvious animation jump.
+        self._phase = (self._phase + 0.16) % (40 * math.pi)
         self.update()
 
     def paintEvent(self, event):

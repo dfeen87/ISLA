@@ -398,19 +398,19 @@ def test_running_live_mode_switches_reach_dsp_worker_and_health_stays_scrollable
 
         # The visible diagnostics control has a real scrollbar. A changing
         # status snapshot must not forcibly return the user's viewport to top.
-        bar = w.health.verticalScrollBar()
+        bar = w.live_health.verticalScrollBar()
         assert bar.maximum() > 0
         bar.setValue(bar.maximum())
-        previous = w.health.toPlainText()
+        previous = w.live_health.toPlainText()
         c.live.underflows += 3
-        wait_ui(app, lambda: w.health.toPlainText() != previous)
+        wait_ui(app, lambda: w.live_health.toPlainText() != previous)
         assert bar.value() == bar.maximum()
         bar.setValue(0)
-        previous = w.health.toPlainText()
+        previous = w.live_health.toPlainText()
         c.live.underflows += 2
-        wait_ui(app, lambda: w.health.toPlainText() != previous)
+        wait_ui(app, lambda: w.live_health.toPlainText() != previous)
         assert bar.value() == 0
-        assert 'Recovery attempts/completed/failed' in w.health.toPlainText()
+        assert 'Recovery attempts/completed/failed' in w.live_health.toPlainText()
         assert len(live.streams) == 1
         click(app, w, w.stop_live)
         assert live.streams[0].closed
@@ -525,7 +525,7 @@ def test_monitor_safety_stop_displays_exact_reason(app):
         assert w.state.live_state == UIState.FATAL_ERROR
         assert w.state.live_failure_reason == reason
         assert 'LIVE stopped safely' in w.live_error.text()
-        assert reason in w.health.toPlainText()
+        assert reason in w.live_health.toPlainText()
         assert live.streams[0].closed
     finally:
         close_window(app, w, c)
@@ -550,9 +550,9 @@ def test_startup_capture_rejection_reaches_control_center_with_retained_counters
         assert c.live.error == w.state.live_failure_reason
         assert 'budget exhausted' not in w.live_error.text()
         assert 'LIVE stopped safely' in w.live_error.text()
-        assert 'Monitor: Failed' in w.health.toPlainText()
-        assert 'Recovery attempts/completed/failed: 0 / 0 / 1' in w.health.toPlainText()
-        assert 'Capture discontinuities (including startup): 3' in w.health.toPlainText()
+        assert 'Monitor: Failed' in w.live_health.toPlainText()
+        assert 'Recovery attempts/completed/failed: 0 / 0 / 1' in w.live_health.toPlainText()
+        assert 'Capture discontinuities (including startup): 3' in w.live_health.toPlainText()
         assert stream.closed and len(live.streams) == 1
         c.live.stop()
         assert 'continuing beyond startup' in c.live.status()

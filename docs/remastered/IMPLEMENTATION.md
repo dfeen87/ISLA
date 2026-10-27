@@ -6,9 +6,9 @@ and local-song search, see [LIVE and discovery](LIVE_AND_DISCOVERY.md).
 This opt-in ALIVE preview connects the frozen Experiment 02 governed renderer
 to the existing file player. It adds independent processing-depth control for
 Velvet, Legato and Melt. The Python package, HTTP API and JUCE/CMake
-**source version is 4.0.0**, while the latest published release remains
-v3.3.0. This is an unreleased source-version alignment, not scientific
-promotion or completed physical-Mac/creator-listening acceptance. The frozen
+**source version is 4.1.0**, while the latest published release is
+v4.0.0. The 4.1.0 source alignment is not publication of a new tag,
+scientific promotion or completed physical-Mac/creator-listening acceptance. The frozen
 Experiment 02 core, protocol, parameters, historical evidence and original
 source hashes retain their authoritative pinned versions; the historical
 preservation manifests describe their original commits rather than this
@@ -25,7 +25,7 @@ python -m isla window
 
 1. Open a WAV excerpt at 44.1 or 48 kHz, mono or stereo, up to 30 seconds.
 2. Wait for ordinary ALIVE preparation; Play is optional.
-3. Click **Show v4.0 Remastered Research Preview**.
+3. In the always-visible **ALIVE Remastered** workspace, click **Enter Remastered**.
 4. Choose Velvet, Legato or Melt Remastered. Set the slider and click
    **Prepare / Apply Remastered**. Releasing the mouse slider also requests a render;
    keyboard edits take effect when Apply is clicked.
@@ -36,7 +36,8 @@ python -m isla window
    a replacement file, switching to LIVE devices, or closing the window cancels
    a pending research render. Bypass selects the original decoded samples.
 
-The panel starts collapsed. Its controls do not alter LIVE monitoring, the LIVE
+The ALIVE Remastered panel is always visible, but its actions retain existing
+readiness and eligibility gates. Its controls do not alter LIVE monitoring, the LIVE
 listening-volume slider, offline CLI export, or the production DSP algorithms.
 ALIVE and LIVE retain exclusive stream ownership and routing checks.
 

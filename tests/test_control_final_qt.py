@@ -88,7 +88,7 @@ def test_pr68_slider_click_same_tick_reaches_first_audio_callback(app, command, 
             w._flush_volumes()
             wait_ui(app, lambda: w.state.alive_volume == 0)
             files.streams[-1].pump()
-            assert w.state.alive_applied_volume == pytest.approx(0)
+            assert c.player.backend.applied_percent == pytest.approx(0)
             expected = .3  # prepared_buffers()['melt'] has value 0.3
             target = 100
             button = w.file_modes['melt']

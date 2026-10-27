@@ -176,6 +176,40 @@ def test_worker_retires_idle_remastered_only_after_fade_and_rewarms_on_reentry(r
     assert d.research is not prior and d._research_hops == 4
 
 
+def test_live_processing_telemetry_counts_real_bank_work_and_releases_idle_bank():
+    settings = LiveSettings()
+    engine = LiveEngineDSP(48000,2,settings)
+    audio = np.full((512,2),.01,np.float32)
+    for _ in range(6):
+        engine.process_block(audio)
+    assert engine._processing_blocks == 6
+    assert engine._research_blocks == 0
+    assert engine._research_retirements == 0
+    assert engine._total_last_ms >= engine._production_last_ms >= 0.
+    assert 'Research bank: inactive / retired' in engine.processing_telemetry
+    assert 'Nominal 512-frame interval: 10.67 ms' in engine.processing_telemetry
+
+    settings.set('remastered',50)
+    for _ in range(5):
+        engine.process_block(audio)
+    assert engine._research_blocks == 5
+    assert 'Research bank: active / warming' in engine.processing_telemetry
+    assert 'worker applied: Remastered' in engine.processing_telemetry
+    settings.set('production',50)
+    engine.process_block(audio)
+    assert engine._research_blocks == 6
+    assert engine._research_retirements == 1
+    assert engine._research_last_ms > 0.
+    assert engine._research_peak_ms > 0.
+    for _ in range(20):
+        engine.process_block(audio)
+    assert engine._research_blocks == 6
+    assert engine._research_last_ms == 0.
+    assert engine._processing_blocks == 32
+    assert 'Research bank: inactive / retired' in engine.processing_telemetry
+    assert 'Remastered bank retirements: 1' in engine.processing_telemetry
+
+
 def test_cancel_research_warmup_releases_unapplied_history():
     settings = LiveSettings()
     d = LiveEngineDSP(48000,2,settings)

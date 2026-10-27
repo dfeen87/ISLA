@@ -76,8 +76,12 @@ class LiveEngineDSP:
                 raise ValueError('LIVE engines must have the same delay before switching.')
             self.research = RemasteredStreamingDSP(self.rate,self.channels,request.intensity)
             self.research.select(self.mode)
+        # Run the research bank only while requested or while finishing an
+        # already-started transition back to Production. The first block of
+        # that return still needs BOTH outputs for the existing 5 ms fade.
+        # No PortAudio callback or frozen research algorithm is changed.
         new = None
-        if self.research is not None:
+        if self.research is not None and (request.engine == 'remastered' or self._mix):
             if self.research.intensity != request.intensity:
                 self.research.set_intensity(request.intensity)
             new = self.research.process_block(block)
@@ -96,6 +100,13 @@ class LiveEngineDSP:
             raise ValueError('Remastered LIVE exceeded full scale; lower the source app volume and restart.')
         self._mix = target
         self.applied = request if target else LiveRequest('production',request.intensity)
+        if request.engine == 'production' and not self._mix and self.research is not None:
+            # Transition output has already been constructed and checked.
+            # Retire inactive FFT/WOLA history on the DSP worker thread.
+            # A later Remastered request must create a NEW bank and complete
+            # its ordinary warmup rather than replaying stale musical history.
+            self.research = None
+            self._research_hops = 0
         if target:
             d = self.research
             index = d.modes.index(self.mode) if self.mode != 'bypass' else 0

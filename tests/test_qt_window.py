@@ -247,6 +247,8 @@ def test_remastered_preflight_blocks_full_songs_but_keeps_production_modes(app):
         w.apply_state()
         assert not w.apply_research.isEnabled()
         assert not w.cancel_research.isEnabled()
+        assert not w.try_remastered_first.isEnabled()
+        assert '30-second' in w.try_remastered_first.toolTip()
         assert w.file_modes['velvet'].isEnabled()
         assert '303.71-second' in w.research_admission.text()
         assert 'Remastered availability' in w.health.toPlainText()
@@ -257,15 +259,17 @@ def test_remastered_preflight_blocks_full_songs_but_keeps_production_modes(app):
         assert remastered_readiness(good)[0]
         w.state = good
         w.apply_state()
-        assert w.enter_research.isEnabled()
+        assert w.enter_research.isEnabled() and w.try_remastered_first.isEnabled()
         assert not w.apply_research.isEnabled()
         assert 'Eligible local excerpt' in w.research_admission.text()
+        assert 'Try Remastered First' in w.research_admission.text()
 
         bad_rate = replace(good, file_sample_rate=32000)
         assert not remastered_readiness(bad_rate)[0]
         w.state = bad_rate
         w.apply_state()
         assert not w.apply_research.isEnabled()
+        assert not w.try_remastered_first.isEnabled()
         assert w.file_modes['melt'].isEnabled()
     finally:
         close_window(app, w, c)

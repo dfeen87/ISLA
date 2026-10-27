@@ -20,13 +20,13 @@ Choose **Original / Bypass**, the established **Velvet / Legato / Melt** profile
 
 **Dedicated to Isla, the creator's niece.** Her name is a reminder that expressive music and thoughtful engineering belong together.
 
-> **Source version: 4.0.0 — Remastered research candidate (not yet released).** Python package, HTTP API and JUCE/CMake metadata are aligned at 4.0.0. The source includes opt-in Experiment 02 Remastered modes for ALIVE and LIVE, DRM-free Apple-purchase import, Bluetooth-device improvements and local-song discovery. Existing production DSP, ALIVE/LIVE transport safeguards and frozen Experiment 02 research remain protected. **Native Mac/creator listening acceptance is pending.** The latest published GitHub Release remains [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0); a source-version change does not publish v4.0.0.
+> **Source version: 4.1.0 — UI & Stability release candidate (not yet published).** Python package, HTTP API and JUCE/CMake metadata are aligned at 4.1.0. Since the published v4.0.0 release, the Control Center gained a responsive ALIVE Remastered workspace, clearer LIVE/ALIVE diagnostics, improved playback-command synchronization, stronger LIVE startup handling and new regression coverage. Existing production DSP and frozen Experiment 02 research are preserved. **Remastered remains experimental, and native Mac/Bluetooth long-session reliability is not universally verified.** The latest published GitHub Release is [v4.0.0](https://github.com/dfeen87/ISLA/releases/tag/v4.0.0); updating source metadata does not publish v4.1.0.
 
 **Start here:** [Install and open Control Center](#get-started-on-macos) · [ALIVE local music](#alive-play-a-local-audio-file) · [LIVE system audio](#live-listen-to-your-mac) · [Remastered research](#remastered-research-alive-and-live) · [Troubleshooting](#troubleshooting)
 
 **Reference:** [ALIVE Remastered mathematics](docs/remastered/IMPLEMENTATION.md) · [LIVE Remastered and device/song discovery](docs/remastered/LIVE_AND_DISCOVERY.md) · [Terminal commands](#terminal-command-reference) · [Electronic listening comparisons](#hear-the-difference) · [Research and legacy history](#engineering-and-evidence) · [Published releases](https://github.com/dfeen87/ISLA/releases)
 
-**Research and release status:** `main` identifies itself as source version **4.0.0**, but the latest published GitHub release is **v3.3.0**. Remastered remains an opt-in engineering preview with native listening acceptance outstanding and the frozen Experiment 02 verdict **REVISE / INCONCLUSIVE**. See the [current feature guide](#remastered-research-alive-and-live) before interpreting historical v3.x audio comparisons.
+**Research and release status:** This source checkout identifies as **4.1.0**, while the latest published GitHub release is **[v4.0.0](https://github.com/dfeen87/ISLA/releases/tag/v4.0.0)**. Remastered remains an experimental engineering preview with device-specific listening and reliability acceptance outstanding; the frozen Experiment 02 verdict remains **REVISE / INCONCLUSIVE**. Source and release status must not be conflated.
 
 ## Table of contents
 
@@ -206,7 +206,7 @@ isla --version
 # Or, equivalently: python -m isla --version
 ~~~
 
-You should see package information including `Name: isla-audio` and `isla 4.0.0` for the current source checkout. If the package is not found, check the output of `python -m pip install -e '.[gui]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA. A pip `[notice]` suggesting `pip install --upgrade pip` is optional and does not indicate an ISLA installation error.
+You should see package information including `Name: isla-audio` and `isla 4.1.0` for this source checkout. If the package is not found, check the output of `python -m pip install -e '.[gui]'` and rerun it from `~/ISLA`. Using `python -m pip` installs into the same Python environment you'll use to launch ISLA. A pip `[notice]` suggesting `pip install --upgrade pip` is optional and does not indicate an ISLA installation error.
 
 The environment must be activated in each new Terminal session. **Open the graphical Control Center** with `python -m isla window` or `isla window`. To use the classic terminal interface, run `python -m isla`; for **local audio files only**, continue to [ALIVE](#alive-play-a-local-audio-file). BlackHole is unnecessary for ALIVE.
 
@@ -215,7 +215,7 @@ The environment must be activated in each new Terminal session. **Open the graph
 <p align="center">
   <img src="newWindow.jpeg" width="720" alt="Early ISLA Audio Control Center interface">
   <br>
-  <sub><em> The latest Control Center released in v4.1.0, overview. </em></sub>
+  <sub><em> Control Center preview for the planned v4.1.0 release. </em></sub>
 </p>
 
 ## ISLA Control Center — Graphical Interface
@@ -722,7 +722,7 @@ For deeper device diagnostics inside the activated environment, try `python -m s
 - **Latency and buffers:** The LIVE DSP adds **32.00 ms at 48 kHz / 34.83 ms at 44.1 kHz**, plus queues and device latency. Native test sessions reported roughly **79–107 ms** in ADC/DAC timestamp estimates, not independent acoustic measurements. Bypass shares the processing delay; video sync can be affected. Fixed buffers can run dry and emit silence, while capture/ring failures can stop monitoring. Check `status` for counters and errors. There is no user-facing buffer-size command.
 - **Routing and recovery:** ISLA rejects virtual, Aggregate and Multi-Output sinks for LIVE, but cannot detect every other app's monitoring path. It does not change the Mac's system output or reconnect devices automatically. Stop monitoring before changing devices, and restore normal output in macOS when finished.
 - **Local files:** ALIVE prepares whole files before playback and needs working memory and temporary disk space. WAV mono/stereo and, on macOS, DRM-free M4A / AAC / ALAC are supported; other formats depend on libsndfile. Sample-perfect gapless switching is not promised. Neither path loudness-normalizes the modes. **Graphical ALIVE starts at 25% output-only digital amplitude and permits explicit adjustment. LIVE has its own 50% GUI default; terminal-only behavior is unchanged.** Output conversion or hardware can still produce excessive acoustic loudness, so begin at a low physical volume.
-- **Release status:** Python package, HTTP and JUCE/CMake **source** metadata are aligned at **4.0.0** as an unreleased Remastered research candidate. No `v4.0.0` Git tag or GitHub Release has been published; the merged source-version change is **not** a public release, and native Mac/Bluetooth/creator listening acceptance remains pending. The historical Experiment 02 freeze and its original-version source hashes remain authoritative; archived preservation reports apply to the original commits and are not refreshed or rewritten by a metadata version bump. The latest published release is [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0); older [v3.2.0](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0), [v3.1.1](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1), [v3.1.0](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) and [v3.0.0](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) tags remain immutable historical baselines. Wider hardware, long-session and real-time performance acceptance are still open.
+- **Release status:** Python package, HTTP and JUCE/CMake **source** metadata are aligned at **4.1.0** as a UI & Stability release candidate. **The v4.1.0 Git tag and GitHub Release have not yet been published**; the latest published release remains [v4.0.0](https://github.com/dfeen87/ISLA/releases/tag/v4.0.0). Source-version alignment does not establish acoustic acceptance. Experimental Remastered behavior, native Mac/Bluetooth long-session reliability and real-time constraints remain acknowledged limitations. The historical Experiment 02 freeze and its original-version source hashes remain authoritative; archived preservation reports apply to the original commits and are not refreshed or rewritten by a metadata version bump. Older [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0) and v3.x releases retain their original scope and immutable tags.
 
 ## Engineering and evidence
 
@@ -816,7 +816,7 @@ The [native acceptance report](docs/alive/IMPLEMENTATION_AND_ACCEPTANCE.md) and 
 
 ### Current acceptance, roadmap and historical milestones
 
-- **Current v4.0.0 source candidate:** Complete physical-Mac ALIVE/LIVE/Bluetooth listening and routing acceptance; reproduce reported issues before any GitHub `v4.0.0` release. Research superiority remains unproven.
+- **Current v4.1.0 source candidate:** Confirm native Mac ALIVE/Remastered/LIVE control behavior and device-specific listening; investigate intermittent LIVE capture discontinuities before claiming long-session stability. Complete release-version CI before publishing a `v4.1.0` tag. Research superiority remains unproven.
 - **Possible future distribution work:** Independently package and sign a standalone Mac Control Center installer without modifying frozen DSP or historic evidence. No `.app`/DMG is published yet.
 - **Historical releases:** BEDROCK numerical foundation; [v3.0.0](https://github.com/dfeen87/ISLA/releases/tag/v3.0.0) ALIVE/LIVE; [v3.1.0](https://github.com/dfeen87/ISLA/releases/tag/v3.1.0) DSP numerical robustness; [v3.1.1](https://github.com/dfeen87/ISLA/releases/tag/v3.1.1) bounded LIVE recovery; [v3.2.0](https://github.com/dfeen87/ISLA/releases/tag/v3.2.0) Control Center; and [v3.3.0](https://github.com/dfeen87/ISLA/releases/tag/v3.3.0) LIVE usability. Their tags and original scope are preserved.
 - **Longer-term ideas:** Distinctive musical-mode tuning based on listening evidence, long-session reliability, mobile research and separate professional plugin validation.

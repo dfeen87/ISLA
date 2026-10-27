@@ -1,10 +1,12 @@
 cff-version: 1.2.0
 message: >-
   If you use ISLA in research, teaching, or another software project,
-  please cite the released version you used. This file currently cites
-  the latest published release, v4.0.0.
+  please cite the version you actually used. This file describes the
+  v4.1.0 source release candidate; a release date and tag URL will be
+  added only after v4.1.0 is published.
 type: software
 title: "ISLA — Let the Music Flow."
+version: "4.1.0"
 abstract: >-
   ISLA is an open-source audio-processing application for local file
   playback and experimental macOS system-audio monitoring. It provides
@@ -24,5 +26,4 @@ keywords:
   - Python
 license: MIT
 repository-code: "https://github.com/dfeen87/ISLA"
-url: "https://github.com/dfeen87/ISLA/releases/tag/v4.0.0"
-date-released: "2026-10-24"
+url: "https://github.com/dfeen87/ISLA"

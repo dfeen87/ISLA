@@ -25,7 +25,7 @@ def test_prepare_and_cancel_mouse_presses_survive_periodic_refresh(app, tmp_path
         w.worker.service.preview.factory = DeferredRender
         click(app, w, w.play)
         stream, selected = c.player.stream, c.player._selected
-        click(app, w, w.research_toggle)
+        assert w.research_panel.isVisible()
         click(app, w, w.enter_research)
         for button in (w.apply_research, w.cancel_research):
             assert button.isEnabled()

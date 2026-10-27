@@ -22,7 +22,7 @@ def test_native_widgets_control_actual_render_without_restarting_audio(app, tmp_
     sf.write(path, source, 48000, subtype='FLOAT')
     w, c, live, files, *_ = window_session(app)
     try:
-        assert not w.research_panel.isVisible()
+        assert w.research_panel.isVisible()
         assert not w.apply_research.isEnabled()
         c.preparation_factory = Preparation
         monkeypatch.setattr(QFileDialog, 'getOpenFileName', lambda *a: (str(path), ''))
@@ -31,7 +31,6 @@ def test_native_widgets_control_actual_render_without_restarting_audio(app, tmp_
         click(app, w, w.play)
         stream = c.player.stream
         stream.pump()
-        click(app, w, w.research_toggle)
         assert w.research_panel.isVisible()
         click(app, w, w.enter_research)
         # Real keyboard events exercise both the combo and exact 5% ticks.

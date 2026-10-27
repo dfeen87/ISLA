@@ -22,7 +22,7 @@ def test_save_mix_button_exports_selected_mode_and_preserves_source(app, monkeyp
         wait_ui(app, lambda: w.state.can_play)
         click(app, w, w.file_modes['velvet'])
         assert c.player.mode == 'velvet'
-        click(app, w, w.research_toggle)
+        assert w.research_panel.isVisible()
         assert w.save_mix_button.isEnabled()
         target = tmp_path / 'my-velvet.wav'
         monkeypatch.setattr(QFileDialog, 'getSaveFileName',

@@ -53,7 +53,7 @@ def test_automatic_sliders_are_independent_and_do_not_cancel_held_press(app):
         w.alive_volume.setFocus()
         QTest.keyClick(w.alive_volume, Qt.Key.Key_Home)
         for _ in range(50): QTest.keyClick(w.alive_volume, Qt.Key.Key_Right)
-        w.research_toggle.setFocus()
+        w.close_button.setFocus()
         QTest.qWait(180)
         assert w.alive_volume.value() == 50
         click(app, w, w.mute_volume)

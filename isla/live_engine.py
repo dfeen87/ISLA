@@ -82,20 +82,20 @@ class LiveEngineDSP:
         budget = 512 / self.rate * 1000
         return (
             'Requested engine: ' + self.settings.request.engine.title() +
-            '; worker applied: ' + self.applied.engine.title() + '\\n'
+            '; worker applied: ' + self.applied.engine.title() + '\n'
             'Research bank: ' + ('active / warming' if self.research is not None
-                                 else 'inactive / retired') + '\\n'
-            f'Nominal 512-frame interval: {budget:.2f} ms at {self.rate:,} Hz\\n'
+                                 else 'inactive / retired') + '\n'
+            f'Nominal 512-frame interval: {budget:.2f} ms at {self.rate:,} Hz\n'
             f'Worker DSP wall time last/peak: {self._total_last_ms:.3f} / '
-            f'{self._total_peak_ms:.3f} ms\\n'
+            f'{self._total_peak_ms:.3f} ms\n'
             f'Production bank last/peak: {self._production_last_ms:.3f} / '
-            f'{self._production_peak_ms:.3f} ms\\n'
+            f'{self._production_peak_ms:.3f} ms\n'
             f'Remastered bank last/peak: {self._research_last_ms:.3f} / '
-            f'{self._research_peak_ms:.3f} ms\\n'
+            f'{self._research_peak_ms:.3f} ms\n'
             f'Worker DSP blocks / Remastered blocks: {self._processing_blocks} / '
-            f'{self._research_blocks}\\n'
+            f'{self._research_blocks}\n'
             f'DSP intervals over nominal block budget: {self._budget_exceedances}; '
-            f'Remastered bank retirements: {self._research_retirements}\\n'
+            f'Remastered bank retirements: {self._research_retirements}\n'
             'Measurements are approximate worker wall time, not CPU utilization '
             'or proof of native driver failure. See LIVE transport counters '
             'for capture/discontinuity and recovery evidence.'

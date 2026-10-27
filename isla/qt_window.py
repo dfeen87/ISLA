@@ -398,12 +398,33 @@ def audio_diagnostics(state):
 
 
 
-class FooterWaveSignature(QWidget):
-    """Three small, decorative mode motifs; never reads or writes audio state.
+def footer_visual_mode(state):
+    """Map structured telemetry to the footer's illustrative display mode.
 
-    The waves are illustrations, not microphone capture, audio metering, or
-    evidence that a processing mode is active. All painting stays on the UI
-    thread. Hide/close automatically stops the animation timer.
+    Never parse the diagnostics textbox or use a requested-but-unapplied mode.
+    An unconfirmed/transitioning mode is represented as visually inactive.
+    """
+    if state is None:
+        return 'overview'
+    if state.live_active:
+        if state.live_state != UIState.LIVE_RUNNING:
+            return 'bypass'
+        applied = state.live_applied_mode or ''
+    elif state.file_state == UIState.PLAYING:
+        applied = (state.alive_applied_mode or '').split(' — ', 1)[0]
+    else:
+        return 'overview'
+    if applied.startswith('remastered_'):
+        applied = applied[len('remastered_'):]
+    return applied if applied in ('velvet', 'legato', 'melt') else 'bypass'
+
+
+class FooterWaveSignature(QWidget):
+    """Illustrative applied-mode indicator; no audio/PCM or telemetry text reads.
+
+    Default: three animated waves. During active playback only the confirmed
+    Velvet/Legato/Melt wave moves. Bypass/unconfirmed: all effects rest.
+    The widget is GUI-thread-only and owns only its visual animation timer.
     """
 
     _WAVES = (
@@ -416,13 +437,18 @@ class FooterWaveSignature(QWidget):
         super().__init__(parent)
         self.setObjectName('footerWaveSignature')
         self.setAccessibleName('Decorative Velvet, Legato, and Melt waveform signature')
-        self.setToolTip('Illustrative mode waveforms — not live audio levels or measurements.')
+        self.setToolTip(
+            'Illustrative waves follow applied ALIVE/LIVE modes — '
+            'not live audio levels or measurements.'
+        )
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         self.setFixedHeight(42)
         self.setMinimumWidth(156)
         self.setMaximumWidth(360)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        self._phase = 0.0
+        self._visual_mode = 'overview'
+        # Independent phases let inactive lanes actually freeze in place.
+        self._phases = [0.0, 0.0, 0.0]
         self._wave_timer = QTimer(self)
         self._wave_timer.setInterval(80)
         self._wave_timer.timeout.connect(self._animate)
@@ -430,18 +456,37 @@ class FooterWaveSignature(QWidget):
     def sizeHint(self):
         return QSize(342, 42)
 
+    def set_visual_mode(self, mode):
+        """Receive a confirmed status from the owning ControlWindow (UI only)."""
+        if mode not in ('overview', 'bypass', 'velvet', 'legato', 'melt'):
+            mode = 'bypass'
+        if mode == self._visual_mode:
+            return
+        self._visual_mode = mode
+        if self.isVisible():
+            if mode == 'bypass':
+                self._wave_timer.stop()
+            else:
+                self._wave_timer.start()
+        self.update()
+
     def showEvent(self, event):
         super().showEvent(event)
-        self._wave_timer.start()
+        if self._visual_mode != 'bypass':
+            self._wave_timer.start()
 
     def hideEvent(self, event):
         self._wave_timer.stop()
         super().hideEvent(event)
 
     def _animate(self):
-        # The fractional lane speeds align at this common phase period;
-        # wrapping at a single turn would cause an obvious animation jump.
-        self._phase = (self._phase + 0.16) % (40 * math.pi)
+        if self._visual_mode == 'bypass':
+            return
+        for index, (name, _cycles, _amplitude, speed, _color) in enumerate(self._WAVES):
+            if self._visual_mode in ('overview', name.lower()):
+                self._phases[index] = (
+                    self._phases[index] + 0.16 * speed
+                ) % (2 * math.pi)
         self.update()
 
     def paintEvent(self, event):
@@ -464,22 +509,29 @@ class FooterWaveSignature(QWidget):
             x1 = inner_left + (index + 1) * lane_width - 5
             if x1 <= x0:
                 continue
+            selected = self._visual_mode == name.lower()
+            muted = self._visual_mode != 'overview' and not selected
+            if selected:
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QColor('#EAF3FF'))
+                painter.drawRoundedRect(QRectF(x0 - 3, 4, x1 - x0 + 6, 33), 5, 5)
+                painter.setBrush(Qt.BrushStyle.NoBrush)
             waveform = QPainterPath()
             for step in range(49):
                 progress = step / 48
                 x = x0 + (x1 - x0) * progress
                 y = 16 + amplitude * math.sin(
-                    2 * math.pi * cycles * progress + self._phase * speed
+                    2 * math.pi * cycles * progress + self._phases[index]
                 )
                 if step == 0:
                     waveform.moveTo(x, y)
                 else:
                     waveform.lineTo(x, y)
-            pen = QPen(QColor(color))
-            pen.setWidthF(1.8)
+            pen = QPen(QColor('#B7C5D6') if muted else QColor(color))
+            pen.setWidthF(1.0 if muted else 2.2 if selected else 1.8)
             painter.setPen(pen)
             painter.drawPath(waveform)
-            painter.setPen(QColor('#1D5FA9'))
+            painter.setPen(QColor('#8193A9') if muted else QColor('#1D5FA9'))
             painter.drawText(
                 QRectF(x0, 26, x1 - x0, 12),
                 Qt.AlignmentFlag.AlignCenter,
@@ -1129,6 +1181,11 @@ class ControlWindow(QMainWindow):
 
     def apply_state(self):
         s = self.state
+        # Same structured, immutable snapshot as ALIVE/LIVE Telemetry.
+        # Do not make requested selections look applied before a callback.
+        self.wave_signature.set_visual_mode(
+            'bypass' if self.closing else footer_visual_mode(s)
+        )
         available = s is not None and not self.busy and not self.closing
         self.settings.setEnabled(bool(available))
         for combo in (self.capture, self.output, self.file_output, self.rate):

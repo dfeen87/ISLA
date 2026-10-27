@@ -6,14 +6,19 @@ from pathlib import Path
 import pytest
 
 pytest.importorskip('PySide6.QtWidgets')
-from PySide6.QtWidgets import QScrollArea
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import QFileDialog, QScrollArea
 
 from isla.control import UIState
 from isla.qt_window import audio_diagnostics, footer_visual_mode
-from test_qt_window import app, window_session, close_window
+from test_qt_window import app, window_session, close_window, wait_ui
+from test_control import prepared_buffers
 
 
-@pytest.mark.parametrize('size', [(1100, 950), (1040, 830), (800, 600), (1440, 900)])
+@pytest.mark.parametrize('size', [
+    (1100, 950), (1040, 830), (800, 600), (640, 600), (1440, 900)
+])
 def test_three_columns_lower_telemetry_and_research_controls(app, size):
     w, controller, *_ = window_session(app)
     try:
@@ -22,18 +27,31 @@ def test_three_columns_lower_telemetry_and_research_controls(app, size):
         scroll = w.findChild(QScrollArea)
         grid = scroll.widget().layout()
         alive, remastered, live, diagnostics = (
-            grid.itemAtPosition(0, 0).widget(),
-            grid.itemAtPosition(0, 1).widget(),
-            grid.itemAtPosition(0, 2).widget(),
-            grid.itemAtPosition(1, 0).widget(),
+            w._alive_panel, w._remastered_panel_widget,
+            w._live_panel_widget, w._telemetry_panel,
         )
         assert [panel.title() for panel in (alive, remastered, live)] == [
             'ALIVE — Local Audio File', 'v4.0 Remastered',
             'LIVE — Mac System Audio']
-        assert grid.itemAtPosition(1, 1).widget() is diagnostics
-        assert grid.itemAtPosition(1, 2).widget() is live
+        compact = size[0] < 1080
+        assert w._panel_compact is compact
+        if compact:
+            assert all(
+                grid.itemAtPosition(i, 0).widget() is panel
+                for i, panel in enumerate((alive, live, remastered, diagnostics))
+            )
+        else:
+            assert grid.itemAtPosition(0, 0).widget() is alive
+            assert grid.itemAtPosition(0, 1).widget() is remastered
+            assert grid.itemAtPosition(0, 2).widget() is live
+            assert grid.itemAtPosition(1, 0).widget() is diagnostics
+            assert grid.itemAtPosition(1, 1).widget() is diagnostics
+            assert grid.itemAtPosition(1, 2).widget() is live
         assert diagnostics.title() == 'Diagnostics — ALIVE / LIVE'
-        assert diagnostics.geometry().top() >= alive.geometry().bottom()
+        if not compact:
+            assert diagnostics.geometry().top() >= alive.geometry().bottom()
+        else:
+            assert live.geometry().top() >= alive.geometry().bottom()
         assert alive.isAncestorOf(w.play)
         assert remastered.isAncestorOf(w.research_panel)
         assert remastered.isAncestorOf(w.save_mix_button)
@@ -78,8 +96,71 @@ def test_three_columns_lower_telemetry_and_research_controls(app, size):
                 assert scroll.viewport().rect().contains(center), (
                     f'{control.objectName() or type(control).__name__}: '
                     f'center={center}, viewport={scroll.viewport().rect()}')
-        if size == (1100, 950):
-            assert scroll.horizontalScrollBar().maximum() == 0
+        # ALL supported window sizes must have no horizontally clipped actions.
+        assert scroll.horizontalScrollBar().maximum() == 0
+    finally:
+        close_window(app, w, controller)
+
+
+@pytest.mark.parametrize('width', [640, 800, 1040, 1100, 1440])
+def test_action_buttons_fully_visible_after_vertical_scrolling(app, width):
+    w, controller, *_ = window_session(app)
+    try:
+        w.resize(width, 750)
+        app.processEvents()
+        scroll = w.findChild(QScrollArea)
+        assert scroll.horizontalScrollBar().maximum() == 0
+        controls = (
+            w.open_file, w.play, w.pause, w.stop_file,
+            *w.file_modes.values(), w.apply_output, w.research_toggle,
+            w.save_mix_button, w.cancel_research, w.return_research,
+            w.apply_devices, w.settings, w.recheck,
+            w.start_live, w.stop_live, w.apply_live_intensity,
+            w.reset_live_mode, w.mute_volume,
+        )
+        for control in controls:
+            assert control.isVisible()
+            scroll.ensureWidgetVisible(control, 12, 12)
+            app.processEvents()
+            bounds = scroll.viewport().rect()
+            upper = control.mapTo(scroll.viewport(), control.rect().topLeft())
+            lower = control.mapTo(scroll.viewport(), control.rect().bottomRight())
+            assert bounds.contains(upper) and bounds.contains(lower), (
+                f'button split/clipped: {control.text()} at {width}px: '
+                f'{upper}..{lower} vs {bounds}'
+            )
+    finally:
+        close_window(app, w, controller)
+
+
+@pytest.mark.parametrize('width', [800, 1100])
+def test_scrolled_alive_buttons_can_drive_prepared_playback(app, monkeypatch, width):
+    w, controller, *_ = window_session(app)
+    try:
+        w.resize(width, 700)
+        app.processEvents()
+        scroll = w.findChild(QScrollArea)
+        monkeypatch.setattr(
+            QFileDialog, 'getOpenFileName',
+            lambda *args: ('responsive playback.wav', '')
+        )
+        scroll.ensureWidgetVisible(w.open_file, 12, 12)
+        QTest.mouseClick(w.open_file, Qt.MouseButton.LeftButton)
+        wait_ui(app, lambda: w.state.file_state == UIState.PREPARING)
+        controller.job.result = prepared_buffers(), 48000
+        wait_ui(app, lambda: w.state.file_state == UIState.READY)
+        assert w.play.isEnabled()
+        scroll.ensureWidgetVisible(w.play, 12, 12)
+        app.processEvents()
+        QTest.mouseClick(w.play, Qt.MouseButton.LeftButton)
+        wait_ui(app, lambda: w.state.file_state == UIState.PLAYING)
+        assert w.pause.isEnabled()
+        scroll.ensureWidgetVisible(w.pause, 12, 12)
+        QTest.mouseClick(w.pause, Qt.MouseButton.LeftButton)
+        wait_ui(app, lambda: w.state.file_state == UIState.PAUSED)
+        scroll.ensureWidgetVisible(w.stop_file, 12, 12)
+        QTest.mouseClick(w.stop_file, Qt.MouseButton.LeftButton)
+        wait_ui(app, lambda: w.state.file_state == UIState.STOPPED)
     finally:
         close_window(app, w, controller)
 

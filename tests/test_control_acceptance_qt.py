@@ -145,7 +145,7 @@ def test_device_and_rate_drafts_poll_apply_and_stale_output_recovery(app):
         w.output.setCurrentIndex(2)
         w.rate.setFocus()
         QTest.keyClick(w.rate, Qt.Key.Key_Home)
-        w.research_toggle.setFocus()
+        w.close_button.setFocus()
         for _ in range(3):
             w.drain_events()
             assert w.output.currentData().native_id == 22 and w.rate.currentData() == 44100
@@ -242,7 +242,7 @@ def test_remastered_all_modes_exact_intensity_steps_cancel_and_return(app, tmp_p
         c.job.directory = SimpleNamespace(name=str(tmp_path))
         w.worker.service.preview.factory = DeferredRender
         click(app, w, w.file_modes['legato'])
-        click(app, w, w.research_toggle)
+        assert w.research_panel.isVisible()
         held_click(app, w, w.enter_research)
         assert w.state.research_previous_mode == 'legato' and c.player.mode == 'original'
         assert not any(b.isEnabled() for b in w.file_modes.values())
@@ -260,13 +260,13 @@ def test_remastered_all_modes_exact_intensity_steps_cancel_and_return(app, tmp_p
                 assert (request.mode, request.intensity) == (mode, tick * 5)
                 job = w.worker.service.preview.job
                 assert w.state.research_pending and w.cancel_research.isEnabled()
-                # Collapse cannot hide the real cancellation action.
-                click(app, w, w.research_toggle)
+                # Cancellation stays visible throughout an active job.
+                assert w.research_panel.isVisible()
                 assert w.cancel_research.isVisible()
                 held_click(app, w, w.cancel_research)
                 assert job.closed and not w.state.research_pending
                 assert not w.state.research_workspace and c.player.mode == 'legato'
-                click(app, w, w.research_toggle)
+                assert w.research_panel.isVisible()
                 held_click(app, w, w.enter_research)
         held_click(app, w, w.return_research)
         assert c.player.mode == 'legato' and not live.streams and not files.streams
@@ -323,7 +323,7 @@ def test_three_workspace_transitions_and_reopen_release_single_audio_owner(app, 
         held_click(app, w, w.play)
         alive_stream = c.player.stream
         assert not w.start_live.isEnabled() and not w.apply_devices.isEnabled()
-        click(app, w, w.research_toggle)
+        assert w.research_panel.isVisible()
         held_click(app, w, w.enter_research)
         assert c.player.stream is alive_stream and len(files.streams) == 1
         held_click(app, w, w.return_research)

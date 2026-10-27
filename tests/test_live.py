@@ -379,7 +379,20 @@ def test_pass_a_partial_start_failure_releases_stream():
 def test_startup_native_callbacks_can_reach_armed_worker_before_start_returns():
     """The callback may begin delivering input inside PortAudio start()."""
     backend = FakeBackend()
-    monitor = LiveMonitor(backend, PassThrough,
+    # The fake stream advances a PortAudio callback only when pump() is called.
+    # Without scheduling, the free-running worker may publish the next block
+    # during a manually pumped output pop, creating synthetic ring contention.
+    # Keep the eager native-start callbacks real; gate ONLY the second worker
+    # result until the callback has drained its preceding output block.
+    gate = threading.Event()
+    gate.set()
+
+    class ScheduledPassThrough(PassThrough):
+        def process_block(self, block):
+            assert gate.wait(2), "test worker was not released after callback"
+            return super().process_block(block)
+
+    monitor = LiveMonitor(backend, ScheduledPassThrough,
         monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.)
     signal = np.full((BLOCK, 2), .25, np.float32)
     original_open = backend.open
@@ -404,10 +417,19 @@ def test_startup_native_callbacks_can_reach_armed_worker_before_start_returns():
     try:
         monitor.start("BlackHole 2ch", "Test speakers")
         assert monitor.running and monitor.state == "Running"
-        np.testing.assert_array_equal(monitor.stream.pump(np.zeros_like(signal)), signal)
+        gate.clear()
+        try:
+            # The first processed output must play on the next native callback
+            # without permitting the worker to race ahead of this fake device.
+            np.testing.assert_array_equal(monitor.stream.pump(np.zeros_like(signal)), signal)
+        finally:
+            gate.set()
+        wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
         assert monitor.underflows == 1  # Explicit first output slot has no DSP yet.
+        assert not monitor.halt.is_set(), monitor.error
         assert not monitor.error
     finally:
+        gate.set()
         monitor.stop()
     assert backend.streams[0].closed and not monitor.running
 

@@ -61,6 +61,7 @@ def test_three_columns_lower_telemetry_and_research_controls(app, size):
         assert live.isAncestorOf(w.live_engine)
         assert diagnostics.isAncestorOf(w.health)
         assert diagnostics.isAncestorOf(w.live_health)
+        assert diagnostics.isAncestorOf(w.processing_health)
         assert w.timer.interval() == 50
 
         # Remastered is now a permanent workspace, not an opt-in collapse.
@@ -173,9 +174,17 @@ def test_split_telemetry_retains_every_original_diagnostic_line(app):
         unified = audio_diagnostics(w.state)
         assert w.health.toPlainText() + '\n' + w.live_health.toPlainText() == unified
         assert w.health.isReadOnly() and w.live_health.isReadOnly()
+        assert w.processing_health.isReadOnly()
+        assert w.processing_health.accessibleName() == 'LIVE processing budget telemetry (scrollable)'
+        assert w.processing_health.isVisible()
         assert w.health.accessibleName() == 'ALIVE diagnostics (scrollable)'
         assert w.live_health.accessibleName() == 'LIVE diagnostics (scrollable)'
         assert w.health.font().family() == w.live_health.font().family()
+        assert w.processing_health.font().family() == w.health.font().family()
+        assert 'No LIVE processor observations yet' in w.processing_health.toPlainText()
+        assert 'LIVE Processing — Engine & Budget' in (
+            label.text() for label in w._telemetry_panel.findChildren(type(w.file_status))
+        )
         for heading in ('ALIVE — Local playback', 'Remastered stage:'):
             assert heading in w.health.toPlainText()
         assert 'LIVE — Transport' in w.live_health.toPlainText()

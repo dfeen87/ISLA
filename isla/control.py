@@ -110,6 +110,7 @@ class ControlState:
     alive_volume: int = 25
     alive_applied_volume: float | None = None
     save_candidate: str = ''
+    live_processing_health: str = ''
 
 
 class ControlService:
@@ -560,7 +561,9 @@ class ControlService:
             ('Unavailable — preparation pending' if self.preview.job is not None else
              'Unavailable — mode transition pending' if p.stream is not None and
              (getattr(p, '_current', None) is not p._selected or p._fade_pos < len(p._fade)) else
-             p.mode + ' — prepared buffer, unity export' if p.buffers else 'Unavailable — no recording'))
+             p.mode + ' — prepared buffer, unity export' if p.buffers else 'Unavailable — no recording'),
+            live_processing_health=getattr(engine, 'processing_telemetry',
+                'No LIVE processor observations yet; start LIVE to measure worker workload.'))
 
     def shutdown(self):
         self._enter()

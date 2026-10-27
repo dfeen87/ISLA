@@ -103,6 +103,129 @@ def test_worker_engine_warms_before_aligned_switch_and_preserves_production_outp
     settings.set('production',50)
     d.process_block(block)
     assert d.applied.engine == 'production'
+    assert d.research is None and d._research_hops == 0
+    settings.set('remastered',50)
+    for _ in range(3):
+        d.process_block(block)
+        assert d.applied.engine == 'production'
+    assert d.applied.engine == 'production'
+    d.process_block(block)
+    assert d.applied.engine == 'remastered'
+
+
+@pytest.mark.parametrize('rate',[44100,48000])
+@pytest.mark.parametrize('mode',['bypass','velvet','legato','melt'])
+def test_worker_retires_idle_remastered_only_after_fade_and_rewarms_on_reentry(rate,mode,monkeypatch):
+    from isla.streaming import StreamingDSP
+    calls = []
+    original_process = RemasteredStreamingDSP.process_block
+    def track(self,block):
+        calls.append(self)
+        return original_process(self,block)
+    monkeypatch.setattr(RemasteredStreamingDSP,'process_block',track)
+
+    settings = LiveSettings()
+    d = LiveEngineDSP(rate,2,settings)
+    reference = StreamingDSP(rate,2)
+    d.select(mode); reference.select(mode)
+    block = np.full((512,2),.02,np.float32)
+
+    for _ in range(6):
+        np.testing.assert_array_equal(d.process_block(block),reference.process_block(block))
+    assert not calls and d.research is None
+
+    settings.set('remastered',50)
+    for hop in range(6):
+        actual = d.process_block(block)
+        dry = reference.process_block(block)
+        if hop < 3:
+            np.testing.assert_array_equal(actual,dry)
+            assert d.applied.engine == 'production'
+        else:
+            assert d.applied.engine == 'remastered'
+    prior = d.research
+    assert prior is not None and calls and all(x is prior for x in calls)
+    count = len(calls)
+
+    settings.set('production',50)
+    # This first return block still computes both outputs to preserve the
+    # existing 5 ms crossfade; only AFTER its output is safe do we retire.
+    returned = d.process_block(block)
+    reference.process_block(block)
+    assert returned.shape == block.shape and np.isfinite(returned).all()
+    assert len(calls) == count+1
+    assert d.applied.engine == 'production' and d.research is None
+    assert d._research_hops == 0 and d._mix == 0
+    count = len(calls)
+
+    # No idle research blocks; Production output remains bit-exact and its
+    # continuing historical state matches a permanently active reference.
+    for _ in range(16):
+        np.testing.assert_array_equal(d.process_block(block),reference.process_block(block))
+    assert len(calls) == count
+
+    settings.set('remastered',50)
+    for hop in range(3):
+        np.testing.assert_array_equal(d.process_block(block),reference.process_block(block))
+        assert d.applied.engine == 'production'
+        assert d.research is not prior
+    assert len(calls) == count+3 and d._research_hops == 3
+    output = d.process_block(block)
+    reference.process_block(block)
+    assert np.isfinite(output).all() and d.applied.engine == 'remastered'
+    assert d.research is not prior and d._research_hops == 4
+
+
+def test_live_processing_telemetry_counts_real_bank_work_and_releases_idle_bank():
+    settings = LiveSettings()
+    engine = LiveEngineDSP(48000,2,settings)
+    audio = np.full((512,2),.01,np.float32)
+    for _ in range(6):
+        engine.process_block(audio)
+    assert engine._processing_blocks == 6
+    assert engine._research_blocks == 0
+    assert engine._research_retirements == 0
+    assert engine._total_last_ms >= engine._production_last_ms >= 0.
+    assert 'Research bank: inactive / retired' in engine.processing_telemetry
+    assert 'Nominal 512-frame interval: 10.67 ms' in engine.processing_telemetry
+
+    settings.set('remastered',50)
+    for _ in range(5):
+        engine.process_block(audio)
+    assert engine._research_blocks == 5
+    assert 'Research bank: active / warming' in engine.processing_telemetry
+    assert 'worker applied: Remastered' in engine.processing_telemetry
+    settings.set('production',50)
+    engine.process_block(audio)
+    assert engine._research_blocks == 6
+    assert engine._research_retirements == 1
+    assert engine._research_last_ms > 0.
+    assert engine._research_peak_ms > 0.
+    for _ in range(20):
+        engine.process_block(audio)
+    assert engine._research_blocks == 6
+    assert engine._research_last_ms == 0.
+    assert engine._processing_blocks == 32
+    assert 'Research bank: inactive / retired' in engine.processing_telemetry
+    assert 'Remastered bank retirements: 1' in engine.processing_telemetry
+
+
+def test_cancel_research_warmup_releases_unapplied_history():
+    settings = LiveSettings()
+    d = LiveEngineDSP(48000,2,settings)
+    block = np.full((512,2),.03,np.float32)
+    settings.set('remastered',25)
+    for _ in range(2):
+        d.process_block(block)
+        assert d.applied.engine == 'production'
+    unfinished = d.research
+    assert unfinished is not None
+    settings.set('production',25)
+    d.process_block(block)
+    assert d.research is None and d._research_hops == 0
+    settings.set('remastered',25)
+    d.process_block(block)
+    assert d.research is not unfinished and d._research_hops == 1
 
 
 def test_real_live_worker_owns_remastered_fft_and_reseeds_after_stop(monkeypatch):

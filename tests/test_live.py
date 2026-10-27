@@ -375,6 +375,96 @@ def test_pass_a_partial_start_failure_releases_stream():
     assert backend.streams[0].closed and monitor.stream is None
 
 
+
+def test_startup_native_callbacks_can_reach_armed_worker_before_start_returns():
+    """The callback may begin delivering input inside PortAudio start()."""
+    backend = FakeBackend()
+    monitor = LiveMonitor(backend, PassThrough,
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.)
+    signal = np.full((BLOCK, 2), .25, np.float32)
+    original_open = backend.open
+
+    def open_with_eager_callbacks(config, callback):
+        stream = original_open(config, callback)
+        native_start = stream.start
+
+        def start_with_eager_callbacks():
+            native_start()
+            for _ in range(WARMUP_BLOCKS):
+                assert not stream.pump(np.zeros_like(signal)).any()
+            # This callback runs before the synchronous start method returns.
+            assert not stream.pump(signal).any()
+            wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
+            assert not monitor.halt.is_set(), monitor.error
+
+        stream.start = start_with_eager_callbacks
+        return stream
+
+    backend.open = open_with_eager_callbacks
+    try:
+        monitor.start("BlackHole 2ch", "Test speakers")
+        assert monitor.running and monitor.state == "Running"
+        np.testing.assert_array_equal(monitor.stream.pump(np.zeros_like(signal)), signal)
+        assert monitor.underflows == 1  # Explicit first output slot has no DSP yet.
+        assert not monitor.error
+    finally:
+        monitor.stop()
+    assert backend.streams[0].closed and not monitor.running
+
+
+def test_callback_fault_during_native_start_is_not_masked_by_running_state():
+    backend = FakeBackend()
+    monitor = LiveMonitor(backend, PassThrough)
+    original_open = backend.open
+
+    def open_with_early_fault(config, callback):
+        stream = original_open(config, callback)
+        native_start = stream.start
+
+        def failed_start():
+            native_start()
+            stream.pump(np.zeros((BLOCK, 2), np.float32), frames=BLOCK - 1)
+
+        stream.start = failed_start
+        return stream
+
+    backend.open = open_with_early_fault
+    with pytest.raises(AudioError, match="callback size"):
+        monitor.start("BlackHole 2ch", "Test speakers")
+    assert monitor.state == "Failed"
+    assert "callback size" in monitor.error
+    assert monitor.worker is None and monitor.stream is None
+    assert monitor.fatal_device_errors == 1
+    assert backend.streams[0].closed
+    monitor.stop()
+
+
+def test_native_stream_start_latency_does_not_trigger_premature_watchdog():
+    backend = FakeBackend()
+    monitor = LiveMonitor(backend, PassThrough)
+    original_open = backend.open
+
+    def open_with_slow_start(config, callback):
+        stream = original_open(config, callback)
+        native_start = stream.start
+
+        def slow_start():
+            native_start()
+            time.sleep(.33)  # Longer than the worker's 250 ms heartbeat.
+        stream.start = slow_start
+        return stream
+
+    backend.open = open_with_slow_start
+    try:
+        monitor.start("BlackHole 2ch", "Test speakers")
+        assert monitor.state == "Running"
+        assert not monitor.halt.is_set()
+        assert not monitor.error
+    finally:
+        monitor.stop()
+    assert backend.streams[0].closed
+
+
 def batch_reference(audio, strength):
     """Independent whole-signal WOLA reference with no transport chunk edges."""
     size, hop = 2048, 512

@@ -241,7 +241,7 @@ def test_all_original_freeze_hashes_remain_intact():
             current = (root / name).read_bytes()
             reviewed_startup_blob = "5ebb72005a63a0dc5e173bb30526de9e84af4046"
             blob = hashlib.sha1(
-                f"blob {len(current)}\\0".encode().replace(b"\\\\0", b"\\0") + current
+                b"blob " + str(len(current)).encode("ascii") + bytes([0]) + current
             ).hexdigest()
             if blob != reviewed_startup_blob:
                 assert _neutralize_live_recovery_policy(current) == _neutralize_live_recovery_policy(content), \

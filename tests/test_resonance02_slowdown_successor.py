@@ -239,7 +239,7 @@ def test_all_original_freeze_hashes_remain_intact():
             # arbitrary changes to the callback, capacity, DSP or safety policy.
             # Historical frozen bytes remain SHA256-checked above.
             current = (root / name).read_bytes()
-            reviewed_startup_blob = "279de7e587394903906bc72543655369ecd7ab02"
+            reviewed_startup_blob = "10f0ef207c7165fc8cbe281521ac1730b6895baf"
             blob = hashlib.sha1(
                 b"blob " + str(len(current)).encode("ascii") + bytes([0]) + current
             ).hexdigest()

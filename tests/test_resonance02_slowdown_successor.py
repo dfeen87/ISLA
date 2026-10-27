@@ -232,11 +232,20 @@ def test_all_original_freeze_hashes_remain_intact():
         assert hashlib.sha256(content).hexdigest() == expected, name
 
         if name == "isla/live.py":
-            # Constants, backend/routing, rings, callback safety checks,
-            # worker/DSP dispatch, ownership and status remain pinned.
-            # Functional tests cover the changed admission/failure policy.
-            assert _neutralize_live_recovery_policy((root / name).read_bytes()) == _neutralize_live_recovery_policy(content), \
-                "LIVE changed beyond reviewed startup recovery methods"
+            # The historical frozen bytes above remain SHA256-checked. The
+            # narrow policy exception still rejects other callback/DSP edits.
+            # Startup worker-arming is a separately reviewed *exact* code
+            # image (PR #75), not permission to edit the entire worker.
+            # Git's blob digest binds every source byte, including the ring
+            # capacity, safety limits, callback, DSP dispatch and status text.
+            current = (root / name).read_bytes()
+            reviewed_startup_blob = "5ebb72005a63a0dc5e173bb30526de9e84af4046"
+            blob = hashlib.sha1(
+                b"blob " + str(len(current)).encode("ascii") + bytes([0]) + current
+            ).hexdigest()
+            if blob != reviewed_startup_blob:
+                assert _neutralize_live_recovery_policy(current) == _neutralize_live_recovery_policy(content), \
+                    "LIVE differs from both the reviewed startup handoff and historical recovery policy"
 
         if name == "phased_music_notes/__init__.py":
             # A release bump is allowed, not an arbitrary edit to legacy API

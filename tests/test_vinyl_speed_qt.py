@@ -1,4 +1,4 @@
-"""Real Qt radio-button regression for the ALIVE vinyl slowdown workflow."""
+"""Real Qt sliding-switch regression for the ALIVE vinyl slowdown workflow."""
 import pytest
 
 pytest.importorskip("PySide6.QtWidgets")
@@ -70,6 +70,9 @@ def test_sliding_switch_supports_keyboard_and_reaches_both_positions(app):
     w, controller, *_ = window_session(app)
     try:
         assert isinstance(w.vinyl_slowdown,SpeedSwitch)
+        # Exercise completion beyond the old fixed 180 ms observation window.
+        # Hosted macOS animation frames can also arrive after that window.
+        w.vinyl_slowdown._slide.setDuration(350)
         w.submit('load','switch.wav')
         wait_ui(app,lambda:not w.busy)
         controller.job.result=prepared_buffers(),48000
@@ -77,12 +80,14 @@ def test_sliding_switch_supports_keyboard_and_reaches_both_positions(app):
         w.vinyl_slowdown.setFocus()
         QTest.keyClick(w.vinyl_slowdown,Qt.Key.Key_Space)
         wait_ui(app,lambda:not w.busy and w.state.vinyl_slowdown)
-        QTest.qWait(180)
+        wait_ui(app,lambda:w.vinyl_slowdown._slide.state() ==
+                w.vinyl_slowdown._slide.State.Stopped)
         assert w.vinyl_slowdown._position == pytest.approx(1)
         assert w.vinyl_rate.text()=='50%'
         QTest.keyClick(w.vinyl_slowdown,Qt.Key.Key_Space)
         wait_ui(app,lambda:not w.busy and not w.state.vinyl_slowdown)
-        QTest.qWait(180)
+        wait_ui(app,lambda:w.vinyl_slowdown._slide.state() ==
+                w.vinyl_slowdown._slide.State.Stopped)
         assert w.vinyl_slowdown._position == pytest.approx(0)
         assert w.vinyl_rate.text()=='100%'
     finally:

@@ -132,7 +132,7 @@ ISLA began as **Phased-Music-Notes** and evolved through a regression-tested BED
 
 **Two classical performances. Three Remastered modes. Two listening speeds.** Compare **Velvet**, **Legato**, and **Melt** against **Original / Bypass** using the same passage from each recording. All processed examples use the current **v4.0 Remastered governed engine at 100% research depth**.
 
-**Start with your listening volume low.** Each link opens or downloads a **24-bit FLAC**; if your browser downloads it, open it in your audio player. Compare one row at a time, then return to Original. The four modes at both speeds are matched to the same integrated loudness **within each work**, so keep your playback volume fixed.
+**Start with your listening volume low.** Each link opens the committed **24-bit FLAC** file directly, without GitHub's file-view page. Your browser may download it instead of playing it inline; open the saved file in an audio player. Compare one row at a time, then return to Original. The four modes at both speeds are matched to the same integrated loudness **within each work**, so keep your playback volume fixed.
 
 **100% speed** gives an **18-second** excerpt; **60% speed (0.60×)** expands the same passage to **30 seconds**, with pitch preserved. The slower source is prepared **before** each model runs, letting its state-aware processing respond to the slower attacks, sustains, and decays. Listening speed and research depth are separate settings.
 
@@ -142,10 +142,10 @@ ISLA began as **Phased-Music-Notes** and evolved through a regression-tested BED
 
 | Mode | Normal · 100% speed · 18 s | Slowed · 60% speed · 30 s |
 |---|---|---|
-| **Original / Bypass** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-bypass.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-bypass.flac?raw=1) |
-| **Velvet Remastered** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-velvet.flac?raw=1) |
-| **Legato Remastered** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-legato.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-legato.flac?raw=1) |
-| **Melt Remastered** | [▶ Listen / download](docs/audio/mozart-remastered/100pct-melt.flac?raw=1) | [▶ Listen / download](docs/audio/mozart-remastered/060pct-melt.flac?raw=1) |
+| **Original / Bypass** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/100pct-bypass.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/060pct-bypass.flac) |
+| **Velvet Remastered** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/100pct-velvet.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/060pct-velvet.flac) |
+| **Legato Remastered** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/100pct-legato.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/060pct-legato.flac) |
+| **Melt Remastered** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/100pct-melt.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/mozart-remastered/060pct-melt.flac) |
 
 Recording and adapted audio: **[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)**. [Original recording and performer credit](https://commons.wikimedia.org/wiki/File:Mozart,_Requiem_in_D_minor,_%27Lacrimosa%27_%E2%80%93_piano_arrangement.ogg).
 
@@ -155,10 +155,10 @@ Recording and adapted audio: **[CC BY-SA 4.0](https://creativecommons.org/licens
 
 | Mode | Normal · 100% speed · 18 s | Slowed · 60% speed · 30 s |
 |---|---|---|
-| **Original / Bypass** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-bypass.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-bypass.flac?raw=1) |
-| **Velvet Remastered** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-velvet.flac?raw=1) |
-| **Legato Remastered** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-legato.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-legato.flac?raw=1) |
-| **Melt Remastered** | [▶ Listen / download](docs/audio/saint-saens-remastered/100pct-melt.flac?raw=1) | [▶ Listen / download](docs/audio/saint-saens-remastered/060pct-melt.flac?raw=1) |
+| **Original / Bypass** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/100pct-bypass.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/060pct-bypass.flac) |
+| **Velvet Remastered** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/100pct-velvet.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/060pct-velvet.flac) |
+| **Legato Remastered** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/100pct-legato.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/060pct-legato.flac) |
+| **Melt Remastered** | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/100pct-melt.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/saint-saens-remastered/060pct-melt.flac) |
 
 [Source recording, arrangement and U.S. public-domain notice](https://commons.wikimedia.org/wiki/File:Symphony_No._3_in_C_Minor_-_II._Maestoso_-_Stellar_Brass_-_United_States_Air_Force_Academy_Band.mp3). Performer credit identifies the source; no endorsement is implied.
 
@@ -758,7 +758,7 @@ Phased Music Notes was conceived to explore the hidden texture of classical pian
 
 Hear **Hinkik’s Outbreaker** and **Kubbi’s Ember** through the two current LIVE processing engines. Each song offers **seven versions of the same 24-second passage**: Original / Bypass, three traditional profiles, and three Remastered modes. These are offline exports of the LIVE worker DSPs, at **normal speed**.
 
-**Start with your listening volume low.** Open or download the FLAC links, play one sample at a time, and keep your player volume fixed. All seven versions within each song share one measured integrated-loudness target. Use Original as your reference and compare the same mode across the two columns.
+**Start with your listening volume low.** Open or download the direct FLAC links, play one sample at a time, and keep your player volume fixed. If your browser downloads a file rather than playing it, use an audio player. All seven versions within each song share one measured integrated-loudness target. Use Original as your reference and compare the same mode across the two columns.
 
 **Traditional LIVE** uses the established strengths **Velvet 0.35 · Legato 0.55 · Melt 0.75**. **Remastered LIVE** uses **100% permitted research depth** for each governed mode. Those settings belong to different processing systems and do not represent equivalent intensity. ALIVE’s traditional local-file processor is a separate pipeline.
 
@@ -766,13 +766,13 @@ Hear **Hinkik’s Outbreaker** and **Kubbi’s Ember** through the two current L
 
 Progressive/electro house. Same source passage **00:48–01:12**, with two seconds of preceding musical context used to warm each processor before the audible crop.
 
-**[▶ Original / Bypass — listen or download](docs/audio/electronic-comparison/outbreaker/original.flac?raw=1)**
+**[▶ Original / Bypass — listen or download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/outbreaker/original.flac)**
 
 | Mode | Traditional LIVE | Remastered LIVE · 100% depth |
 |---|---|---|
-| **Velvet** | [▶ Listen / download · 0.35](docs/audio/electronic-comparison/outbreaker/traditional-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/outbreaker/remastered-velvet.flac?raw=1) |
-| **Legato** | [▶ Listen / download · 0.55](docs/audio/electronic-comparison/outbreaker/traditional-legato.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/outbreaker/remastered-legato.flac?raw=1) |
-| **Melt** | [▶ Listen / download · 0.75](docs/audio/electronic-comparison/outbreaker/traditional-melt.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/outbreaker/remastered-melt.flac?raw=1) |
+| **Velvet** | [▶ Listen / download · 0.35](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/outbreaker/traditional-velvet.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/outbreaker/remastered-velvet.flac) |
+| **Legato** | [▶ Listen / download · 0.55](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/outbreaker/traditional-legato.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/outbreaker/remastered-legato.flac) |
+| **Melt** | [▶ Listen / download · 0.75](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/outbreaker/traditional-melt.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/outbreaker/remastered-melt.flac) |
 
 Music: **Outbreaker by Hinkik**. [Artist’s original upload and license](https://www.newgrounds.com/audio/listen/681530). Source and these cropped, processed, level-matched audio adaptations: **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**.
 
@@ -780,13 +780,13 @@ Music: **Outbreaker by Hinkik**. [Artist’s original upload and license](https:
 
 Melodic chipstep. Same source passage **00:40–01:04**, with the same processor warm-up, crop duration, and comparison method.
 
-**[▶ Original / Bypass — listen or download](docs/audio/electronic-comparison/ember/original.flac?raw=1)**
+**[▶ Original / Bypass — listen or download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/ember/original.flac)**
 
 | Mode | Traditional LIVE | Remastered LIVE · 100% depth |
 |---|---|---|
-| **Velvet** | [▶ Listen / download · 0.35](docs/audio/electronic-comparison/ember/traditional-velvet.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/ember/remastered-velvet.flac?raw=1) |
-| **Legato** | [▶ Listen / download · 0.55](docs/audio/electronic-comparison/ember/traditional-legato.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/ember/remastered-legato.flac?raw=1) |
-| **Melt** | [▶ Listen / download · 0.75](docs/audio/electronic-comparison/ember/traditional-melt.flac?raw=1) | [▶ Listen / download](docs/audio/electronic-comparison/ember/remastered-melt.flac?raw=1) |
+| **Velvet** | [▶ Listen / download · 0.35](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/ember/traditional-velvet.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/ember/remastered-velvet.flac) |
+| **Legato** | [▶ Listen / download · 0.55](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/ember/traditional-legato.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/ember/remastered-legato.flac) |
+| **Melt** | [▶ Listen / download · 0.75](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/ember/traditional-melt.flac) | [▶ Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/electronic-comparison/ember/remastered-melt.flac) |
 
 Music: **Ember by Kubbi**. [Artist’s original upload and license](https://www.newgrounds.com/audio/listen/974737). Source and these audio adaptations: **[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)**. Artist credits identify the recordings; no endorsement is implied.
 
@@ -801,7 +801,7 @@ Compare the same short **Emotional Piano** passage by **triangelx**, published u
 
 | Original / Bypass | Velvet · 0.35 | Legato · 0.55 | Melt · 0.75 |
 |---|---|---|---|
-| [Listen / download](docs/audio/live-baseline/bypass.flac?raw=1) | [Listen / download](docs/audio/live-baseline/velvet.flac?raw=1) | [Listen / download](docs/audio/live-baseline/legato.flac?raw=1) | [Listen / download](docs/audio/live-baseline/melt.flac?raw=1) |
+| [Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/live-baseline/bypass.flac) | [Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/live-baseline/velvet.flac) | [Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/live-baseline/legato.flac) | [Listen / download](https://raw.githubusercontent.com/dfeen87/ISLA/main/docs/audio/live-baseline/melt.flac) |
 
 These reference samples retain the original strengths. No mode tuning or audible improvement is claimed. The [source, license and render details](docs/audio/live-baseline/PROVENANCE.md) identify the baseline, passage and level adjustments; the source description does not establish how the instrument was recorded.
 

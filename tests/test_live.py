@@ -346,9 +346,12 @@ def test_pass_a_disconnection_or_routing_change_closes_without_terminal_poll(rou
 def test_pass_a_bounded_ring_and_nonblocking_contention():
     ring = BlockRing(2)
     data = np.ones((BLOCK, 2), np.float32)
+    assert ring.last_push_failure == "none"
     for i in range(CAPACITY):
         assert ring.push(data * i, i)
     assert not ring.push(data, 9) and ring.count == CAPACITY
+    assert ring.last_push_failure == "queue full"
+    assert ring.high_water == CAPACITY
     target = np.empty_like(data)
     for i in range(CAPACITY):
         assert ring.pop_into(target) == i
@@ -356,7 +359,25 @@ def test_pass_a_bounded_ring_and_nonblocking_contention():
     assert ring.pop_into(target) is None
     with ring.lock:
         assert not ring.push(data, 0) and ring.pop_into(target) is None
+    assert ring.last_push_failure == "lock contention"
     assert ring.data.nbytes == CAPACITY * BLOCK * 2 * 4
+
+
+def test_live_status_distinguishes_input_ring_full_from_lock_contention():
+    monitor = LiveMonitor(FakeBackend(), PassThrough)
+    monitor.input = BlockRing(2)
+    monitor.output = BlockRing(2)
+    zeros = np.zeros((BLOCK, 2), np.float32)
+    assert "Input ring last push failure/high-water: none / 0 of 8" in monitor.status()
+    with monitor.input.lock:
+        assert not monitor.input.push(zeros, 1.)
+    assert "Input ring last push failure/high-water: lock contention / 0 of 8" in monitor.status()
+    for index in range(CAPACITY):
+        assert monitor.input.push(zeros, float(index))
+    assert not monitor.input.push(zeros, 9.)
+    retained = monitor.status()
+    assert "Input ring last push failure/high-water: queue full / 8 of 8" in retained
+    assert "Output ring last push failure/high-water: none / 0 of 8" in retained
 
 
 def test_pass_a_partial_start_failure_releases_stream():

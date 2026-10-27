@@ -174,3 +174,48 @@ Primary references (read October 24, 2026):
 The separate-device analysis is an inference from that source, not a measurement
 of the creator's installed binary. See [native checklist](NATIVE_CHECKLIST.md)
 and [validation evidence](VALIDATION.md).
+
+## October 27 creator observations — physical LIVE failure and ALIVE comparison
+
+Two creator-observed LIVE sessions used **BlackHole 2ch → Sony WH-CH720N** at
+**48,000 Hz**. These are actual GUI telemetry transcripts, not synthetic
+PortAudio tests, and cannot establish a complete causal trace.
+
+1. **Original/Bypass, application input ring fault:** the first session ended
+   without a Stop click, reporting `Input buffer overflow/contention; stopped
+   rather than accumulating delayed audio.` Device input/output underflow and
+   overflow flags were **0/0 in each direction**; application ring failures
+   **1**, output empty/contention events **3**, estimated latency **485.6 ms**,
+   worker/routing/queue-age maxima **8.28 / 13.47 / 32.01 ms**, and **zero**
+   capture discontinuities or attempted recoveries. The original Boolean
+   `BlockRing.push` does not distinguish **full** from **nonblocking lock
+   contention**, so this incident cannot be retrospectively classified.
+2. **Original/Bypass, native input loss:** a subsequent session reported
+   `Repeated capture discontinuity within recovery quiet interval; stopped
+   safely.` Device input overflows **4** (all other native directional flags
+   **0**), capture discontinuities **4** including startup, attempted/completed/
+   failed recoveries **1 / 1 / 1**, application ring failures **0**, estimated
+   latency **155.5 ms**, and worker/routing/queue-age maxima
+   **6.40 / 10.47 / 21.34 ms**. Engine telemetry: **Production requested and
+   applied**, research bank **inactive**, **477 Production blocks**, **0
+   Remastered blocks**, **0** observed DSP blocks exceeding the nominal
+   **10.67 ms** interval, Production DSP wall-time last/peak
+   **0.880 / 6.272 ms**. Thus this second failure was **reported native capture
+   loss**, not demonstrated Remastered compute overload.
+
+In contrast, traditional ALIVE file playback on the same named output reported
+**14,721 callbacks, zero status events, zero underflows and zero observed DAC
+clock gaps**. The loaded recording was **170.91 seconds / 44.1 kHz**, hence
+**ineligible for experimental ALIVE Remastered** (its established 30-second
+limit); the disabled preparation action is not proof of a click/control defect.
+Traditional ALIVE file playback and continuous LIVE capture use different
+transport and sample-rate contexts and are not equivalent reliability tests.
+
+**Targeted follow-up:** preserve the current real-time fail-closed behavior and
+10-second recovery quiet interval; classify the next application push failure
+as `queue full` versus `lock contention`, with ring high-water, and retain
+native PortAudio flags separately. The GUI may show a read-only backend-verified
+Running/Stopped Safely state and distinctly colored Start/Stop controls, but
+it must **not auto-restart after a fatal audio fault**. Native callback loss
+may occur without the user pressing Stop. Inspect the physical setup, callback
+scheduling and relevant device paths only after gathering comparable evidence.

@@ -66,6 +66,42 @@ QPushButton#primaryAction:pressed:enabled { background: #215FAF; }
 QPushButton#primaryAction:disabled {
     background: #E2E8F0; border: 1px solid #CED8E5; color: #758399;
 }
+/* Operator status colors are reflections of the control snapshot, never commands. */
+QPushButton#liveStartAction {
+    background: #DDF3E4; color: #205638;
+    border: 1px solid #86BD9B; border-radius: 6px;
+    padding: 5px 9px; font-weight: bold;
+}
+QPushButton#liveStartAction:hover:enabled { background: #C4E9D1; }
+QPushButton#liveStartAction[monitorState="running"] {
+    background: #267849; color: white; border-color: #1D633C;
+}
+QPushButton#liveStartAction:disabled[monitorState="idle"],
+QPushButton#liveStartAction:disabled[monitorState="failed"] {
+    background: #E2E8F0; color: #758399; border-color: #CED8E5;
+}
+QPushButton#liveStopAction {
+    background: #FAE2E2; color: #873939;
+    border: 1px solid #D6A1A1; border-radius: 6px;
+    padding: 5px 9px; font-weight: bold;
+}
+QPushButton#liveStopAction:hover:enabled { background: #F5C8C8; }
+QPushButton#liveStopAction:disabled {
+    background: #F4E8E8; color: #A88C8C; border-color: #E2CCCC;
+}
+QLabel#liveStateIndicator {
+    background: #EDF1F6; color: #334155;
+    border: 1px solid #CBD5E1; border-radius: 5px; padding: 7px;
+}
+QLabel#liveStateIndicator[monitorState="running"] {
+    background: #E1F4E8; color: #205638; border-color: #83C19B;
+}
+QLabel#liveStateIndicator[monitorState="failed"] {
+    background: #FCE8E8; color: #8B2828; border-color: #DD9E9E;
+}
+QLabel#liveStateIndicator[monitorState="stopping"] {
+    background: #FFF3D9; color: #755219; border-color: #E5C77B;
+}
 QSlider#audioLevelSlider::groove:horizontal {
     height: 6px; background: #D8E7F8; border-radius: 3px;
 }
@@ -898,13 +934,20 @@ class ControlWindow(QMainWindow):
         box.addWidget(label('Step 4 — Start Monitoring'))
         row = QHBoxLayout()
         self.start_live = QPushButton('Start LIVE')
-        self.start_live.setObjectName('primaryAction')
+        self.start_live.setObjectName('liveStartAction')
+        self.start_live.setProperty('monitorState', 'idle')
         self.start_live.clicked.connect(lambda: self.submit('start'))
         self.stop_live = QPushButton('Stop LIVE')
+        self.stop_live.setObjectName('liveStopAction')
         self.stop_live.clicked.connect(self._request_live_stop)
         row.addWidget(self.start_live)
         row.addWidget(self.stop_live)
         box.addLayout(row)
+        self.live_state_indicator = label('LIVE monitoring inactive — no audio stream.')
+        self.live_state_indicator.setObjectName('liveStateIndicator')
+        self.live_state_indicator.setAccessibleName('LIVE monitor state and safety outcome')
+        self.live_state_indicator.setProperty('monitorState', 'idle')
+        box.addWidget(self.live_state_indicator)
         # A single effect dropdown replaces four mode buttons. Start/Stop
         # remain explicit, independent actions for audio safety.
         self.live_engine = QComboBox()
@@ -954,6 +997,9 @@ class ControlWindow(QMainWindow):
         monitor.addWidget(self.live_error)
         monitor.addWidget(self._volume_control('volume', 'LIVE Listening Volume', 50))
         monitor.addWidget(label(RESTORE_OUTPUT))
+        # This panel spans two desktop grid rows. Consume spare height here,
+        # not between labels/buttons, so Step 4 and its modes remain close.
+        box.addStretch(1)
         return panel
 
     def _diagnostics_panel(self):
@@ -1378,6 +1424,28 @@ class ControlWindow(QMainWindow):
         self.start_live.setEnabled(bool(available and s.can_start and not dirty_devices))
         self.stop_live.setEnabled(bool(not self.closing and self.busy in (None, 'live_mode')
                                        and (s.live_active or s.live_state.value == 'Fatal audio failure')))
+        # Cross-check exclusively against the control worker's immutable
+        # state. Silence in a song is NOT a native stream stop. Display only:
+        # never restart, force continued playback or mask a safety shutdown.
+        live_stage = (
+            'failed' if s.live_failure_reason or s.live_state == UIState.FATAL_ERROR else
+            'stopping' if self.busy == 'stop' or s.live_state == UIState.LIVE_STOPPING else
+            'running' if s.live_state == UIState.LIVE_RUNNING else 'idle'
+        )
+        if self.start_live.property('monitorState') != live_stage:
+            self.start_live.setProperty('monitorState', live_stage)
+            self.start_live.style().unpolish(self.start_live)
+            self.start_live.style().polish(self.start_live)
+        if self.live_state_indicator.property('monitorState') != live_stage:
+            self.live_state_indicator.setProperty('monitorState', live_stage)
+            self.live_state_indicator.style().unpolish(self.live_state_indicator)
+            self.live_state_indicator.style().polish(self.live_state_indicator)
+        self.live_state_indicator.setText({
+            'running': 'LIVE monitoring active — native stream running; audible output not independently verified.',
+            'stopping': 'LIVE stopping — waiting for audio resources to close.',
+            'failed': 'LIVE stopped by safety protection — ' + (s.live_failure_reason or s.error or 'inspect retained diagnostics') + '. Manual revalidation required.',
+            'idle': 'LIVE monitoring inactive — no audio stream.'
+        }[live_stage])
         # Manual rescans can block in native device enumeration, too.
         self.refresh.setEnabled(bool(available and not s.stream_active))
         self.recheck.setEnabled(bool(available and not s.stream_active))

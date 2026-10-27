@@ -65,10 +65,17 @@ def test_three_columns_lower_telemetry_and_research_controls(app, size):
                 assert control.parentWidget().rect().contains(control.geometry())
                 if hasattr(control, 'text') and control.text():
                     assert control.width() >= control.minimumSizeHint().width()
-                scroll.ensureWidgetVisible(control)
+                # Qt's ensureVisible() can position the target *on* the
+                # viewport's lower edge when margins are zero (y == height,
+                # which is outside QRect.contains). Reserve an explicit
+                # 12-pixel visibility margin without weakening reachability.
+                target = control.mapTo(scroll.widget(), control.rect().center())
+                scroll.ensureVisible(target.x(), target.y(), 12, 12)
                 app.processEvents()
                 center = control.mapTo(scroll.viewport(), control.rect().center())
-                assert scroll.viewport().rect().contains(center)
+                assert scroll.viewport().rect().contains(center), (
+                    f'{control.objectName() or type(control).__name__}: '
+                    f'center={center}, viewport={scroll.viewport().rect()}')
         if size == (1100, 950):
             assert scroll.horizontalScrollBar().maximum() == 0
     finally:
@@ -90,6 +97,43 @@ def test_split_telemetry_retains_every_original_diagnostic_line(app):
             assert heading in w.health.toPlainText()
         assert 'LIVE — Transport' in w.live_health.toPlainText()
         assert 'No active LIVE monitoring stream.' in w.live_health.toPlainText()
+    finally:
+        close_window(app, w, controller)
+
+
+
+@pytest.mark.parametrize('width', [1100, 800, 640])
+def test_footer_wave_signature_stays_between_original_buttons(app, width):
+    w, controller, *_ = window_session(app)
+    try:
+        w.resize(width, 900)
+        app.processEvents()
+        footer = w.centralWidget().layout().itemAt(
+            w.centralWidget().layout().count() - 1
+        ).layout()
+        assert footer.indexOf(w.refresh) < footer.indexOf(w.wave_signature)
+        assert footer.indexOf(w.wave_signature) < footer.indexOf(w.close_button)
+        signature = w.wave_signature
+        assert signature.isVisible()
+        assert signature.objectName() == 'footerWaveSignature'
+        assert signature.accessibleName() == (
+            'Decorative Velvet, Legato, and Melt waveform signature'
+        )
+        assert 'not live audio' in signature.toolTip()
+        assert tuple(wave[0] for wave in signature._WAVES) == (
+            'VELVET', 'LEGATO', 'MELT')
+        assert len({wave[1] for wave in signature._WAVES}) == 3
+        assert signature._wave_timer.interval() == 80
+        assert signature._wave_timer.isActive()
+        assert w.timer.interval() == 50  # Original polling, unchanged.
+        assert w.refresh.isVisible() and w.close_button.isVisible()
+        assert w.refresh.geometry().right() < signature.geometry().left()
+        assert signature.geometry().right() < w.close_button.geometry().left()
+        assert not signature.grab().isNull()
+        signature.hide()
+        assert not signature._wave_timer.isActive()
+        signature.show()
+        assert signature._wave_timer.isActive()
     finally:
         close_window(app, w, controller)
 

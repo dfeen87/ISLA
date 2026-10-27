@@ -31,7 +31,7 @@ def test_three_columns_lower_telemetry_and_research_controls(app, size):
             w._live_panel_widget, w._telemetry_panel,
         )
         assert [panel.title() for panel in (alive, remastered, live)] == [
-            'ALIVE — Local Audio File', 'v4.0 Remastered',
+            'ALIVE — Local Audio File', 'ALIVE Remastered',
             'LIVE — Mac System Audio']
         compact = size[0] < 1080
         assert w._panel_compact is compact
@@ -63,39 +63,38 @@ def test_three_columns_lower_telemetry_and_research_controls(app, size):
         assert diagnostics.isAncestorOf(w.live_health)
         assert w.timer.interval() == 50
 
-        for expanded in (False, True, False):
-            w.research_toggle.setChecked(expanded)
+        # Remastered is now a permanent workspace, not an opt-in collapse.
+        assert w.research_panel.title() == 'Experimental ALIVE Remastering'
+        assert w.research_panel.isVisible()
+        assert not hasattr(w, 'research_toggle')
+        assert all(widget.isVisible() for widget in (
+            w.enter_research, w.research_mode, w.research_intensity,
+            w.apply_research, w.save_mix_button, w.cancel_research,
+            w.return_research, w.health, w.live_health,
+            w.monitor_volume, w.mute_volume))
+        for control in (
+            w.open_file, w.play, w.pause, w.stop_file,
+            w.alive_volume, w.file_output, w.apply_output,
+            *w.file_modes.values(), w.enter_research,
+            w.research_mode, w.research_intensity, w.apply_research,
+            w.save_mix_button, w.cancel_research, w.return_research,
+            w.capture, w.output, w.rate, w.apply_devices, w.settings,
+            w.recheck, w.start_live, w.stop_live, w.live_engine,
+            w.live_intensity, w.apply_live_intensity,
+            w.live_mode_choice, w.reset_live_mode, w.monitor_volume,
+            w.mute_volume, w.health, w.live_health,
+        ):
+            assert control.parentWidget().rect().contains(control.geometry())
+            if hasattr(control, 'text') and control.text():
+                assert control.width() >= control.minimumSizeHint().width()
+            # Respect scroll-area boundaries without hiding any controls.
+            target = control.mapTo(scroll.widget(), control.rect().center())
+            scroll.ensureVisible(target.x(), target.y(), 12, 12)
             app.processEvents()
-            assert w.research_panel.isVisible() == expanded
-            assert all(widget.isVisible() for widget in (
-                w.save_mix_button, w.cancel_research, w.return_research,
-                w.health, w.live_health, w.monitor_volume, w.mute_volume))
-            for control in (
-                w.open_file, w.play, w.pause, w.stop_file,
-                w.alive_volume, w.file_output, w.apply_output,
-                *w.file_modes.values(), w.research_toggle,
-                w.save_mix_button, w.cancel_research, w.return_research,
-                w.capture, w.output, w.rate, w.apply_devices, w.settings,
-                w.recheck, w.start_live, w.stop_live, w.live_engine,
-                w.live_intensity, w.apply_live_intensity,
-                w.live_mode_choice, w.reset_live_mode, w.monitor_volume,
-                w.mute_volume, w.health, w.live_health,
-            ) + ((w.enter_research, w.research_mode, w.research_intensity,
-                  w.apply_research) if expanded else ()):
-                assert control.parentWidget().rect().contains(control.geometry())
-                if hasattr(control, 'text') and control.text():
-                    assert control.width() >= control.minimumSizeHint().width()
-                # Qt's ensureVisible() can position the target *on* the
-                # viewport's lower edge when margins are zero (y == height,
-                # which is outside QRect.contains). Reserve an explicit
-                # 12-pixel visibility margin without weakening reachability.
-                target = control.mapTo(scroll.widget(), control.rect().center())
-                scroll.ensureVisible(target.x(), target.y(), 12, 12)
-                app.processEvents()
-                center = control.mapTo(scroll.viewport(), control.rect().center())
-                assert scroll.viewport().rect().contains(center), (
-                    f'{control.objectName() or type(control).__name__}: '
-                    f'center={center}, viewport={scroll.viewport().rect()}')
+            center = control.mapTo(scroll.viewport(), control.rect().center())
+            assert scroll.viewport().rect().contains(center), (
+                f'{control.objectName() or type(control).__name__}: '
+                f'center={center}, viewport={scroll.viewport().rect()}')
         # ALL supported window sizes must have no horizontally clipped actions.
         assert scroll.horizontalScrollBar().maximum() == 0
     finally:
@@ -112,8 +111,9 @@ def test_action_buttons_fully_visible_after_vertical_scrolling(app, width):
         assert scroll.horizontalScrollBar().maximum() == 0
         controls = (
             w.open_file, w.play, w.pause, w.stop_file,
-            *w.file_modes.values(), w.apply_output, w.research_toggle,
-            w.save_mix_button, w.cancel_research, w.return_research,
+            *w.file_modes.values(), w.apply_output, w.enter_research,
+            w.apply_research, w.save_mix_button, w.cancel_research,
+            w.return_research,
             w.apply_devices, w.settings, w.recheck,
             w.start_live, w.stop_live, w.apply_live_intensity,
             w.reset_live_mode, w.mute_volume,

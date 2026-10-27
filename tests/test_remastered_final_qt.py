@@ -25,7 +25,7 @@ def test_browsing_does_not_enter_and_exclusive_apply_return_is_explicit(app, tmp
         click(app, w, w.play)
         stream = c.player.stream
         stream.pump()
-        click(app, w, w.research_toggle)
+        assert w.research_panel.isVisible()
         assert c.player.mode == 'melt' and not w.state.research_workspace
         assert not w.apply_research.isEnabled()
         button = w.enter_research
@@ -36,9 +36,9 @@ def test_browsing_does_not_enter_and_exclusive_apply_return_is_explicit(app, tmp
         wait_ui(app, lambda: not w.busy and w.state.research_workspace)
         assert c.player.mode == 'original'
         assert all(not b.isEnabled() for b in w.file_modes.values())
-        click(app, w, w.research_toggle)  # Collapse also has no processing side effect.
+        # The always-visible panel must not disturb the active research state.
+        assert w.research_panel.isVisible()
         assert w.state.research_workspace and c.player.mode == 'original'
-        click(app, w, w.research_toggle)
         click(app, w, w.apply_research)
         assert w.state.research_pending and not w.save_mix_button.isEnabled()
         assert 'Unavailable' in w.state.save_candidate

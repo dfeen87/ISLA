@@ -65,10 +65,16 @@ def test_three_columns_lower_telemetry_and_research_controls(app, size):
                 assert control.parentWidget().rect().contains(control.geometry())
                 if hasattr(control, 'text') and control.text():
                     assert control.width() >= control.minimumSizeHint().width()
-                scroll.ensureWidgetVisible(control)
+                # Qt's ensureWidgetVisible() may show only an edge on a
+                # compact viewport. Test the actual control center explicitly,
+                # as required for usable scrolling at 800 x 600.
+                target = control.mapTo(scroll.widget(), control.rect().center())
+                scroll.ensureVisible(target.x(), target.y(), 0, 0)
                 app.processEvents()
                 center = control.mapTo(scroll.viewport(), control.rect().center())
-                assert scroll.viewport().rect().contains(center)
+                assert scroll.viewport().rect().contains(center), (
+                    f'{control.objectName() or type(control).__name__}: '
+                    f'center={center}, viewport={scroll.viewport().rect()}')
         if size == (1100, 950):
             assert scroll.horizontalScrollBar().maximum() == 0
     finally:

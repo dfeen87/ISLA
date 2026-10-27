@@ -234,12 +234,12 @@ def test_all_original_freeze_hashes_remain_intact():
         if name == "isla/live.py":
             # The historical frozen bytes above remain SHA256-checked. The
             # narrow policy exception still rejects other callback/DSP edits.
-            # Startup worker-arming is a separately reviewed *exact* code
-            # image (PR #75), not permission to edit the entire worker.
-            # Git's blob digest binds every source byte, including the ring
-            # capacity, safety limits, callback, DSP dispatch and status text.
+            # Startup worker-arming and the later failure-cause telemetry
+            # are separately reviewed *exact* code images. Neither authorizes
+            # arbitrary changes to the callback, capacity, DSP or safety policy.
+            # Historical frozen bytes remain SHA256-checked above.
             current = (root / name).read_bytes()
-            reviewed_startup_blob = "5ebb72005a63a0dc5e173bb30526de9e84af4046"
+            reviewed_startup_blob = "279de7e587394903906bc72543655369ecd7ab02"
             blob = hashlib.sha1(
                 b"blob " + str(len(current)).encode("ascii") + bytes([0]) + current
             ).hexdigest()

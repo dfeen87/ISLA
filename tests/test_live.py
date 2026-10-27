@@ -379,7 +379,20 @@ def test_pass_a_partial_start_failure_releases_stream():
 def test_startup_native_callbacks_can_reach_armed_worker_before_start_returns():
     """The callback may begin delivering input inside PortAudio start()."""
     backend = FakeBackend()
-    monitor = LiveMonitor(backend, PassThrough,
+    # The fake stream advances a PortAudio callback only when pump() is called.
+    # Without scheduling, the free-running worker may publish the next block
+    # during a manually pumped output pop, creating synthetic ring contention.
+    # Keep the eager native-start callbacks real; gate ONLY the second worker
+    # result until the callback has drained its preceding output block.
+    gate = threading.Event()
+    gate.set()
+
+    class ScheduledPassThrough(PassThrough):
+        def process_block(self, block):
+            assert gate.wait(2), "test worker was not released after callback"
+            return super().process_block(block)
+
+    monitor = LiveMonitor(backend, ScheduledPassThrough,
         monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.)
     signal = np.full((BLOCK, 2), .25, np.float32)
     original_open = backend.open
@@ -404,10 +417,19 @@ def test_startup_native_callbacks_can_reach_armed_worker_before_start_returns():
     try:
         monitor.start("BlackHole 2ch", "Test speakers")
         assert monitor.running and monitor.state == "Running"
-        np.testing.assert_array_equal(monitor.stream.pump(np.zeros_like(signal)), signal)
+        gate.clear()
+        try:
+            # The first processed output must play on the next native callback
+            # without permitting the worker to race ahead of this fake device.
+            np.testing.assert_array_equal(monitor.stream.pump(np.zeros_like(signal)), signal)
+        finally:
+            gate.set()
+        wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
         assert monitor.underflows == 1  # Explicit first output slot has no DSP yet.
+        assert not monitor.halt.is_set(), monitor.error
         assert not monitor.error
     finally:
+        gate.set()
         monitor.stop()
     assert backend.streams[0].closed and not monitor.running
 
@@ -563,7 +585,21 @@ def test_pass_b_switch_crossfade_matches_warm_parallel_states():
 
 @pytest.mark.parametrize("rate", [44100, 48000])
 def test_pass_b_live_worker_actual_modes_and_timing(rate):
-    monitor = LiveMonitor(FakeBackend())
+    # This fake stream advances only when pumped by the test thread, not on a
+    # continuously paced hardware callback. Serialize its single output slot
+    # against the DSP worker, while retaining actual StreamingDSP processing,
+    # mode changes, exact audio comparison and estimated transport latency.
+    gate = threading.Event()
+    gate.set()
+
+    class ScheduledStreaming(StreamingDSP):
+        def process_block(self, block):
+            assert gate.wait(2), "test DSP worker was not released after callback"
+            return super().process_block(block)
+
+    backend = FakeBackend()
+    monitor = LiveMonitor(backend, ScheduledStreaming,
+        monotonic_clock=lambda: backend.streams[-1].clock if backend.streams else 100.)
     monitor.start("BlackHole 2ch", "Test speakers", rate)
     warmup(monitor)
     audio = signal(2, count=BLOCK * 48, sr=rate)
@@ -573,8 +609,13 @@ def test_pass_b_live_worker_actual_modes_and_timing(rate):
             mode = MODES[index // 12]
             monitor.select(mode)
             stream = monitor.stream
-            captured.append(stream.pump(audio[index * BLOCK:(index + 1) * BLOCK]))
-            wait_for(lambda: monitor.output.count == 1)
+            gate.clear()
+            try:
+                captured.append(stream.pump(audio[index * BLOCK:(index + 1) * BLOCK]))
+            finally:
+                gate.set()
+            wait_for(lambda: monitor.output.count == 1 or monitor.halt.is_set())
+            assert not monitor.halt.is_set(), monitor.error
         actual = np.concatenate(captured)
         np.testing.assert_array_equal(actual[BLOCK * 4:BLOCK * 12], audio[:BLOCK * 8])
         for i in range(1, 4):
@@ -584,6 +625,7 @@ def test_pass_b_live_worker_actual_modes_and_timing(rate):
         assert monitor.latency_ms == pytest.approx(10 + 2048 / rate * 1000, abs=1e-5)
         assert monitor.underflows == 1 and monitor.overflows == 0
     finally:
+        gate.set()
         monitor.stop()
     assert not monitor.running
 

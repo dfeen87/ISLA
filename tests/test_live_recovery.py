@@ -308,7 +308,16 @@ def test_untrustworthy_timestamps_mute_and_stop(defect):
             stream.clock -= 2 * BLOCK / stream.rate
         else:
             stream.clock = np.nan
-        assert not stream.pump(ZERO).any()
+        # The previous manually pumped callback has produced one output slot.
+        # Prevent its DSP worker from racing this next fake callback: the
+        # timestamp fault must be observed before any unrelated ring write.
+        # This is test scheduling only; native callback/ring guards are intact.
+        assert monitor.output.count == 1
+        monitor._test_process_gate.clear()
+        try:
+            assert not stream.pump(ZERO).any()
+        finally:
+            monitor._test_process_gate.set()
         wait_for(lambda: not monitor.running)
         assert "timestamp" in monitor.error and monitor.fatal_device_errors == 1
 

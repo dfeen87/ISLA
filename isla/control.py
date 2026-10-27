@@ -14,6 +14,7 @@ import threading
 
 from isla.playback import AudioError
 from isla.alive_listening_gain import AttenuatedALIVEBackend
+from isla.vinyl_speed import VinylSpeedBackend
 from isla.mix_export import MixExport
 from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.streaming import StreamingDSP
@@ -111,6 +112,7 @@ class ControlState:
     alive_applied_volume: float | None = None
     save_candidate: str = ''
     live_processing_health: str = ''
+    vinyl_slowdown: bool = False
 
 
 class ControlService:
@@ -126,7 +128,8 @@ class ControlService:
         # GUI-only output adapter: the frozen BufferPlayer and the borrowed
         # terminal backend must remain intact and be restored on handoff.
         self._original_file_backend = controller.player.backend
-        self._alive_gui_backend = AttenuatedALIVEBackend(self._original_file_backend)
+        self._vinyl_backend = VinylSpeedBackend(self._original_file_backend)
+        self._alive_gui_backend = AttenuatedALIVEBackend(self._vinyl_backend)
         from isla.remastered_session import RemasteredSession
         if not hasattr(controller, '_remastered'):
             controller._remastered = RemasteredSession(controller)
@@ -343,6 +346,7 @@ class ControlService:
         self.preview.reset()
         c.execute('source file')
         result = c.execute('load ' + shlex.quote(str(path)))
+        self._vinyl_backend.slowdown = False  # Each new recording begins at 100%.
         self._file_touched = False
         self.error = ""
         return result
@@ -395,6 +399,8 @@ class ControlService:
 
     def enter_remastered(self):
         self._enter()
+        if self._vinyl_backend.slowdown:
+            raise AudioError('Turn off Vinyl-style slowdown before entering Remastered research.')
         result = self.preview.enter()
         self._deferred_file_mode = None
         return result
@@ -410,6 +416,50 @@ class ControlService:
             raise AudioError('Stop and resume ALIVE from this window to enable listening volume.')
         self._alive_gui_backend.set_percent(percent)
         return f'ALIVE listening volume: {percent}%.'
+
+    def set_vinyl_slowdown(self, enabled):
+        """Commit 50% vinyl playback from the worker, preserving the source cursor.
+
+        The output stream is stopped before changing its playback adapter.
+        Both pitch and tempo fall together; no source PCM or research data changes.
+        """
+        self._enter()
+        if type(enabled) is not bool:
+            raise AudioError('Vinyl-style slowdown expects an on/off selection.')
+        c, p = self.controller, self.controller.player
+        if c.source != 'file' or not p.buffers or (c.job is not None and not c.job.done):
+            raise AudioError('Load and prepare an ALIVE song before changing speed.')
+        if c.live.running or c.live.stream is not None:
+            raise AudioError('Stop LIVE before changing ALIVE speed.')
+        if self.preview.workspace or self.preview.job is not None:
+            raise AudioError('Return from Remastered research before changing speed.')
+        if self.mix_export.pending:
+            raise AudioError('Finish or cancel Save Mix before changing speed.')
+        if self._deferred_file_mode is not None or (p.stream is not None and
+                (getattr(p, '_current', None) is not p._selected or
+                 p._fade_pos < len(p._fade))):
+            raise AudioError('Wait for the current mode transition to finish.')
+        old = self._vinyl_backend.slowdown
+        if old == enabled:
+            return 'Vinyl-style slowdown: 50%.' if enabled else 'Normal ALIVE speed: 100%.'
+        playing = p.state == 'playing' and p.stream is not None
+        if playing and p.backend is not self._alive_gui_backend:
+            raise AudioError('Resume ALIVE from the Control Center before changing speed.')
+        if playing:
+            p.pause()  # Captures audible sample cursor and releases old stream.
+        self._vinyl_backend.slowdown = enabled
+        if playing:
+            try:
+                p.play()  # Same sample cursor and mode; native rate unchanged.
+            except Exception:
+                self._vinyl_backend.slowdown = old
+                try:
+                    p.play()  # Best-effort recovery with the previous setting.
+                except Exception:
+                    pass
+                raise
+        return ('Vinyl-style slowdown active: 50% speed and lower pitch.' if enabled
+                else 'Vinyl-style slowdown off: normal 100% speed and pitch.')
 
     def prepare_remastered(self, mode, intensity):
         self._enter()
@@ -563,7 +613,8 @@ class ControlService:
              (getattr(p, '_current', None) is not p._selected or p._fade_pos < len(p._fade)) else
              p.mode + ' — prepared buffer, unity export' if p.buffers else 'Unavailable — no recording'),
             live_processing_health=getattr(engine, 'processing_telemetry',
-                'No LIVE processor observations yet; start LIVE to measure worker workload.'))
+                'No LIVE processor observations yet; start LIVE to measure worker workload.'),
+            vinyl_slowdown=self._vinyl_backend.slowdown)
 
     def shutdown(self):
         self._enter()

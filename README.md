@@ -213,9 +213,9 @@ The environment must be activated in each new Terminal session. **Open the graph
 ## User Interface
 
 <p align="center">
-  <img src="ISLAWINDOW410.png" width="720" alt="Early ISLA Audio Control Center interface">
+  <img src="ISLA_Window_410.jpeg" width="720" alt="Early ISLA Audio Control Center interface">
   <br>
-  <sub><em> The latest Control Center released in the v4.1.0 release. Current source also includes Remastered research controls and improved LIVE device selection, which are not shown in this image.</em></sub>
+  <sub><em> The latest Control Center released in the v4.1.0 release. </em></sub>
 </p>
 
 ## ISLA Control Center — Graphical Interface

@@ -960,8 +960,22 @@ class ControlWindow(QMainWindow):
         # Split one authoritative immutable diagnostic report for readability.
         panel = QGroupBox('Diagnostics — ALIVE / LIVE')
         panel.setObjectName('telemetryPanel')
-        panes = QHBoxLayout(panel)
+        sections = QVBoxLayout(panel)
+        processing_caption = label('LIVE Processing — Engine & Budget')
+        processing_caption.setObjectName('telemetryHeading')
+        sections.addWidget(processing_caption)
+        self.processing_health = QPlainTextEdit()
+        self.processing_health.setObjectName('telemetryText')
+        self.processing_health.setAccessibleName('LIVE processing budget telemetry (scrollable)')
+        self.processing_health.setReadOnly(True)
+        self.processing_health.setFont(QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont))
+        self.processing_health.setMinimumHeight(145)
+        self.processing_health.setMaximumHeight(185)
+        self.processing_health.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        sections.addWidget(self.processing_health)
+        panes = QHBoxLayout()
         panes.setSpacing(10)
+        sections.addLayout(panes, 1)
         for heading, accessible_name, attribute in (
             ('ALIVE Telemetry', 'ALIVE diagnostics (scrollable)', 'health'),
             ('LIVE Telemetry', 'LIVE diagnostics (scrollable)', 'live_health'),
@@ -1222,6 +1236,10 @@ class ControlWindow(QMainWindow):
             alive, live = value, ''
         self._update_telemetry_view(self.health, alive)
         self._update_telemetry_view(self.live_health, live)
+        # The third category is separate from the two preserved transport logs.
+        self._update_telemetry_view(self.processing_health,
+            self.state.live_processing_health if self.state else
+            'No LIVE processing data yet.')
 
     def apply_state(self):
         s = self.state

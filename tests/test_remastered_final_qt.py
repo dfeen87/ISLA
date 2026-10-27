@@ -10,6 +10,36 @@ from test_remastered_preparation import DeferredRender
 from tools.remastered_verify import fixture
 
 
+def test_remastered_first_shortcut_enters_workspace_without_traditional_mode_click(app, tmp_path):
+    w, c, _, files, *_ = window_session(app)
+    try:
+        w.submit('load', 'short.wav')
+        wait_ui(app, lambda: not w.busy)
+        x = fixture(48000, 2)
+        np.save(tmp_path/'original.npy', x)
+        c.job.directory = SimpleNamespace(name=str(tmp_path))
+        c.job.result = {mode: x.copy() for mode in ('original', 'velvet', 'legato', 'melt')}, 48000
+        wait_ui(app, lambda: w.state.can_play)
+        w.worker.service.preview.factory = DeferredRender
+        assert w.try_remastered_first.isEnabled()
+        # Remastered is available before a conventional mode is selected.
+        click(app, w, w.play)
+        assert c.player.mode == 'original'
+        click(app, w, w.try_remastered_first)
+        wait_ui(app, lambda: not w.busy and w.state.research_workspace)
+        assert c.player.mode == 'original'
+        assert w.state.research_previous_mode == 'original'
+        assert not w.try_remastered_first.isEnabled()
+        assert not any(button.isEnabled() for button in w.file_modes.values())
+        click(app, w, w.apply_research)
+        assert w.state.research_pending
+        click(app, w, w.cancel_research)
+        assert c.player.mode == 'original' and not w.state.research_workspace
+        assert w.try_remastered_first.isEnabled()
+    finally:
+        close_window(app, w, c)
+
+
 def test_browsing_does_not_enter_and_exclusive_apply_return_is_explicit(app, tmp_path):
     w, c, _, files, *_ = window_session(app)
     try:

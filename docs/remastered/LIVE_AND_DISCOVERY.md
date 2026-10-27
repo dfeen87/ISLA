@@ -43,6 +43,37 @@ isla> status
 `engine production` returns to the original profiles. `bypass` selects original
 audio within either engine. CLI and GUI share the same session settings.
 
+## LIVE processing telemetry (post-v4.1.0 engineering preview)
+
+The Control Center's **Diagnostics — ALIVE / LIVE** workspace now places a
+read-only **LIVE Processing — Engine & Budget** category before the two existing
+ALIVE/LIVE telemetry columns. It reports which engine was requested and actually
+applied, whether the Remastered FFT/WOLA bank is active, the nominal per-block
+time budget (512 frames / sample rate), last and peak worker-side DSP wall times
+for Production, Remastered, and the complete LIVE engine, cumulative processed
+blocks, nominal-budget exceedances, and how many inactive research banks have
+been retired. The original device-overflow, capture-gap, recovery and ring-fault
+status stays in LIVE Telemetry and remains necessary to diagnose a shutdown.
+
+**Do not interpret a processing peak as CPU utilization or a confirmed crash
+cause.** These are approximate worker wall-clock observations, which may include
+thread preemption and scheduling; they are not PortAudio's own capture timings.
+The 50 ms interface poll reads scalar statistics, never raw callback buffers.
+
+After **returning to Production**, the existing 5 ms audio fade finishes first,
+then the unused Remastered bank is released on the DSP worker. Re-entering
+Remastered starts with fresh history and the original 1536-sample warmup.
+While Remastered is selected, Production DSP remains active to preserve
+continuous history for an immediate, click-safe return. The improvement reduces
+idle cost **after** Remastered is deselected, not dual-engine cost **during**
+Remastered listening. It does not by itself establish a native-audio fix.
+
+When comparing listening sessions, retain the complete Processing and LIVE
+Transport telemetry before restarting. Use identical physical device, sample
+rate, source, processing mode and listening gain; compare Production-only,
+Remastered, and the return to Production. Native BlackHole/Bluetooth reliability
+must be assessed on the creator's Mac, separately from hosted/synthetic tests.
+
 ## Device refresh fixes
 
 - macOS PortAudio can retain a cached device list. Initial discovery, manual

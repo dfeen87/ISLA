@@ -1090,6 +1090,15 @@ class ControlWindow(QMainWindow):
     def submit(self, action, *args):
         if self.busy or self.closed_cleanly:
             return False
+        # A slider drag and an ALIVE Play/mode click can occur in the same
+        # 80 ms debounce interval. Deliver pending scalar gain requests BEFORE
+        # queuing the audio command: CommandWorker consumes its volume mailbox
+        # first, so the stream/crossfade uses the level the GUI already shows.
+        # Do not wait for the timer or change frozen BufferPlayer/DSP callbacks.
+        if action == 'file' and args and (
+            args[0] in ('play', 'bypass') or args[0].startswith('mode ')
+        ):
+            self._flush_volumes()
         self.busy = action
         self.started = time.monotonic()
         self.global_error.setText('')

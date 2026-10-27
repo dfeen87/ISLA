@@ -166,6 +166,49 @@ def test_scrolled_alive_buttons_can_drive_prepared_playback(app, monkeypatch, wi
         close_window(app, w, controller)
 
 
+def test_live_controls_reflect_backend_state_without_starting_or_restarting_audio(app):
+    w, controller, *_ = window_session(app)
+    original = w.state
+    try:
+        app.processEvents()
+        assert w.live_state_indicator.accessibleName() == 'LIVE monitor state and safety outcome'
+        assert w.start_live.objectName() == 'liveStartAction'
+        assert w.stop_live.objectName() == 'liveStopAction'
+        assert w.live_state_indicator.property('monitorState') == 'idle'
+        assert w._live_panel_widget.layout().itemAt(
+            w._live_panel_widget.layout().count() - 1).spacerItem() is not None
+        assert w.live_mode_choice.count() == 4
+        assert [w.live_mode_choice.itemData(i) for i in range(4)] == [
+            'bypass', 'velvet', 'legato', 'melt']
+        assert all(name in w.styleSheet() for name in (
+            '#liveStartAction', '#liveStopAction', '#liveStateIndicator'))
+
+        # Synthetic snapshots are UI-only. No fake command may reach native audio.
+        w.state = replace(original, live_state=UIState.LIVE_RUNNING,
+            live_active=True, stream_active=True, can_start=False, source='system',
+            live_failure_reason='')
+        w.apply_state()
+        assert w.start_live.property('monitorState') == 'running'
+        assert w.live_state_indicator.property('monitorState') == 'running'
+        assert 'native stream running' in w.live_state_indicator.text()
+        assert not w.start_live.isEnabled()
+
+        reason = 'Input buffer overflow/contention; stopped rather than accumulating delayed audio.'
+        w.state = replace(original, live_state=UIState.FATAL_ERROR,
+            live_active=False, stream_active=False, can_start=False, source='system',
+            live_failure_reason=reason)
+        w.apply_state()
+        assert w.start_live.property('monitorState') == 'failed'
+        assert w.live_state_indicator.property('monitorState') == 'failed'
+        assert reason in w.live_state_indicator.text()
+        assert 'safety protection' in w.live_state_indicator.text().lower()
+        assert not w.start_live.isEnabled()
+        assert not controller.live.running
+    finally:
+        w.state = original
+        close_window(app, w, controller)
+
+
 def test_split_telemetry_retains_every_original_diagnostic_line(app):
     w, controller, *_ = window_session(app)
     try:

@@ -592,14 +592,15 @@ class ControlWindow(QMainWindow):
         columns = QGridLayout(contents)
         columns.setHorizontalSpacing(12)
         columns.setVerticalSpacing(12)
-        for col in range(3):
-            columns.setColumnStretch(col, 1)
-        # LIVE keeps its full routing workflow on the right; the lower
-        # ALIVE/Remastered width is dedicated to readable telemetry.
-        columns.addWidget(self._file_panel(), 0, 0)
-        columns.addWidget(self._remastered_panel(), 0, 1)
-        columns.addWidget(self._live_panel(), 0, 2, 2, 1)
-        columns.addWidget(self._diagnostics_panel(), 1, 0, 1, 2)
+        # Hold the exact same widget instances across responsive reflow.
+        # In a narrow window the previous fixed three-column grid could force
+        # horizontal scrolling and split controls across the viewport.
+        self._panel_grid = columns
+        self._panel_compact = None
+        self._alive_panel = self._file_panel()
+        self._remastered_panel_widget = self._remastered_panel()
+        self._live_panel_widget = self._live_panel()
+        self._telemetry_panel = self._diagnostics_panel()
         columns.setAlignment(Qt.AlignmentFlag.AlignTop)
         scroll.setWidget(contents)
         outer.addWidget(scroll, 1)
@@ -617,6 +618,7 @@ class ControlWindow(QMainWindow):
         bottom.addWidget(self.close_button)
         outer.addLayout(bottom)
         self.setCentralWidget(root)
+        self._reflow_control_panels()
         QShortcut(QKeySequence.StandardKey.Open, self, self.choose_file)
         QShortcut(QKeySequence.StandardKey.Close, self, self.close)
         self.timer = QTimer(self)
@@ -624,6 +626,44 @@ class ControlWindow(QMainWindow):
         self.timer.timeout.connect(self.drain_events)
         self.timer.start()
         self.apply_state()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, '_panel_grid'):
+            self._reflow_control_panels()
+
+    def _reflow_control_panels(self):
+        """Make complete controls reachable without horizontal scrolling.
+
+        Reflow layout items only. Keep widgets, signal connections, device
+        selections, research state, and audio ownership exactly as-is.
+        """
+        compact = self.width() < 1080
+        if compact == self._panel_compact:
+            return
+        self._panel_compact = compact
+        grid = self._panel_grid
+        panels = (self._alive_panel, self._remastered_panel_widget,
+                  self._live_panel_widget, self._telemetry_panel)
+        for panel in panels:
+            grid.removeWidget(panel)
+        for col in range(3):
+            grid.setColumnStretch(col, 1 if col == 0 or not compact else 0)
+        if compact:
+            # An ALIVE-first, vertically scrollable workbench. Keep LIVE next
+            # so Start/Stop never require navigating past all research options.
+            for row, panel in enumerate((
+                self._alive_panel, self._live_panel_widget,
+                self._remastered_panel_widget, self._telemetry_panel
+            )):
+                grid.addWidget(panel, row, 0)
+        else:
+            # Restore the accepted spacious three-column presentation.
+            grid.addWidget(self._alive_panel, 0, 0)
+            grid.addWidget(self._remastered_panel_widget, 0, 1)
+            grid.addWidget(self._live_panel_widget, 0, 2, 2, 1)
+            grid.addWidget(self._telemetry_panel, 1, 0, 1, 2)
+        grid.invalidate()
 
     def _modes(self, layout, source):
         row = QGridLayout()

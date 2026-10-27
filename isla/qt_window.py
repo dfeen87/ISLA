@@ -771,19 +771,14 @@ class ControlWindow(QMainWindow):
         return panel
 
     def _remastered_panel(self):
-        # Presentation only: ALIVE research keeps its existing signals/state.
-        panel = QGroupBox('v4.0 Remastered')
+        # The experimental ALIVE Remastered workspace is always visible.
+        # Keep the existing command/state gates; showing controls never
+        # bypasses eligibility or enables a disabled research action.
+        panel = QGroupBox('ALIVE Remastered')
         panel.setObjectName('remasteredPanel')
         box = QVBoxLayout(panel)
-        self.research_toggle = QPushButton('Show v4.0 Remastered (Experimental ALIVE)')
-        self.research_toggle.setCheckable(True)
-        box.addWidget(self.research_toggle)
-        research = QGroupBox('v4.0 Remastered — Experimental ALIVE')
+        research = QGroupBox('Experimental ALIVE Remastering')
         self.research_panel = research
-        research.setVisible(False)
-        self.research_toggle.toggled.connect(research.setVisible)
-        self.research_toggle.toggled.connect(lambda shown: self.research_toggle.setText(
-            ('Hide' if shown else 'Show') + ' v4.0 Remastered (Experimental ALIVE)'))
         research_box = QVBoxLayout(research)
         self.enter_research = QPushButton('Enter Remastered')
         self.enter_research.clicked.connect(lambda: self.submit('enter_research'))
@@ -852,7 +847,7 @@ class ControlWindow(QMainWindow):
         box.addLayout(save_row)
         box.addWidget(self.export_progress)
         box.addWidget(self.export_status)
-        # The centre workspace remains useful even when Remastered is collapsed.
+        # Keep LIVE listening controls below the always-visible ALIVE workspace.
         # Create the monitoring host here, then populate it while building LIVE.
         monitoring = QGroupBox('LIVE — Listening Monitor')
         monitoring.setObjectName('monitorPanel')

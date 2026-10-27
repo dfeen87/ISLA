@@ -20,7 +20,7 @@ from PySide6.QtCore import QEvent, QRectF, QSize, QTimer, Qt
 from PySide6.QtGui import QColor, QFontDatabase, QKeySequence, QPainter, QPainterPath, QPen, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QButtonGroup, QComboBox, QFileDialog, QFormLayout, QGroupBox, QHBoxLayout,
-    QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QScrollArea,
+    QGridLayout, QLabel, QMainWindow, QPlainTextEdit, QProgressBar, QPushButton, QRadioButton, QScrollArea,
     QSizePolicy, QSlider, QVBoxLayout, QWidget,
 )
 
@@ -317,6 +317,7 @@ class CommandWorker:
                               'enter_research': self.service.enter_remastered,
                               'return_research': self.service.return_previous_mode,
                               'alive_volume': self.service.set_alive_volume,
+                              'vinyl_slowdown': self.service.set_vinyl_slowdown,
                               'research': self.service.prepare_remastered,
                               'cancel_research': self.service.cancel_remastered,
                               'save_mix': self.service.save_mix,
@@ -351,6 +352,8 @@ def remastered_readiness(state):
         return False, 'Load and prepare an ALIVE recording first.'
     if state.source != 'file':
         return False, 'Select ALIVE playback (Play or a standard mode) before preparing Remastered.'
+    if state.vinyl_slowdown:
+        return False, 'Turn off Vinyl-style slowdown before entering Remastered research.'
     if state.file_channels not in (1, 2):
         return False, 'Remastered ALIVE requires non-empty mono or stereo audio.'
     if state.duration > MAX_SECONDS:
@@ -792,6 +795,19 @@ class ControlWindow(QMainWindow):
             button.clicked.connect(lambda checked=False, command=cmd: self.submit('file', command))
             row.addWidget(button)
         box.addLayout(row)
+        vinyl_row = QHBoxLayout()
+        self.vinyl_slowdown = QRadioButton('Vinyl-style slowdown')
+        # A standalone radio option must be deselectable to restore 100%.
+        self.vinyl_slowdown.setAutoExclusive(False)
+        self.vinyl_slowdown.setAccessibleName('Vinyl-style slowdown, 50 percent speed')
+        self.vinyl_slowdown.setToolTip('Half-speed, lower-pitched ALIVE listening. Click again for normal speed.')
+        self.vinyl_slowdown.toggled.connect(lambda checked: self.submit('vinyl_slowdown', checked))
+        self.vinyl_rate = QLabel('100%')
+        self.vinyl_rate.setAccessibleName('ALIVE playback speed')
+        vinyl_row.addWidget(self.vinyl_slowdown)
+        vinyl_row.addStretch()
+        vinyl_row.addWidget(self.vinyl_rate)
+        box.addLayout(vinyl_row)
         # Remastered can be the FIRST comparison for a prepared short excerpt:
         # reuse the existing explicit entry command and its research gates.
         # Long songs require a separately loaded <=30-second excerpt; never
@@ -1200,7 +1216,7 @@ class ControlWindow(QMainWindow):
                 self.activity.setText(value)
             elif kind == 'error':
                 action, message = value
-                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'enter_research', 'return_research', 'alive_volume', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
+                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'enter_research', 'return_research', 'alive_volume', 'vinyl_slowdown', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
                 target.setText('Action required: ' + message)
                 if action == 'processing':
                     # Engine activation auto-applies. A rejected request must
@@ -1317,6 +1333,18 @@ class ControlWindow(QMainWindow):
         self.live_engine.setEnabled(bool(available and s.source == 'system'))
         self.live_intensity.setEnabled(bool(available and s.source == 'system'))
         self.apply_live_intensity.setEnabled(bool(available and s.source == 'system'))
+        # Reflect only worker-confirmed speed, not an optimistic radio click.
+        slowdown = bool(s is not None and s.vinyl_slowdown)
+        if self.vinyl_slowdown.isChecked() != slowdown:
+            previous_block = self.vinyl_slowdown.blockSignals(True)
+            try:
+                self.vinyl_slowdown.setChecked(slowdown)
+            finally:
+                self.vinyl_slowdown.blockSignals(previous_block)
+        self.vinyl_rate.setText('50%' if slowdown else '100%')
+        self.vinyl_slowdown.setEnabled(bool(available and s.can_play and
+            s.source == 'file' and not s.live_active and
+            not s.research_workspace and not s.research_pending and not s.save_pending))
         admitted, admission_note = remastered_readiness(s)
         pending = bool(s is not None and s.research_pending)
         prepared = bool(available and s is not None and s.can_play)

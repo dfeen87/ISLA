@@ -252,14 +252,14 @@ def test_footer_wave_signature_stays_between_original_buttons(app, width):
         assert signature.isVisible()
         assert signature.objectName() == 'footerWaveSignature'
         assert signature.accessibleName() == (
-            'Decorative Velvet, Legato, and Melt waveform signature'
+            'Audio effect and playback status'
         )
         assert 'not live audio' in signature.toolTip()
         assert tuple(wave[0] for wave in signature._WAVES) == (
-            'VELVET', 'LEGATO', 'MELT')
-        assert len({wave[1] for wave in signature._WAVES}) == 3
+            'ORIGINAL', 'VELVET', 'LEGATO', 'MELT')
+        assert len({wave[1] for wave in signature._WAVES}) == 4
         assert signature._wave_timer.interval() == 80
-        assert signature._wave_timer.isActive()
+        assert not signature._wave_timer.isActive()
         assert w.timer.interval() == 50  # Original polling, unchanged.
         assert w.refresh.isVisible() and w.close_button.isVisible()
         assert w.refresh.geometry().right() < signature.geometry().left()
@@ -268,75 +268,49 @@ def test_footer_wave_signature_stays_between_original_buttons(app, width):
         signature.hide()
         assert not signature._wave_timer.isActive()
         signature.show()
-        assert signature._wave_timer.isActive()
+        assert not signature._wave_timer.isActive()
     finally:
         close_window(app, w, controller)
 
 
 
-def test_footer_wave_follows_applied_telemetry_not_requested_mode(app):
+def test_footer_selection_and_motion_follow_worker_status(app):
+    from isla.footer_status import FooterStatus
     w, controller, *_ = window_session(app)
-    prior = w.state
     try:
         wave = w.wave_signature
-        assert footer_visual_mode(None) == 'overview'
-        assert wave._visual_mode == 'overview'
+        assert not wave._wave_timer.isActive()
         initial = tuple(wave._phases)
         wave._animate()
-        assert all(new != old for old, new in zip(initial, wave._phases))
-
-        # Inactive selections (including an ALIVE mode already selected)
-        # preserve the default three-wave motion.
-        idle_selected = replace(prior, file_mode='melt',
-                                alive_applied_mode='melt')
-        # During real playback the wave follows callback-applied, not the
-        # requested mode. No callback confirmation => no effect highlight.
-        cases = (
-            (idle_selected, 'overview'),
-            (replace(prior, file_state=UIState.PLAYING, file_mode='melt',
-                     alive_applied_mode='previous buffer — selected mode awaits callback'),
-             'bypass'),
-            (replace(prior, file_state=UIState.PLAYING, file_mode='melt',
-                     alive_applied_mode='legato'), 'legato'),
-            (replace(prior, file_state=UIState.PLAYING,
-                     alive_applied_mode='remastered_velvet — crossfading'),
-             'velvet'),
-            (replace(prior, file_state=UIState.PLAYING,
-                     alive_applied_mode='original'), 'bypass'),
-            (replace(prior, file_state=UIState.PAUSED,
-                     alive_applied_mode='melt'), 'overview'),
-            (replace(prior, live_active=True, live_state=UIState.LIVE_RUNNING,
-                     live_mode='melt', live_applied_mode='velvet'), 'velvet'),
-            (replace(prior, live_active=True, live_state=UIState.LIVE_RUNNING,
-                     live_mode='melt', live_applied_mode=None), 'bypass'),
-            (replace(prior, live_active=True, live_state=UIState.LIVE_STOPPING,
-                     live_applied_mode='melt'), 'bypass'),
-        )
-        for state, expected in cases:
-            assert footer_visual_mode(state) == expected
-            w.state = state
-            w.apply_state()
-            assert wave._visual_mode == expected
-
-        # Freeze truly means no phase advancement for either inactive lane;
-        # selecting a new mode resumes only that lane without jumping.
-        wave.set_visual_mode('melt')
+        assert tuple(wave._phases) == initial
+        # Highlight the requested effect, moving only the worker-confirmed lane.
+        status = FooterStatus('LIVE', 'melt', 'velvet', 'Switching', True)
+        wave.set_status(status)
+        assert wave._status.selected == 'melt'
+        assert 'Switching' in wave.toolTip()
         before = tuple(wave._phases)
         wave._animate()
-        assert wave._phases[0] == before[0]
-        assert wave._phases[1] == before[1]
-        assert wave._phases[2] != before[2]
-        wave.set_visual_mode('bypass')
+        assert wave._phases[1] != before[1]
+        assert all(wave._phases[i] == before[i] for i in (0, 2, 3))
+        # Repeated 50 ms status refreshes must not restart the 80 ms timer.
+        w.timer.stop()
+        before = tuple(wave._phases)
+        for _ in range(4):
+            wave.set_status(status)
+            QTest.qWait(50)
+        assert tuple(wave._phases) != before
+        wave.hide()
+        assert not wave._wave_timer.isActive()
+        wave.show()
+        assert wave._wave_timer.isActive()
+        wave.set_status(FooterStatus('LIVE', 'melt', stage='Stopped safely'))
         frozen = tuple(wave._phases)
         wave._animate()
         assert tuple(wave._phases) == frozen
         assert not wave._wave_timer.isActive()
-        wave.set_visual_mode('overview')
-        assert wave._wave_timer.isActive()
-        assert wave.isVisible()
+        assert wave._status.selected == 'melt'
     finally:
-        w.state = prior
-        w.apply_state()
+        w.timer.start()
         close_window(app, w, controller)
 
 

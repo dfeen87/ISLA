@@ -7,7 +7,8 @@ import threading
 from isla.playback import AudioError, BufferPlayer, SoundDeviceBackend
 from isla.preparation import MODES
 from isla.local_preparation import prepare_file
-from isla.live import LiveMonitor, SystemCaptureBackend
+from isla.live import LiveMonitor
+from isla.buffered_capture import BufferedSystemCaptureBackend, preferred_capture_rate
 
 from isla.terminal_help import mode_name, next_step, render_help
 from isla.file_search import is_bare_filename
@@ -27,7 +28,7 @@ class TerminalController:
         self.capture = "BlackHole 2ch"
         self.output = None
         self.live_settings = LiveSettings()
-        self.live = LiveMonitor(live_backend if live_backend is not None else SystemCaptureBackend(backend, routing),
+        self.live = LiveMonitor(live_backend if live_backend is not None else BufferedSystemCaptureBackend(backend, routing),
                                 processor_factory=LiveEngineFactory(self.live_settings))
         self._setup_routing = routing
         self._setup_stage = None
@@ -297,7 +298,7 @@ class TerminalController:
             if len(values) in (1, 2) and values[0].lower() == "start":
                 if self.source != "system":
                     raise ValueError("Select source system before monitor start.")
-                rate = 48000
+                rate = None
                 if len(values) == 2:
                     if values[1] not in ("44100", "48000"):
                         raise ValueError("Usage: monitor start [44100|48000]")
@@ -308,6 +309,8 @@ class TerminalController:
                             "Use monitor stop before changing devices.")
                 if getattr(self,'_window_owner',None) is None:
                     refresh_portaudio(self)
+                if rate is None:
+                    rate = preferred_capture_rate(self.player.backend, self.output)
                 return self.live.start(self.capture, self.output, rate) + "\nNEXT: " + next_step(self)
             raise ValueError("Usage: monitor start [44100|48000] | monitor stop")
         if command == "load":

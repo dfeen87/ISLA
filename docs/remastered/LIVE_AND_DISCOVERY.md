@@ -10,13 +10,29 @@ related device-discovery and local-song loading issues.
 |---|---|
 | macOS Sound **Output** | BlackHole 2ch |
 | ISLA Step 1 Capture | BlackHole 2ch |
-| ISLA Step 2 Listening Device | Paired AirPods/Bluetooth speakers, Mac speakers, or a verified physical stereo output |
+| ISLA Step 1 Listening Device | Paired AirPods/Bluetooth speakers, Mac speakers, or a verified physical stereo output |
 
 Pair Bluetooth devices through macOS first. Their available stereo outputs appear
-with **(Bluetooth)** in Step 2. Apply the LIVE devices, recheck routing, and Start
-LIVE. The status shows the output actually opened. Pairing and changing macOS
+with **(Bluetooth)** in Step 1. Click **Find Connected Devices** to set up an unambiguous connected output,
+or choose an output and **Use These Devices**. Then **Check My Setup** and
+**Start LIVE**. Discovery never starts playback or changes macOS routing. The status shows the output actually opened. Pairing and changing macOS
 Sound defaults remain in macOS; ISLA never writes those properties. Selecting
 BlackHole on macOS's **Input** tab alone does not route system playback to ISLA.
+
+The application now requests the driver's more robust buffering instead of low
+latency. A newly selected output suggests its usual supported 44.1/48 kHz rate;
+an explicit rate choice stays selected. Terminal `monitor start` also matches
+the selected output's supported default rate (48 kHz fallback); specifying
+`monitor start 44100` or `monitor start 48000` overrides that suggestion. These
+choices do not write the devices' nominal rates or macOS routing. Extra buffering
+can add noticeable listening delay, especially with Bluetooth. The callback size,
+bounded application rings and capture-loss/recovery guards remain unchanged.
+
+If LIVE stops after repeated capture interruptions, **Check My Setup**,
+apply any device/rate changes, then click **Start LIVE** to retry. Failure details
+remain in LIVE Telemetry; a failed stream never restarts automatically. See the
+[native buffering investigation](../alive/capture-recovery/BUFFERING_2026-10-27.md)
+for measurements and limits.
 
 Choose **v4.0 Remastered LIVE** as the processing engine and select Velvet,
 Legato or Melt from the sound-effect menu. Start still begins in Original/Bypass.

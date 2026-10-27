@@ -353,7 +353,7 @@ def test_mouse_guided_devices_mismatch_recheck_start_stop_and_modes(app):
         assert 'Current macOS output: Test speakers' in w.routing.text()
         assert 'Required macOS output: BlackHole 2ch' in w.routing.text()
         assert 'ISLA Physical Playback: Test speakers' in w.routing.text()
-        assert 'Recheck Audio Routing' in w.next_action.text()
+        assert 'Check My Setup' in w.next_action.text()
         routing.snapshot = __import__('test_live').fake_routing().snapshot
         click(app, w, w.recheck)
         assert w.start_live.isEnabled()
@@ -697,7 +697,7 @@ def test_unapplied_sample_rate_disables_start_until_applied(app):
         assert w.start_live.isEnabled()
         w.rate.setCurrentIndex(0)
         wait_ui(app, lambda: not w.start_live.isEnabled())
-        assert 'Apply LIVE Devices' in w.next_action.text()
+        assert 'Use These Devices' in w.next_action.text()
         click(app, w, w.apply_devices)
         assert w.state.rate == 44100 and w.start_live.isEnabled()
     finally:

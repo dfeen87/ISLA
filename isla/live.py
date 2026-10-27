@@ -516,7 +516,7 @@ class LiveMonitor:
                 f"{getattr(getattr(self, 'input', None), 'high_water', 0)} of {CAPACITY}"
                 f"\nOutput ring last push failure/high-water: "
                 f"{getattr(getattr(self, 'output', None), 'last_push_failure', 'unavailable')} / "
-                f"{getattr(getattr(self, 'output', None), 'high_water', 0)} of {CAPACITY}
+                f"{getattr(getattr(self, 'output', None), 'high_water', 0)} of {CAPACITY}"
                 f"\nCapture discontinuities (including startup): {self.capture_discontinuities}"
                 f"\nRecovery attempts/completed/failed: {self.recovery_attempts} / {self.recoveries} / {self.failed_recoveries}"
                 f"\nFatal device errors: {self.fatal_device_errors}; Discarded queued/in-flight blocks: {self.discarded_blocks}"

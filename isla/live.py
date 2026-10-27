@@ -33,12 +33,17 @@ class BlockRing:
         self.capacity = capacity
         self.read = self.write = self.count = self.high_water = 0
         self.lock = threading.Lock()
+        # Failure classification only; the real-time nonblocking policy
+        # and ring capacity are unchanged. One producer owns each ring.
+        self.last_push_failure = "none"
 
     def push(self, data, stamp):
         if not self.lock.acquire(blocking=False):
+            self.last_push_failure = "lock contention"
             return False
         try:
             if self.count == self.capacity:
+                self.last_push_failure = "queue full"
                 return False
             self.data[self.write] = data
             self.stamps[self.write] = stamp
@@ -506,6 +511,12 @@ class LiveMonitor:
                 f"\nDevice input overflow/underflow events: {self.input_overflows} / {self.input_underflows}"
                 f"\nDevice output underflow/overflow events: {self.output_underflows} / {self.output_overflows}"
                 f"\nApplication ring failures: {self.ring_failures}; Output ring empty/contention events: {self.underflows}"
+                f"\nInput ring last push failure/high-water: "
+                f"{getattr(getattr(self, 'input', None), 'last_push_failure', 'unavailable')} / "
+                f"{getattr(getattr(self, 'input', None), 'high_water', 0)} of {CAPACITY}"
+                f"\nOutput ring last push failure/high-water: "
+                f"{getattr(getattr(self, 'output', None), 'last_push_failure', 'unavailable')} / "
+                f"{getattr(getattr(self, 'output', None), 'high_water', 0)} of {CAPACITY}
                 f"\nCapture discontinuities (including startup): {self.capture_discontinuities}"
                 f"\nRecovery attempts/completed/failed: {self.recovery_attempts} / {self.recoveries} / {self.failed_recoveries}"
                 f"\nFatal device errors: {self.fatal_device_errors}; Discarded queued/in-flight blocks: {self.discarded_blocks}"

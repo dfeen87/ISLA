@@ -9,19 +9,27 @@ from drivers.cli import main as cli_main
 
 
 def test_package_version():
-    assert phased_music_notes.__version__ == isla.__version__ == "4.0.0"
+    assert phased_music_notes.__version__ == isla.__version__ == "4.1.0"
 
 
 def test_http_server_version():
-    assert app.version == isla.__version__ == "4.0.0"
+    assert app.version == isla.__version__ == "4.1.0"
 
 
 def test_build_metadata_matches_public_version():
     root = Path(__file__).resolve().parents[1]
     pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
     cmake = (root / "CMakeLists.txt").read_text(encoding="utf-8")
-    assert 'version = "4.0.0"' in pyproject
-    assert "project(ISLA VERSION 4.0.0)" in cmake
+    assert 'version = "4.1.0"' in pyproject
+    assert "project(ISLA VERSION 4.1.0)" in cmake
+
+
+def test_citation_version_matches_public_source():
+    # The release date and tag URL are populated only when a GitHub release
+    # actually exists; do not invent publication metadata for a source bump.
+    root = Path(__file__).resolve().parents[1]
+    citation = (root / "CITATION.cff").read_text(encoding="utf-8")
+    assert f'version: "{isla.__version__}"' in citation
 
 
 def test_installed_distribution_matches_public_api():
@@ -33,7 +41,7 @@ def test_installed_distribution_matches_public_api():
     assert installed == isla.__version__
 
 
-def test_cli_version_reports_v4_without_opening_audio(capsys):
+def test_cli_version_reports_current_source_without_opening_audio(capsys):
     with pytest.raises(SystemExit) as result:
         cli_main(["--version"])
     assert result.value.code == 0

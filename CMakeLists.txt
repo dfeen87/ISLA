@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(ISLA VERSION 4.0.0)
+project(ISLA VERSION 4.1.0)
 
 # ================================================================
 # Disable VST2 BEFORE JUCE is added

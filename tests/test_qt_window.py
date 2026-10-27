@@ -598,7 +598,10 @@ def test_slow_worker_keeps_event_loop_responsive_and_defers_cli_handoff(app):
         timer.start(5)
         w.started -= 11
         wait_ui(app, lambda: len(pulses) > 4)
-        assert 'longer than expected' in w.global_error.text()
+        # The diagnostic is emitted by the window's 50 ms status timer,
+        # not the independent 5 ms event-loop probe above. Wait for that
+        # observable UI state rather than racing the next status poll.
+        wait_ui(app, lambda: 'longer than expected' in w.global_error.text())
         w.close()
         assert w.isVisible() and c._window_owner is w.worker.service
         assert not w.closed_cleanly

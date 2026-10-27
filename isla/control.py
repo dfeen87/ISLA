@@ -507,6 +507,17 @@ class ControlService:
                       UIState.LIVE_SOURCE if c.source == 'system' else UIState.LIVE_UNCONFIGURED)
         if self.error and not p.buffers and not preparing:
             file_state = UIState.RECOVERABLE_ERROR
+        if p.stream is None:
+            file_mode_status = 'No active stream'
+        elif getattr(p, '_current', None) is not p._selected:
+            file_mode_status = 'previous buffer — selected mode awaits callback'
+        else:
+            file_mode_status = p.mode + (
+                ' — crossfading' if p._fade_pos < len(p._fade) else ''
+            )
+        if p.stream is not None and self._deferred_file_mode:
+            queued_mode = self._deferred_file_mode.replace('mode ', '')
+            file_mode_status += '; queued: ' + queued_mode.title()
         return ControlState(
             file_state, live_state, str(c.path or (c.job.path if c.job else '')),
             c.job.state if c.job else 'Open an audio file to begin',
@@ -534,12 +545,7 @@ class ControlService:
             (f'{self.preview.requested.mode} / {self.preview.requested.intensity}% depth'
              if self.preview.requested else ''),
             p.output,
-            (((p.mode + (' — crossfading' if p._fade_pos < len(p._fade) else ''))
-               if getattr(p, '_current', None) is getattr(p, '_selected', None) else
-               'previous buffer — selected mode awaits callback')
-              + ('; queued: ' + self._deferred_file_mode.replace('mode ', '').title()
-                 if self._deferred_file_mode else ''))
-             if p.stream else 'No active stream'),
+            file_mode_status,
             self._alive_gui_backend.diagnostics(),
             (f'{live.config.output_name} (PortAudio {live.config.output_id}; '
              f'native {live.config.identity[1]})' if live.config else 'Not opened'),

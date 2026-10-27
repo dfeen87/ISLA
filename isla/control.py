@@ -146,6 +146,10 @@ class ControlService:
         self._native_signature = None
         self.device_status = 'Device discovery pending.'
         self._file_touched = controller.player.state != 'stopped'
+        # A second GUI mode click during an unfinished 5 ms crossfade must
+        # not force BufferPlayer to restart from the raw prior-mode buffer.
+        # The control worker owns this single latest-wins pending selection.
+        self._deferred_file_mode = None
         if controller._setup_routing is None:
             controller._setup_routing = getattr(controller.live.backend, 'routing', None)
         # The optional listening attenuation is a separate adapter. Never
@@ -263,6 +267,7 @@ class ControlService:
             raise AudioError("LIVE rate must be 44100 or 48000 Hz.")
         capture,output = self._fresh_selection(capture, output)
         c = self.controller
+        self._deferred_file_mode = None
         self.preview.reset()
         c.execute("source system")
         c.execute("input " + shlex.quote(capture.name))
@@ -333,6 +338,7 @@ class ControlService:
         if self.mix_export.pending:
             raise AudioError('Finish or cancel Save Mix before opening another file.')
         c = self.controller
+        self._deferred_file_mode = None
         self.preview.reset()
         c.execute('source file')
         result = c.execute('load ' + shlex.quote(str(path)))
@@ -355,11 +361,27 @@ class ControlService:
         if self.controller.live.running or self.controller.live.stream is not None:
             raise AudioError("Stop LIVE before using ALIVE playback.")
         if self.controller.source != 'file':
+            self._deferred_file_mode = None
             self.controller.execute('source file')
         if self.preview.workspace and (command == 'bypass' or command.startswith('mode ')):
             raise AudioError('Return to Previous Mode before selecting traditional processing.')
         if command == 'stop' and self.preview.workspace:
             self.preview.cancel()
+        p = self.controller.player
+        target = ('original' if command == 'bypass' else
+                  command[5:] if command.startswith('mode ') else None)
+        if (target in ('original', 'velvet', 'legato', 'melt')
+                and p.state == 'playing' and p.stream is not None
+                and getattr(p, '_fade_pos', 0) < len(p._fade)):
+            self.controller._ready()
+            if target not in p.buffers:
+                raise AudioError('Selected ALIVE mode is not prepared.')
+            # A new click does not interrupt the active audible mixture.
+            # Repeated clicks coalesce: the latest valid selection wins.
+            self._deferred_file_mode = command
+            return f'{target.title()} requested; waiting for the current audio fade to finish.'
+        if target is not None or command in ('play', 'pause', 'stop'):
+            self._deferred_file_mode = None
         if command == 'play':
             # Install the GUI-only output wrapper before stream creation on
             # every Play/resume. It scales final PCM without modifying the
@@ -372,7 +394,9 @@ class ControlService:
 
     def enter_remastered(self):
         self._enter()
-        return self.preview.enter()
+        result = self.preview.enter()
+        self._deferred_file_mode = None
+        return result
 
     def return_previous_mode(self):
         self._enter()
@@ -444,6 +468,18 @@ class ControlService:
         self._enter()
         self.controller.poll()
         self.preview.poll()
+        if self._deferred_file_mode is not None:
+            p = self.controller.player
+            if (self.controller.source != 'file' or p.state != 'playing'
+                    or p.stream is None or self.preview.workspace):
+                self._deferred_file_mode = None
+            elif (getattr(p, '_current', None) is p._selected
+                    and p._fade_pos >= len(p._fade)):
+                # Only the control worker publishes a new selected buffer.
+                # The callback has completed its previous 5 ms fade.
+                command = self._deferred_file_mode
+                self._deferred_file_mode = None
+                self.controller.execute(command)
         active = self.controller.live.running or self.controller.live.stream is not None
         if self._was_live_active and not active:
             self.devices_need_refresh = True
@@ -498,9 +534,12 @@ class ControlService:
             (f'{self.preview.requested.mode} / {self.preview.requested.intensity}% depth'
              if self.preview.requested else ''),
             p.output,
-            ((p.mode + (' — crossfading' if p._fade_pos < len(p._fade) else ''))
-             if getattr(p, '_current', None) is getattr(p, '_selected', None) else
-             'previous buffer — selected mode awaits callback') if p.stream else 'No active stream',
+            (((p.mode + (' — crossfading' if p._fade_pos < len(p._fade) else ''))
+               if getattr(p, '_current', None) is getattr(p, '_selected', None) else
+               'previous buffer — selected mode awaits callback')
+              + ('; queued: ' + self._deferred_file_mode.replace('mode ', '').title()
+                 if self._deferred_file_mode else ''))
+             if p.stream else 'No active stream'),
             self._alive_gui_backend.diagnostics(),
             (f'{live.config.output_name} (PortAudio {live.config.output_id}; '
              f'native {live.config.identity[1]})' if live.config else 'Not opened'),
@@ -520,6 +559,7 @@ class ControlService:
     def shutdown(self):
         self._enter()
         c = self.controller
+        self._deferred_file_mode = None
         self.preview.reset()
         self.mix_export.cancel()  # Abort partial exports before returning ownership.
         # Keep the lease on ANY cleanup failure. Returning a borrowed controller

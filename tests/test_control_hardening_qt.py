@@ -22,7 +22,7 @@ def test_volume_keyboard_edit_auto_applies_and_survives_focus_loss_and_refresh(a
         for _ in range(25):
             QTest.keyClick(w.monitor_volume, Qt.Key.Key_Right)
         assert w.monitor_volume.value() == 25
-        w.research_toggle.setFocus()
+        w.close_button.setFocus()
         QTest.qWait(180)  # At least three real 50 ms refreshes before release.
         assert w.monitor_volume.value() == 25
         wait_ui(app, lambda: not w.busy and w.state.monitor_volume == 25)
@@ -84,7 +84,7 @@ def test_native_volume_clicks_reach_live_callback_pcm_and_single_selected_output
 
         for percent in (100, 50, 25, 0, 100):
             w.monitor_volume.setValue(percent)
-            w.research_toggle.setFocus()
+            w.close_button.setFocus()
             QTest.qWait(160)
             wait_ui(app, lambda: not w.busy and w.state.monitor_volume == percent)
             np.testing.assert_allclose(output(), signal * (percent / 100), atol=1e-7, rtol=0)

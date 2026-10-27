@@ -143,12 +143,15 @@ def alive_next_step(state, *, busy=None):
         action = 'Remastered workspace: choose mode/depth, Prepare, then listen. Cancel or Return restores ' + state.research_previous_mode.title() + '.'
     elif state.can_play:
         if state.file_state == UIState.PLAYING:
-            action = ('ALIVE is playing. Compare Original / Bypass, Velvet, Legato '
-                      'and Melt, or use Pause / Stop.')
+            action = ('ALIVE is playing. Try Remastered First for a prepared short excerpt, '
+                      'or compare Original / Bypass, Velvet, Legato and Melt; '
+                      'use Pause / Stop to control playback.')
         elif state.file_state == UIState.PAUSED:
             action = 'ALIVE is paused. Press Play to resume; processing modes remain available.'
         else:
-            action = 'ALIVE is ready. Press Play, then choose Original / Bypass, Velvet, Legato or Melt.'
+            action = ('ALIVE is ready. Press Play or try Remastered First on a short '
+                      'prepared excerpt; traditional Original / Bypass, Velvet, Legato '
+                      'and Melt remain available.')
     elif not state.duration:
         action = 'Next: Click Open Audio File… to select a local, DRM-free recording.'
     else:
@@ -357,8 +360,9 @@ def remastered_readiness(state):
     if state.file_sample_rate not in (44100, 48000):
         return False, ('Remastered ALIVE requires a 44.1/48 kHz source; '
                        'regular ALIVE playback is still supported.')
-    return True, ('Eligible local excerpt. Preparation runs separately and '
-                  'only a complete, validated buffer can become active.')
+    return True, ('Eligible local excerpt. Try Remastered First even before choosing '
+                  'a traditional mode; preparation runs separately and only a '
+                  'complete, validated buffer can become active.')
 
 
 def audio_diagnostics(state):
@@ -788,6 +792,15 @@ class ControlWindow(QMainWindow):
             button.clicked.connect(lambda checked=False, command=cmd: self.submit('file', command))
             row.addWidget(button)
         box.addLayout(row)
+        # Remastered can be the FIRST comparison for a prepared short excerpt:
+        # reuse the existing explicit entry command and its research gates.
+        # Long songs require a separately loaded <=30-second excerpt; never
+        # launch the whole-file renderer on an ineligible recording.
+        self.try_remastered_first = QPushButton('Try Remastered First (up to 30s)')
+        self.try_remastered_first.setAccessibleName('Try ALIVE Remastered before traditional modes')
+        self.try_remastered_first.clicked.connect(
+            lambda: self.submit('enter_research') if self.try_remastered_first.isEnabled() else None)
+        box.addWidget(self.try_remastered_first)
         self.position = label('0:00 / 0:00')
         box.addWidget(self.position)
         self.progress = QProgressBar()
@@ -1310,7 +1323,14 @@ class ControlWindow(QMainWindow):
         workspace = bool(s and s.research_workspace)
         self.research_mode.setEnabled(prepared and workspace and not pending)
         self.research_intensity.setEnabled(prepared and workspace and not pending)
-        self.enter_research.setEnabled(bool(available and admitted and not workspace))
+        can_enter_research = bool(available and admitted and not workspace)
+        self.enter_research.setEnabled(can_enter_research)
+        self.try_remastered_first.setEnabled(can_enter_research)
+        self.try_remastered_first.setToolTip(
+            ('Compare experimental Remastered before choosing Velvet, Legato, or Melt. ' + admission_note)
+            if can_enter_research else admission_note
+        )
+        self.try_remastered_first.setAccessibleDescription(self.try_remastered_first.toolTip())
         self.enter_research.setToolTip(admission_note if not workspace else 'Remastered workspace already entered.')
         self.enter_research.setAccessibleDescription(self.enter_research.toolTip())
         self.apply_research.setEnabled(bool(available and admitted and workspace and not pending))

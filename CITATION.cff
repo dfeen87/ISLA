@@ -1,12 +1,12 @@
 cff-version: 1.2.0
 message: >-
   If you use ISLA in research, teaching, or another software project,
-  please cite the version you actually used. This file describes the
-  v4.1.0 source release candidate; a release date and tag URL will be
-  added only after v4.1.0 is published.
+  please cite the version you actually used. This file describes
+  the v4.1.2 source candidate; the latest published release is v4.1.1.
+  No v4.1.2 release date or tag is claimed here.
 type: software
 title: "ISLA — Let the Music Flow."
-version: "4.1.0"
+version: "4.1.2"
 abstract: >-
   ISLA is an open-source audio-processing application for local file
   playback and experimental macOS system-audio monitoring. It provides

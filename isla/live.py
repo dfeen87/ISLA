@@ -166,6 +166,9 @@ class LiveMonitor:
         self._last_recovery = None
         self._last_startup_gap = None
         self._last_adc = None
+        # Arm the DSP worker before starting the duplex stream. The startup
+        # handshake gates watchdog/cleanup, not processing of live callbacks.
+        self._stream_started = threading.Event()
         self._empty_run = self._device_empty_run = self._callbacks = 0
         self.latency_ms = None
         self.max_worker_ms = self.max_routing_ms = self.max_queue_age_ms = 0.
@@ -198,21 +201,46 @@ class LiveMonitor:
             self.output = BlockRing(self.config.channels)
             self.halt.clear()
             self.stream = self.backend.open(self.config, self._callback)
-            self.stream.start()
-            self.state = "Running"
+            # PortAudio can invoke callbacks during stream.start(). Starting
+            # the worker afterward leaves those capture blocks unprocessed and
+            # may exhaust the fixed starvation limit before start() returns.
             self.worker = threading.Thread(target=self._work, name="isla-live", daemon=True)
             self.worker.start()
+            self.stream.start()
+            self._stream_started.set()
+            if self.halt.is_set():
+                # A callback may have failed synchronously during start().
+                # Do not overwrite its fatal state with a false "Running".
+                raise AudioError(self.error or "LIVE stopped during startup.")
+            self.state = "Running"
         except BaseException as exc:
             self.halt.set()
+            self._stream_started.set()
+            # Once the worker is armed, it owns DSP access and may already be
+            # inside a callback-driven block. Wait for it to release the stream
+            # before declaring startup cleanup complete.
+            if self.worker is not None:
+                self.worker.join(timeout=3)
+                if self.worker.is_alive():
+                    self.state = "Failed"
+                    self.error = self.error or str(exc)
+                    self.last_interruption = self.error
+                    self.recovery_state = "Stopped safely"
+                    self.fatal_device_errors += 1
+                    raise AudioError(
+                        "LIVE startup failed; audio worker is still stopping. "
+                        "Do not start another session."
+                    ) from exc
+                self.worker = None
             self._release()
             self.state = "Failed"
-            self.error = str(exc)
-            self.fatal_device_errors += 1
+            self.error = self.error or str(exc)
+            self.fatal_device_errors += int(not self.fatal_device_errors)
             self.last_interruption = self.error
             self.recovery_state = "Stopped safely"
             if not isinstance(exc, Exception):
                 raise
-            raise AudioError(f"LIVE start failed: {exc}") from exc
+            raise AudioError(f"LIVE start failed: {self.error}") from exc
         return "LIVE monitoring active."
 
     def select(self, mode):
@@ -369,7 +397,12 @@ class LiveMonitor:
         try:
             while not self.halt.is_set():
                 now = self._monotonic_clock()
-                if now - checked >= .25:
+                if not self._stream_started.is_set():
+                    # The owning command is still inside stream.start().
+                    # Callbacks may be processed, but a 250 ms watchdog must
+                    # not mistake native start latency for a disconnected device.
+                    checked, callback_count = now, self._callbacks
+                elif now - checked >= .25:
                     if not self.stream.active or self._callbacks == callback_count:
                         self._fault("Audio device disconnected or callbacks stopped. Reconnect and monitor start.", device=True)
                         break
@@ -426,6 +459,10 @@ class LiveMonitor:
             self._fault(str(exc))
         finally:
             self.halt.set()
+            # In an early callback fault, stream.start() may still be on the
+            # command thread. Do not abort/close its native stream concurrently
+            # with activation; the command publishes the handoff on return.
+            self._stream_started.wait()
             self._release()
             self.state = "Failed" if self.error else "Stopped"
             if self._recovering and not self.error:

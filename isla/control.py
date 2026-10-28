@@ -362,6 +362,10 @@ class ControlService:
             raise AudioError('Several listening devices are connected. Choose your headphones or speakers below, then click Play.')
         # Reuse the normal selector; hardware opens only after all checks pass.
         c.execute('output ' + shlex.quote(str(output.index)))
+        if self.selected_output != output:
+            # A file's sample rate is independent of the shared listening
+            # device's LIVE rate. Keep an explicit rate for an unchanged device.
+            self.rate = output.default_rate
         self.selected_output = output
         self.check_routing()  # Advisory LIVE status; its result never gates ALIVE.
         self.device_status = f'Connected: {output.name}. ALIVE is ready to play.'
@@ -390,11 +394,20 @@ class ControlService:
         if c.live.running or c.live.stream is not None:
             raise AudioError("LIVE is already running or stopping. Stop LIVE before starting again.")
         self._idle()
-        if c.source != 'system':
-            raise AudioError("Apply the LIVE device selection first.")
+        if ((c.job is not None and not c.job.done) or self.preview.job is not None
+                or self.mix_export.pending):
+            raise AudioError('Finish or cancel ALIVE preparation or Save Mix before starting LIVE.')
         self.selected_capture,self.selected_output = self._fresh_selection(self.selected_capture, self.selected_output)
         if not self.check_routing():
             raise AudioError(self.routing_message)
+        # ALIVE and LIVE share a verified listening-device choice, but own
+        # different streams. Switch source only on this explicit Start, after
+        # ALIVE has released its output and the saved identities still match.
+        self._deferred_file_mode = None
+        self.preview.reset()
+        c.execute('source system')
+        c.execute('input ' + shlex.quote(self.selected_capture.name))
+        c.execute('output ' + shlex.quote(str(self.selected_output.index)))
         # In the graphical workflow Start LIVE always begins in original
         # Bypass; effect selection is deliberately a separate next step.
         # Terminal-only commands retain their existing semantics.
@@ -443,6 +456,8 @@ class ControlService:
         if output not in self.outputs:
             raise AudioError("Output selection is stale. Refresh devices and select again.")
         self.controller.execute('output ' + shlex.quote(output.name))
+        if self.selected_output != output:
+            self.rate = output.default_rate
         self.selected_output = output
         self.check_routing()
 
@@ -645,7 +660,7 @@ class ControlService:
         devices_selected = (self.selected_capture in self.captures and self.selected_output in self.outputs)
         live_state = (UIState.LIVE_STOPPING if live_active and live.halt.is_set() else
                       UIState.LIVE_RUNNING if live_active else UIState.FATAL_ERROR if live.error else
-                      UIState.LIVE_READY if devices_selected and self.ready and c.source == 'system' else
+                      UIState.LIVE_READY if devices_selected and self.ready and not stream_active else
                       UIState.ROUTING_INVALID if devices_selected and not self.ready else
                       UIState.LIVE_DEVICES if devices_selected else
                       UIState.LIVE_SOURCE if c.source == 'system' else UIState.LIVE_UNCONFIGURED)
@@ -673,7 +688,8 @@ class ControlService:
             live.status() + f"\nISLA listening volume: {self._monitor_volume.percent}% (physical output only)",
             stream_active, live_active, bool(p.buffers) and not preparing and not live_active,
             not stream_active, not stream_active,
-            not stream_active and devices_selected and self.ready and c.source == 'system', self.closed,
+            (not stream_active and devices_selected and self.ready and not preparing
+             and self.preview.job is None and not self.mix_export.pending), self.closed,
             getattr(getattr(live, 'processor', None), 'mode', None) if live_active else None,
             self._monitor_volume.percent, live.error,
             self.preview.job is not None, self.preview.state,

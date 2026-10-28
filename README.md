@@ -310,7 +310,7 @@ System audio enters BlackHole, ISLA processes it, then ISLA plays it through you
 | **LIVE is not ready**, current output is External Headphones | Open Mac Sound Settings, select **BlackHole 2ch**, return and Recheck. Keep the desired physical listening output inside ISLA. |
 | BlackHole missing, ambiguous, or no eligible output | Check Audio MIDI Setup, reconnect the device and click **Refresh Devices**. Apply a fresh selection. |
 | Device identity changed, stale PortAudio devices, or unplugged headphones | Stop audio, Refresh, select devices again and Recheck. If opened native IDs still disagree, close ISLA and relaunch to refresh PortAudio. |
-| Start LIVE disabled after switching back to ALIVE | Stop playback and click **Use These Devices** again. |
+| Switch from ALIVE to LIVE | Click **Stop** in ALIVE, then **Start LIVE**. ISLA reuses and revalidates the listening device; no second connection is needed. Mac sound must still route through BlackHole 2ch. |
 | Preparation fails | Read the adjacent error, choose a valid smaller mono/stereo audio file and retry. Close cancels preparation. |
 | Audio command takes over ten seconds | The window remains responsive and explains the delay. Close requests cleanup after the operation returns. Commands stay locked to prevent a competing engine. |
 | Cleanup reports a still-stopping audio worker | The window retains session ownership. Retry Close after it stops; it will not return a busy controller to the terminal. A permanently blocked native driver may require process termination; do not start another audio session. |

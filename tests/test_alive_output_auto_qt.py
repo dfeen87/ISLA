@@ -35,7 +35,8 @@ def test_open_and_play_connects_output_syncs_panels_and_locks_setup(app,monkeypa
         assert 'Click Stop in ALIVE' in w.next_action.text()
         assert len(files.streams)==1
         click(app,w,w.stop_file)
-        assert w.apply_devices.text()=='Use These Devices'
+        assert w.apply_devices.text()==('Connected — ready' if blackhole else 'Use These Devices')
+        assert w.start_live.isEnabled() == blackhole
         assert w.output.isEnabled() and w.file_output.isEnabled() and w.auto_setup.isEnabled()
     finally:
         close_window(app,w,c)

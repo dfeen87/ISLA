@@ -1473,9 +1473,11 @@ class ControlWindow(QMainWindow):
         self._choices(self.file_output, s.outputs, s.selected_output)
         if not self.rate.hasFocus():
             # Do not overwrite a pending sample-rate choice before Apply.
-            if not hasattr(self, '_rate_initialized'):
+            if (not hasattr(self, '_rate_initialized')
+                    or getattr(self, '_committed_rate', s.rate) != s.rate):
                 self.rate.setCurrentIndex(self.rate.findData(s.rate))
                 self._rate_initialized = True
+            self._committed_rate = s.rate
         self.filename.setText(s.file_name or 'No file selected')
         self.device_status.setText(s.device_status)
         if not getattr(self,'_live_processing_initialized',False):
@@ -1522,14 +1524,17 @@ class ControlWindow(QMainWindow):
         self.apply_devices.setEnabled(bool(available and s.can_configure and self.capture.currentData() and self.output.currentData()))
         file_playing = s.file_state == UIState.PLAYING and s.stream_active and not s.live_active
         connected_output = s.selected_output.name if s.selected_output else s.alive_output
-        self.apply_devices.setText('Connected — ALIVE playing' if file_playing else 'Use These Devices')
+        dirty_devices = (self.capture.currentData() != s.selected_capture or
+                         self.output.currentData() != s.selected_output or self.rate.currentData() != s.rate)
+        self.apply_devices.setText(
+            'Connected — LIVE playing' if s.live_active else
+            'Connected — ALIVE playing' if file_playing else
+            'Connected — ready' if s.selected_output and not dirty_devices else 'Use These Devices')
         self.apply_devices.setToolTip(
-            f'Connected: {connected_output}. Stop ALIVE before changing devices or setting up LIVE.'
+            f'Connected: {connected_output}. Stop ALIVE, then Start LIVE to use the same listening device.'
             if file_playing else 'Confirm the capture connection and listening output for LIVE.')
         if file_playing:
             self.device_status.setText(f'Connected: {connected_output}')
-        dirty_devices = (self.capture.currentData() != s.selected_capture or
-                         self.output.currentData() != s.selected_output or self.rate.currentData() != s.rate)
         self.start_live.setEnabled(bool(available and s.can_start and not dirty_devices))
         self.stop_live.setEnabled(bool(not self.closing and self.busy in (None, 'live_mode')
                                        and (s.live_active or s.live_state.value == 'Fatal audio failure')))
@@ -1606,7 +1611,9 @@ class ControlWindow(QMainWindow):
             setup_hint = 'Listening through ' + s.output + '. Click Stop LIVE before changing devices.'
         elif file_playing:
             setup_hint = ('Connected: ' + connected_output + '. ALIVE is playing your file. '
-                          'Click Stop in ALIVE to change devices or set up LIVE.')
+                          'Click Stop in ALIVE, then Start LIVE to use the same listening device.')
+        elif s.file_state == UIState.PREPARING or s.research_pending or s.save_pending:
+            setup_hint = 'Finish or cancel ALIVE preparation or Save Mix before starting LIVE.'
         elif not s.captures:
             setup_hint = ('Your Mac needs the BlackHole 2ch audio connection for LIVE. '
                           'Connect or install it, then click Find Connected Devices. '
@@ -1616,7 +1623,7 @@ class ControlWindow(QMainWindow):
         elif self.output.currentData() is None:
             setup_hint = ('Step 1: Click Find Connected Devices, or choose your headphones '
                           'or speakers above and click Use These Devices.')
-        elif s.source != 'system' or dirty_devices:
+        elif dirty_devices:
             setup_hint = 'Step 1: Click Use These Devices to confirm where you want to listen.'
         elif not s.routing_ready:
             setup_hint = ('Step 2: Open Mac Sound Settings → Sound → Output and choose '

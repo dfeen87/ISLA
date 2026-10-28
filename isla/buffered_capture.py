@@ -1,8 +1,9 @@
 """Application capture defaults for a virtual input and physical listening sink.
 
 The historical LIVE transport remains available unchanged. The application uses
-the device's robust native buffering; callback size, bounded rings, routing
-validation and all LiveMonitor loss/recovery checks are still shared.
+robust native output buffering and capture pacing suited to the listening path;
+callback size, bounded rings, routing validation and all LiveMonitor loss/recovery
+checks are still shared.
 """
 from isla.live import BLOCK, SystemCaptureBackend
 
@@ -20,13 +21,21 @@ def preferred_capture_rate(playback, output):
 
 
 class BufferedSystemCaptureBackend(SystemCaptureBackend):
-    """Request robust driver buffers instead of forcing low latency."""
+    """Keep robust output buffers without batching built-in capture callbacks."""
 
     def open(self, config, callback):
+        native, _ = self.routing.snapshot()
+        sink = next((device for device in native if device['id'] == config.identity[1]), None)
+        # On the built-in output, high BlackHole capture latency causes
+        # PortAudio to deliver eight 512-frame callbacks in one burst. That
+        # exhausts the bounded output ring before its DSP worker can run.
+        # Keep the physical output's robust buffering; Bluetooth retains the
+        # verified high/high path needed for its separate device clocks.
+        latency = ('low', 'high') if sink and sink['transport'] == 'bltn' else 'high'
         stream = self.playback.sd.Stream(
             device=(config.input_id, config.output_id), samplerate=config.rate,
             channels=(config.channels, config.channels), dtype='float32',
-            blocksize=BLOCK, latency='high', callback=callback,
+            blocksize=BLOCK, latency=latency, callback=callback,
         )
         try:
             self.routing.validate_stream(self.playback.sd, stream, config.identity)

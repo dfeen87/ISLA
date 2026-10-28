@@ -16,9 +16,11 @@ def test_preferred_rate_accepts_only_supported_device_defaults(native, expected)
     assert preferred_device_rate({'default_samplerate': native}) == expected
 
 
-def test_buffered_backend_verifies_both_native_stream_handles_and_route():
+@pytest.mark.parametrize('transport,latency', [('bltn', ('low', 'high')), ('blue', 'high'),
+                                            ('usb ', 'high')])
+def test_buffered_backend_verifies_both_native_stream_handles_and_route(transport, latency):
     playback, _ = mock_playback()
-    routing = fake_routing()
+    routing = fake_routing(transport=transport)
     backend = BufferedSystemCaptureBackend(playback, routing)
     config = backend.configure('0', '1', 44100)
     calls = []
@@ -29,7 +31,7 @@ def test_buffered_backend_verifies_both_native_stream_handles_and_route():
     routing.validate = lambda *args: calls.append('route') or original_validate(*args)
     assert backend.open(config, 'callback') is stream
     assert calls[0] == dict(device=(0, 1), samplerate=44100, channels=(2, 2),
-                           dtype='float32', blocksize=BLOCK, latency='high', callback='callback')
+                           dtype='float32', blocksize=BLOCK, latency=latency, callback='callback')
     assert calls[1:] == [('identity', (10, 11), stream), 'route']
 
 

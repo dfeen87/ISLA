@@ -19,8 +19,14 @@ or choose an output and **Use These Devices**. Then **Check My Setup** and
 Sound defaults remain in macOS; ISLA never writes those properties. Selecting
 BlackHole on macOS's **Input** tab alone does not route system playback to ISLA.
 
-The application now requests the driver's more robust buffering instead of low
-latency. A newly selected output suggests its usual supported 44.1/48 kHz rate;
+The application requests robust output buffering. For the Mac's built-in output,
+capture uses the driver's low-latency setting to avoid eight-callback bursts that
+can starve the DSP worker at startup. Other outputs retain high capture buffering.
+ALIVE and LIVE share the verified listening-device selection: after stopping
+ALIVE, Start LIVE revalidates the saved device and activates system capture without
+another setup click. Playback status follows the actual ALIVE or LIVE stream.
+
+A newly selected output suggests its usual supported 44.1/48 kHz rate;
 an explicit rate choice stays selected. Terminal `monitor start` also matches
 the selected output's supported default rate (48 kHz fallback); specifying
 `monitor start 44100` or `monitor start 48000` overrides that suggestion. These

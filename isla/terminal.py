@@ -7,7 +7,7 @@ import threading
 from isla.playback import AudioError, BufferPlayer, SoundDeviceBackend
 from isla.preparation import MODES
 from isla.local_preparation import prepare_file
-from isla.live import LiveMonitor
+from isla.live_transport import ReliableLiveMonitor
 from isla.buffered_capture import BufferedSystemCaptureBackend, preferred_capture_rate
 
 from isla.terminal_help import mode_name, next_step, render_help
@@ -28,7 +28,7 @@ class TerminalController:
         self.capture = "BlackHole 2ch"
         self.output = None
         self.live_settings = LiveSettings()
-        self.live = LiveMonitor(live_backend if live_backend is not None else BufferedSystemCaptureBackend(backend, routing),
+        self.live = ReliableLiveMonitor(live_backend if live_backend is not None else BufferedSystemCaptureBackend(backend, routing),
                                 processor_factory=LiveEngineFactory(self.live_settings))
         self._setup_routing = routing
         self._setup_stage = None

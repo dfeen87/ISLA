@@ -213,7 +213,7 @@ The environment must be activated in each new Terminal session. **Open the graph
 ## User Interface
 
 <p align="center">
-  <img src="newWindow.jpeg" width="720" alt="Early ISLA Audio Control Center interface">
+  <img src="ISLA Audio Control Center Dashboard.png" width="720" alt="Early ISLA Audio Control Center interface">
   <br>
   <sub><em> Audio Control Center reference image; actual controls reflect the current checkout. </em></sub>
 </p>

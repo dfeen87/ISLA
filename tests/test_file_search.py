@@ -1,5 +1,6 @@
 """Filename discovery is read-only, cancellable and ambiguity-aware."""
 from pathlib import Path
+from functools import partial
 import subprocess
 from types import SimpleNamespace
 
@@ -12,6 +13,16 @@ from isla.preparation import Preparation
 from isla.search_preparation import SearchPreparation
 from isla.terminal import TerminalController
 from test_alive import FakeBackend, wait_ready
+
+
+def _empty_index(*args, **kwargs):
+    return SimpleNamespace(stdout=b'')
+
+
+def _fixture_search(query):
+    # Spawned search workers must see only this test's media, not the owner's
+    # Spotlight matches, backup libraries or large Documents tree.
+    return find_audio(query, roots=[Path.cwd()], runner=_empty_index)
 
 
 def test_mac_spotlight_is_computer_wide_and_acc_alias_finds_aac(monkeypatch,tmp_path):
@@ -31,7 +42,7 @@ def test_mac_spotlight_is_computer_wide_and_acc_alias_finds_aac(monkeypatch,tmp_
 def test_track_number_m4a_fallback_case_and_exact_name_priority(tmp_path):
     music = tmp_path/'Music'/'ABBA'; music.mkdir(parents=True)
     m4a = music/'03 Dancing Queen.m4a'; m4a.touch()
-    matches,info = find_audio('Dancing Queen.ACC',roots=[music])
+    matches,info = find_audio('Dancing Queen.ACC',roots=[music],runner=_empty_index)
     assert matches == [m4a]
     assert choose_match('Dancing Queen.ACC',matches,info) == m4a
     exact = music/'Dancing Queen.AAC'; exact.touch()
@@ -71,7 +82,7 @@ def test_actual_search_process_loads_file_from_music_subdirectory_and_cancels(tm
     x = np.zeros((1024,2),np.float32)
     sf.write(path,x,44100,subtype='FLOAT')
     monkeypatch.chdir(tmp_path)
-    job = SearchPreparation(path.name,Preparation)
+    job = SearchPreparation(path.name,Preparation,finder=_fixture_search)
     try:
         buffers,sr = wait_ready(job)
         assert sr == 44100 and job.path == path
@@ -80,7 +91,7 @@ def test_actual_search_process_loads_file_from_music_subdirectory_and_cancels(tm
         directory = Path(job.directory.name)
     finally: job.close(); job.close()
     assert not directory.exists()
-    pending = SearchPreparation('missing-cancel-test.wav',Preparation)
+    pending = SearchPreparation('missing-cancel-test.wav',Preparation,finder=_fixture_search)
     process = pending.process
     pending.close()
     assert process._closed
@@ -88,6 +99,8 @@ def test_actual_search_process_loads_file_from_music_subdirectory_and_cancels(tm
 
 def test_terminal_missing_basename_searches_but_full_path_keeps_original_error(tmp_path,monkeypatch):
     monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr('isla.terminal.SearchPreparation',
+                        partial(SearchPreparation,finder=_fixture_search))
     song = tmp_path/'Music'/'song.wav'; song.parent.mkdir()
     sf.write(song,np.zeros((1024,1)),48000)
     c = TerminalController(FakeBackend())

@@ -25,6 +25,8 @@ from PySide6.QtWidgets import (
 )
 
 from isla.control import ControlService, UIState
+from isla.footer_status import FooterStatus, footer_status
+from isla.speed_switch import SpeedSwitch
 from isla.remastered_preparation import MAX_SECONDS
 from isla.audio_files import AUDIO_FILE_FILTER
 from isla.playback import SoundDeviceBackend
@@ -313,10 +315,12 @@ class CommandWorker:
                               'live_mode': self.service.live_mode, 'devices': self.service.select_devices,
                               'file_output': self.service.select_file_output,
                               'refresh': self.service.refresh_devices, 'start': self.service.start_live,
+                              'auto_setup': self.service.auto_setup_devices,
                               'stop': self.service.stop_live, 'volume': self.service.set_monitor_volume,
                               'enter_research': self.service.enter_remastered,
                               'return_research': self.service.return_previous_mode,
                               'alive_volume': self.service.set_alive_volume,
+                              'vinyl_slowdown': self.service.set_vinyl_slowdown,
                               'research': self.service.prepare_remastered,
                               'cancel_research': self.service.cancel_remastered,
                               'save_mix': self.service.save_mix,
@@ -351,6 +355,8 @@ def remastered_readiness(state):
         return False, 'Load and prepare an ALIVE recording first.'
     if state.source != 'file':
         return False, 'Select ALIVE playback (Play or a standard mode) before preparing Remastered.'
+    if state.vinyl_slowdown:
+        return False, 'Turn off Vinyl-style slowdown before entering Remastered research.'
     if state.file_channels not in (1, 2):
         return False, 'Remastered ALIVE requires non-empty mono or stereo audio.'
     if state.duration > MAX_SECONDS:
@@ -460,73 +466,73 @@ def footer_visual_mode(state):
 
 
 class FooterWaveSignature(QWidget):
-    """Illustrative applied-mode indicator; no audio/PCM or telemetry text reads.
-
-    Default: three animated waves. During active playback only the confirmed
-    Velvet/Legato/Melt wave moves. Bypass/unconfirmed: all effects rest.
-    The widget is GUI-thread-only and owns only its visual animation timer.
-    """
+    """Selected effect and worker-confirmed motion, from immutable telemetry."""
 
     _WAVES = (
-        ('VELVET', 2.0, 3.4, 0.65, '#2F80ED'),
-        ('LEGATO', 3.0, 4.4, 0.90, '#4A90FF'),
-        ('MELT', 4.5, 5.4, 0.50, '#7DB7FF'),
+        ('ORIGINAL', 0.0, 0.0, 0.0, '#64748B'),
+        ('VELVET', 2.0, 6.0, 0.65, '#2F80ED'),
+        ('LEGATO', 3.0, 7.0, 0.90, '#4A90FF'),
+        ('MELT', 4.5, 8.0, 0.50, '#628FE0'),
     )
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName('footerWaveSignature')
-        self.setAccessibleName('Decorative Velvet, Legato, and Melt waveform signature')
-        self.setToolTip(
-            'Illustrative waves follow applied ALIVE/LIVE modes — '
-            'not live audio levels or measurements.'
-        )
+        self.setAccessibleName('Audio effect and playback status')
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
-        self.setFixedHeight(42)
+        self.setFixedHeight(64)
         self.setMinimumWidth(156)
-        self.setMaximumWidth(360)
+        self.setMaximumWidth(560)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self._status = FooterStatus()
         self._visual_mode = 'overview'
-        # Independent phases let inactive lanes actually freeze in place.
-        self._phases = [0.0, 0.0, 0.0]
+        self._phases = [0.0] * 4
         self._wave_timer = QTimer(self)
         self._wave_timer.setInterval(80)
         self._wave_timer.timeout.connect(self._animate)
+        self.set_status(self._status)
 
     def sizeHint(self):
-        return QSize(342, 42)
+        return QSize(400, 64)
+
+    def set_status(self, status):
+        self._status = status
+        self._visual_mode = status.applied if status.playing and status.applied else (
+            'bypass' if status.playing else 'overview')
+        mode = lambda value: 'Original' if value == 'bypass' else value.title() or 'Not confirmed'
+        description = (status.caption + '. Selected: ' + mode(status.selected) +
+                       '; audio engine: ' + mode(status.applied) +
+                       '. Illustrative effect shapes, not live audio levels or measurements.')
+        self.setToolTip(description)
+        self.setAccessibleDescription(description)
+        if self.isVisible() and status.playing and status.applied in ('velvet', 'legato', 'melt'):
+            if not self._wave_timer.isActive():
+                self._wave_timer.start()
+        else:
+            self._wave_timer.stop()
+        self.update()
 
     def set_visual_mode(self, mode):
-        """Receive a confirmed status from the owning ControlWindow (UI only)."""
-        if mode not in ('overview', 'bypass', 'velvet', 'legato', 'melt'):
-            mode = 'bypass'
-        if mode == self._visual_mode:
-            return
-        self._visual_mode = mode
-        if self.isVisible():
-            if mode == 'bypass':
-                self._wave_timer.stop()
-            else:
-                self._wave_timer.start()
-        self.update()
+        # Compatibility for isolated visual previews; production uses set_status.
+        applied = mode if mode in ('velvet', 'legato', 'melt', 'bypass') else ''
+        self.set_status(FooterStatus('ISLA', applied, applied,
+                                    'Playing' if applied else 'Ready', bool(applied)))
 
     def showEvent(self, event):
         super().showEvent(event)
-        if self._visual_mode != 'bypass':
-            self._wave_timer.start()
+        self.set_status(self._status)
 
     def hideEvent(self, event):
         self._wave_timer.stop()
         super().hideEvent(event)
 
     def _animate(self):
-        if self._visual_mode == 'bypass':
+        if not self._status.playing:
             return
         for index, (name, _cycles, _amplitude, speed, _color) in enumerate(self._WAVES):
-            if self._visual_mode in ('overview', name.lower()):
-                self._phases[index] = (
-                    self._phases[index] + 0.16 * speed
-                ) % (2 * math.pi)
+            if self._status.applied == name.lower():
+                self._phases[index] = (self._phases[index] + 0.16 * speed *
+                                       self._status.playback_percent / 100) % (2 * math.pi)
         self.update()
 
     def paintEvent(self, event):
@@ -535,48 +541,43 @@ class FooterWaveSignature(QWidget):
         area = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
         painter.setPen(QPen(QColor('#B7D4FF'), 1))
         painter.setBrush(QColor('#F5F9FF'))
-        painter.drawRoundedRect(area, 7, 7)
-
-        inner_left = area.left() + 6
-        lane_width = (area.width() - 12) / 3
+        painter.drawRoundedRect(area, 8, 8)
         font = painter.font()
-        font.setPointSize(7)
+        font.setPointSize(8)
+        font.setBold(True)
         painter.setFont(font)
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-
-        for index, (name, cycles, amplitude, speed, color) in enumerate(self._WAVES):
-            x0 = inner_left + index * lane_width + 5
-            x1 = inner_left + (index + 1) * lane_width - 5
-            if x1 <= x0:
-                continue
-            selected = self._visual_mode == name.lower()
-            muted = self._visual_mode != 'overview' and not selected
+        painter.setPen(QColor('#9C3434' if self._status.stage == 'Stopped safely' else '#1D5FA9'))
+        caption = painter.fontMetrics().elidedText(self._status.caption, Qt.TextElideMode.ElideRight,
+                                                  max(0, self.width() - 16))
+        painter.drawText(QRectF(8, 3, self.width()-16, 15), Qt.AlignmentFlag.AlignCenter, caption)
+        lane_width = (area.width() - 12) / 4
+        font.setPointSizeF(6.5)
+        font.setBold(False)
+        painter.setFont(font)
+        for index, (name, cycles, amplitude, _speed, color) in enumerate(self._WAVES):
+            effect = 'bypass' if name == 'ORIGINAL' else name.lower()
+            selected = self._status.selected == effect
+            moving = self._status.playing and self._status.applied == effect
+            x0, x1 = 6 + index*lane_width + 4, 6 + (index+1)*lane_width - 4
             if selected:
                 painter.setPen(Qt.PenStyle.NoPen)
-                painter.setBrush(QColor('#EAF3FF'))
-                painter.drawRoundedRect(QRectF(x0 - 3, 4, x1 - x0 + 6, 33), 5, 5)
-                painter.setBrush(Qt.BrushStyle.NoBrush)
-            waveform = QPainterPath()
+                painter.setBrush(QColor('#E0EDFF'))
+                painter.drawRoundedRect(QRectF(x0-2, 21, x1-x0+4, 38), 5, 5)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            wave = QPainterPath()
             for step in range(49):
                 progress = step / 48
-                x = x0 + (x1 - x0) * progress
-                y = 16 + amplitude * math.sin(
-                    2 * math.pi * cycles * progress + self._phases[index]
-                )
-                if step == 0:
-                    waveform.moveTo(x, y)
-                else:
-                    waveform.lineTo(x, y)
-            pen = QPen(QColor('#B7C5D6') if muted else QColor(color))
-            pen.setWidthF(1.0 if muted else 2.2 if selected else 1.8)
+                x = x0 + (x1-x0)*progress
+                y = 35 + amplitude * (1 if selected or moving else .3) * math.sin(
+                    2*math.pi*cycles*progress + self._phases[index])
+                wave.moveTo(x, y) if step == 0 else wave.lineTo(x, y)
+            pen = QPen(QColor(color if selected or moving else '#BFCCDC'))
+            pen.setWidthF(2 if selected or moving else 1)
             painter.setPen(pen)
-            painter.drawPath(waveform)
-            painter.setPen(QColor('#8193A9') if muted else QColor('#1D5FA9'))
-            painter.drawText(
-                QRectF(x0, 26, x1 - x0, 12),
-                Qt.AlignmentFlag.AlignCenter,
-                name,
-            )
+            painter.drawPath(wave)
+            painter.setPen(QColor('#1D5FA9' if selected else '#8193A9'))
+            painter.drawText(QRectF(x0-2, 47, x1-x0+4, 12), Qt.AlignmentFlag.AlignCenter,
+                             'ORIG.' if name == 'ORIGINAL' else name)
         painter.end()
 
 
@@ -588,6 +589,8 @@ class ControlWindow(QMainWindow):
         self.state = None
         self._state_sequence = 0
         self._pending_live_mode = None
+        self._pending_file_mode = None
+        self._pending_vinyl_speed = None
         self._mode_requests = deque()
         self._mode_inflight = None
         self._live_mode_error = ''
@@ -789,9 +792,24 @@ class ControlWindow(QMainWindow):
         row = QHBoxLayout()
         self.play, self.pause, self.stop_file = (QPushButton(text) for text in ('Play', 'Pause', 'Stop'))
         for button, cmd in [(self.play, 'play'), (self.pause, 'pause'), (self.stop_file, 'stop')]:
-            button.clicked.connect(lambda checked=False, command=cmd: self.submit('file', command))
+            if cmd == 'play':
+                button.clicked.connect(self._play_file)
+            else:
+                button.clicked.connect(lambda checked=False, command=cmd: self.submit('file', command))
             row.addWidget(button)
         box.addLayout(row)
+        vinyl_row = QHBoxLayout()
+        self.vinyl_slowdown = SpeedSwitch('Vinyl-style slowdown')
+        self.vinyl_slowdown.setAccessibleName('Vinyl-style slowdown switch, 50 percent speed')
+        self.vinyl_slowdown.setToolTip('Half-speed, lower-pitched ALIVE listening. Click again for normal speed.')
+        self.vinyl_slowdown.toggled.connect(lambda checked: self.submit('vinyl_slowdown', checked))
+        self.vinyl_rate = QLabel('100%')
+        self.vinyl_rate.setAccessibleName('ALIVE playback speed')
+        vinyl_row.addWidget(self.vinyl_slowdown)
+        vinyl_row.addStretch()
+        vinyl_row.addWidget(self.vinyl_rate)
+        box.addLayout(vinyl_row)
+        box.addWidget(label('50% plays slower and lower, like a record. Saved mixes keep their original speed.'))
         # Remastered can be the FIRST comparison for a prepared short excerpt:
         # reuse the existing explicit entry command and its research gates.
         # Long songs require a separately loaded <=30-second excerpt; never
@@ -815,7 +833,7 @@ class ControlWindow(QMainWindow):
         self.apply_output = QPushButton('Use Listening Output')
         self.apply_output.clicked.connect(lambda: self.submit('file_output', self.file_output.currentData()))
         box.addWidget(self.apply_output)
-        box.addWidget(label('ALIVE can use the system default output without BlackHole. Physical output choices are offered when verified by macOS. Stop audio before changing devices.'))
+        box.addWidget(label('Play checks your headphones or speakers automatically. If several are connected, choose one here first. ALIVE does not need BlackHole. Stop playback to change devices.'))
         box.addStretch()
         return panel
 
@@ -909,42 +927,56 @@ class ControlWindow(QMainWindow):
         panel = QGroupBox('LIVE — Mac System Audio')
         panel.setObjectName('livePanel')
         box = QVBoxLayout(panel)
+        box.addWidget(label('Connect your headphones or speakers. ISLA can find a listening setup for you.'))
+        self.auto_setup = QPushButton('Find Connected Devices')
+        self.auto_setup.setObjectName('primaryAction')
+        self.auto_setup.setAccessibleName('Find and set up connected listening devices')
+        self.auto_setup.clicked.connect(lambda: self.submit('auto_setup'))
+        box.addWidget(self.auto_setup)
         form = QFormLayout()
         form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
+        form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.capture = QComboBox()
-        self.capture.setAccessibleName('Step 1 BlackHole capture source')
+        self.capture.setAccessibleName('Mac audio connection: BlackHole capture source')
         self.output = QComboBox()
-        self.output.setAccessibleName('Step 2 physical stereo listening device')
+        self.output.setAccessibleName('Step 1: your headphones or speakers')
         self.rate = QComboBox()
         for rate in (44100, 48000):
             self.rate.addItem(f'{rate:,} Hz', rate)
         self.rate.setCurrentIndex(1)
         self.rate.setAccessibleName('LIVE sample rate')
-        form.addRow('Step 1 — Capture Source', self.capture)
-        form.addRow('Step 2 — Physical Listening Device', self.output)
-        form.addRow('Sample rate', self.rate)
+        self.rate.setToolTip('New outputs suggest their usual rate. Your explicit sample-rate choice is preserved.')
+        self._rate_user_selected = False
+        self.rate.activated.connect(lambda index: setattr(self, '_rate_user_selected', True))
+        self.output.currentIndexChanged.connect(self._suggest_live_rate)
+        for combo in (self.capture, self.output, self.rate):
+            combo.activated.connect(lambda index: self.apply_state())
+        form.addRow('Mac audio connection', self.capture)
+        form.addRow('Step 1 — Your headphones or speakers', self.output)
+        form.addRow('Audio rate — suggested for this device', self.rate)
         box.addLayout(form)
-        self.apply_devices = QPushButton('Apply LIVE Devices / Select LIVE Source')
+        box.addWidget(label('LIVE uses extra device buffering for reliable capture. Bluetooth can add noticeable listening delay.'))
+        self.apply_devices = QPushButton('Use These Devices')
         self.apply_devices.setObjectName('primaryAction')
         self.apply_devices.clicked.connect(lambda: self.submit('devices', self.capture.currentData(), self.output.currentData(), self.rate.currentData()))
         box.addWidget(self.apply_devices)
         self.device_status = label('Device discovery pending.')
         box.addWidget(self.device_status)
-        box.addWidget(label('Step 3 — macOS Sound Routing'))
+        box.addWidget(label('Step 2 — Send Mac sound to ISLA'))
         self.routing = label('Routing has not been checked.')
         box.addWidget(self.routing)
         box.addWidget(label('Mac audio → BlackHole 2ch → ISLA processing → selected physical speakers/headphones. ISLA never changes macOS audio settings.'))
         row = QVBoxLayout()
-        self.settings = QPushButton('Open Sound Settings')
+        self.settings = QPushButton('Open Mac Sound Settings')
         self.settings.clicked.connect(lambda: self.submit('settings'))
-        self.recheck = QPushButton('Recheck Audio Routing')
+        self.recheck = QPushButton('Check My Setup')
         self.recheck.clicked.connect(lambda: self.submit('refresh'))
         row.addWidget(self.settings)
         row.addWidget(self.recheck)
         box.addLayout(row)
         self.next_action = label(MANUAL_SETTINGS)
         box.addWidget(self.next_action)
-        box.addWidget(label('Step 4 — Start Monitoring'))
+        box.addWidget(label('Step 3 — Start listening'))
         row = QHBoxLayout()
         self.start_live = QPushButton('Start LIVE')
         self.start_live.setObjectName('liveStartAction')
@@ -988,7 +1020,7 @@ class ControlWindow(QMainWindow):
         box.addWidget(self.live_processing_status)
         box.addWidget(label('Remastered depth is independent of listening volume. 0% restores original audio; 100% uses the governed research depths. Research verdict: REVISE / INCONCLUSIVE.'))
         self.live_mode_choice = QComboBox()
-        self.live_mode_choice.setAccessibleName('Step 4 LIVE sound effect')
+        self.live_mode_choice.setAccessibleName('Step 3: LIVE sound effect')
         for name, mode in (('Original / Bypass', 'bypass'), ('Velvet', 'velvet'),
                            ('Legato', 'legato'), ('Melt', 'melt')):
             self.live_mode_choice.addItem(name, mode)
@@ -1076,6 +1108,16 @@ class ControlWindow(QMainWindow):
             return False
         return self.submit('processing',self.live_engine.currentData(),self.live_intensity.value()*5)
 
+    def _suggest_live_rate(self):
+        # Suggest only for a newly chosen output. Explicit user rates and an
+        # already-applied session survive every subsequent discovery/status poll.
+        device = self.output.currentData()
+        if (self.state is None or self.state.stream_active or self._rate_user_selected
+                or device is None or device == self.state.selected_output):
+            return
+        self.rate.setCurrentIndex(self.rate.findData(device.default_rate))
+        self._rate_initialized = True
+
     def _dispatch_live_mode(self):
         # Only one command crosses the existing bounded worker queue at once.
         # Further meaningful native activations stay ordered on the GUI thread.
@@ -1125,6 +1167,12 @@ class ControlWindow(QMainWindow):
         if path:
             self.submit('load', path)
 
+    def _play_file(self):
+        output = self.file_output.currentData()
+        if self.state is not None and output == self.state.selected_output:
+            output = None  # Recheck an existing choice and find a compatible fallback.
+        return self.submit('file', 'play', output)
+
     def _prepare_research(self):
         if not self.apply_research.isEnabled():
             return False
@@ -1158,14 +1206,20 @@ class ControlWindow(QMainWindow):
     def submit(self, action, *args):
         if self.busy or self.closed_cleanly:
             return False
-        # A slider drag and an ALIVE Play/mode click can occur in the same
+        if action == 'start' and self.state is not None and (
+                self.capture.currentData() != self.state.selected_capture or
+                self.output.currentData() != self.state.selected_output or
+                self.rate.currentData() != self.state.rate):
+            self.apply_state()
+            return False  # A click before the next status tick cannot start old devices.
+        # A slider drag and a LIVE Start or ALIVE Play/mode click can share the
         # 80 ms debounce interval. Deliver pending scalar gain requests BEFORE
         # queuing the audio command: CommandWorker consumes its volume mailbox
         # first, so the stream/crossfade uses the level the GUI already shows.
         # Do not wait for the timer or change frozen BufferPlayer/DSP callbacks.
-        if action == 'file' and args and (
+        if action in ('start', 'vinyl_slowdown') or (action == 'file' and args and (
             args[0] in ('play', 'bypass') or args[0].startswith('mode ')
-        ):
+        )):
             self._flush_volumes()
         self.busy = action
         self.started = time.monotonic()
@@ -1173,9 +1227,15 @@ class ControlWindow(QMainWindow):
         self.cleanup_error = ''
         self.file_error.setText('')
         self.live_error.setText('')
-        self.activity.setText({'load': 'Loading audio and preparing modes…', 'start': 'Starting LIVE; validating devices and routing…',
+        self.activity.setText({'load': 'Loading audio and preparing modes…', 'start': 'Starting LIVE; checking your audio setup…',
+                               'auto_setup': 'Finding connected headphones and speakers…',
                                'stop': 'LIVE stopping; releasing audio…', 'shutdown': 'Stopping audio and releasing resources…'}.get(action, 'Working…'))
         self.worker.submit(action, *args)
+        if action == 'vinyl_slowdown' and args:
+            self._pending_vinyl_speed = bool(args[0])
+        if action == 'file' and args:
+            self._pending_file_mode = ('bypass' if args[0] == 'bypass' else
+                                       args[0][5:] if args[0].startswith('mode ') else None)
         self.apply_state()
         return True
 
@@ -1195,12 +1255,21 @@ class ControlWindow(QMainWindow):
                     self._mode_inflight = None
                     if not self._mode_requests:
                         self._pending_live_mode = None
+                elif value == 'file':
+                    self._pending_file_mode = None
+                elif value == 'vinyl_slowdown':
+                    self._pending_vinyl_speed = None
+                elif value == 'auto_setup' and self.state is not None and not self.state.error:
+                    # Automatic setup is an explicit commit, not an untouched
+                    # manual rate draft. Show the rate the worker just applied.
+                    self.rate.setCurrentIndex(self.rate.findData(self.state.rate))
+                    self._rate_user_selected = False
                 self.activity.setText('Audio session ready.')
             elif kind == 'message':
                 self.activity.setText(value)
             elif kind == 'error':
                 action, message = value
-                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'enter_research', 'return_research', 'alive_volume', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
+                target = self.file_error if action in ('load', 'file', 'file_output', 'poll', 'research', 'enter_research', 'return_research', 'alive_volume', 'vinyl_slowdown', 'cancel_research', 'save_mix', 'cancel_mix_save') else self.live_error
                 target.setText('Action required: ' + message)
                 if action == 'processing':
                     # Engine activation auto-applies. A rejected request must
@@ -1304,11 +1373,13 @@ class ControlWindow(QMainWindow):
         s = self.state
         # Same structured, immutable snapshot as ALIVE/LIVE Telemetry.
         # Do not make requested selections look applied before a callback.
-        self.wave_signature.set_visual_mode(
-            'bypass' if self.closing else footer_visual_mode(s)
-        )
+        self.wave_signature.set_status(footer_status(s,
+            pending_mode=(self._pending_live_mode if s and (s.live_active or s.source == 'system')
+                          else self._pending_file_mode),
+            closing=self.closing, stopping=self.busy == 'stop'))
         available = s is not None and not self.busy and not self.closing
         self.settings.setEnabled(bool(available))
+        self.auto_setup.setEnabled(bool(available and s.can_configure))
         for combo in (self.capture, self.output, self.file_output, self.rate):
             combo.setEnabled(bool(available and s.can_configure))
         self.monitor_volume.setEnabled(bool(s is not None and not self.closing))
@@ -1317,6 +1388,16 @@ class ControlWindow(QMainWindow):
         self.live_engine.setEnabled(bool(available and s.source == 'system'))
         self.live_intensity.setEnabled(bool(available and s.source == 'system'))
         self.apply_live_intensity.setEnabled(bool(available and s.source == 'system'))
+        # Keep the requested switch position during the short stream handoff;
+        # identify pending work until the worker confirms or rejects the change.
+        slowdown = bool(s is not None and s.vinyl_slowdown)
+        displayed_speed = slowdown if self._pending_vinyl_speed is None else self._pending_vinyl_speed
+        self.vinyl_slowdown.sync_checked(displayed_speed)
+        self.vinyl_rate.setText(('50%' if displayed_speed else '100%') +
+                               (' · Applying' if self._pending_vinyl_speed is not None else ''))
+        self.vinyl_slowdown.setEnabled(bool(available and s.can_play and
+            s.source == 'file' and not s.live_active and
+            not s.research_workspace and not s.research_pending and not s.save_pending))
         admitted, admission_note = remastered_readiness(s)
         pending = bool(s is not None and s.research_pending)
         prepared = bool(available and s is not None and s.can_play)
@@ -1439,6 +1520,14 @@ class ControlWindow(QMainWindow):
         self.stop_file.setEnabled(bool(available and s.can_play))
         self.apply_output.setEnabled(bool(available and s.can_configure and self.file_output.currentData()))
         self.apply_devices.setEnabled(bool(available and s.can_configure and self.capture.currentData() and self.output.currentData()))
+        file_playing = s.file_state == UIState.PLAYING and s.stream_active and not s.live_active
+        connected_output = s.selected_output.name if s.selected_output else s.alive_output
+        self.apply_devices.setText('Connected — ALIVE playing' if file_playing else 'Use These Devices')
+        self.apply_devices.setToolTip(
+            f'Connected: {connected_output}. Stop ALIVE before changing devices or setting up LIVE.'
+            if file_playing else 'Confirm the capture connection and listening output for LIVE.')
+        if file_playing:
+            self.device_status.setText(f'Connected: {connected_output}')
         dirty_devices = (self.capture.currentData() != s.selected_capture or
                          self.output.currentData() != s.selected_output or self.rate.currentData() != s.rate)
         self.start_live.setEnabled(bool(available and s.can_start and not dirty_devices))
@@ -1463,7 +1552,7 @@ class ControlWindow(QMainWindow):
         self.live_state_indicator.setText({
             'running': 'LIVE monitoring active — native stream running; audible output not independently verified.',
             'stopping': 'LIVE stopping — waiting for audio resources to close.',
-            'failed': 'LIVE stopped by safety protection — ' + (s.live_failure_reason or s.error or 'inspect retained diagnostics') + '. Manual revalidation required.',
+            'failed': 'LIVE stopped by safety protection — ' + (s.live_failure_reason or s.error or 'inspect retained diagnostics').rstrip('. ') + '. Click Check My Setup, then Start LIVE to retry.',
             'idle': 'LIVE monitoring inactive — no audio stream.'
         }[live_stage])
         # Manual rescans can block in native device enumeration, too.
@@ -1513,8 +1602,37 @@ class ControlWindow(QMainWindow):
         else:
             self.live_mode_status.setText(f'LIVE mode: {chosen} — selected for the next start.')
         self.routing.setText(f"{'LIVE routing ready' if s.routing_ready else 'LIVE is not ready'}\nCurrent macOS output: {s.system_output}\nRequired macOS output: BlackHole 2ch\nISLA Capture: {s.capture}\nISLA Physical Playback: {s.output}")
-        self.next_action.setText(s.routing_message + ('\nNext action: ' + MANUAL_SETTINGS + ' Return to ISLA and click Recheck Audio Routing.' if not s.routing_ready else
-                                '\nNext action: Apply LIVE Devices / Select LIVE Source.' if s.source != 'system' or dirty_devices else ''))
+        if s.live_active:
+            setup_hint = 'Listening through ' + s.output + '. Click Stop LIVE before changing devices.'
+        elif file_playing:
+            setup_hint = ('Connected: ' + connected_output + '. ALIVE is playing your file. '
+                          'Click Stop in ALIVE to change devices or set up LIVE.')
+        elif not s.captures:
+            setup_hint = ('Your Mac needs the BlackHole 2ch audio connection for LIVE. '
+                          'Connect or install it, then click Find Connected Devices. '
+                          'ALIVE file playback works without it.')
+        elif not s.outputs:
+            setup_hint = 'Connect your headphones or speakers, then click Find Connected Devices.'
+        elif self.output.currentData() is None:
+            setup_hint = ('Step 1: Click Find Connected Devices, or choose your headphones '
+                          'or speakers above and click Use These Devices.')
+        elif s.source != 'system' or dirty_devices:
+            setup_hint = 'Step 1: Click Use These Devices to confirm where you want to listen.'
+        elif not s.routing_ready:
+            setup_hint = ('Step 2: Open Mac Sound Settings → Sound → Output and choose '
+                          'BlackHole 2ch. Return here and click Check My Setup. '
+                          'Keep your headphones or speakers selected in ISLA.')
+        else:
+            setup_hint = 'Ready: Click Start LIVE, then play music in your Mac app.'
+        self.next_action.setText(setup_hint)
+        if (s.live_failure_reason and not s.live_active and s.routing_ready
+                and not dirty_devices and s.source == 'system'):
+            self.next_action.setText(
+                'LIVE has stopped; it will not restart automatically. '
+                'Click Check My Setup, then Start LIVE to retry. '
+                'For repeated capture interruptions, close other audio apps and '
+                'use the listening device’s usual sample rate '
+                '(commonly 44,100 Hz for Bluetooth). Apply any device/rate change first.')
         self.live_status.setText('LIVE stopping' if self.busy in ('stop', 'shutdown') else s.live_state.value)
         mode_error = 'Mode change rejected: ' + self._live_mode_error if self._live_mode_error else ''
         if s.live_failure_reason:

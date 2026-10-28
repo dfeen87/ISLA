@@ -117,7 +117,7 @@ Bypass keeps the decoded original in ALIVE and a time-aligned copy of the captur
 **Depth control:** 0–100% in **5% steps**. At **0%**, Remastered selects the original source (subject to LIVE's existing delay); at **100%**, it uses the frozen Experiment 02 governed baseline depths. Intermediate settings scale only permitted DSP control and its recovery allowance. They are **not** wet/dry mix, a volume knob or a guarantee of audible intensity.
 
 - **Experimental Remastered ALIVE:** Open a local mono/stereo **WAV excerpt** at **44.1 or 48 kHz, up to 30 seconds**; expand **Show v4.0 Remastered (Experimental ALIVE)** to browse, then explicitly **Enter Remastered**. Admission is checked before the previous traditional mode is remembered and Original / Bypass selected. Choose mode/depth, then **Prepare / Apply Remastered**. **Cancel Preparation** closes pending work and restores that previous mode. After a validated result is active, use **Return to Previous Mode**. Traditional buttons remain locked during this workspace; browsing or hiding its settings does not change playback. This creates a validated playback buffer without changing the original file. A hot recording may be rejected by the 0.98 peak screen even at 0%; Original remains available.
-- **LIVE preview:** With BlackHole and a verified physical listening output configured, choose **v4.0 Remastered LIVE** in Step 4, set depth, apply the engine and choose Velvet, Legato or Melt. The same governed equations run continuously in the existing worker, **without ALIVE's 30-second excerpt limit**. The LIVE Listening Volume control is separate from research depth. Stop and lower the source level if an audio-safety guard triggers.
+- **LIVE preview:** With BlackHole and a verified physical listening output configured, choose **v4.0 Remastered LIVE** in Step 3, set depth, apply the engine and choose Velvet, Legato or Melt. The same governed equations run continuously in the existing worker, **without ALIVE's 30-second excerpt limit**. The LIVE Listening Volume control is separate from research depth. Stop and lower the source level if an audio-safety guard triggers.
 
 The frozen research verdict remains **REVISE / INCONCLUSIVE**. Numerical equivalence and hosted GUI tests do **not** establish superior sound, hard real-time guarantees or completed physical Mac/Bluetooth listening acceptance. Read the [ALIVE research implementation](docs/remastered/IMPLEMENTATION.md) and [LIVE research/device guide](docs/remastered/LIVE_AND_DISCOVERY.md).
 
@@ -268,8 +268,11 @@ The optional `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and 
 
 1. Click **Open Audio File…** and select a non-empty mono/stereo recording (WAV, or a DRM-free purchased M4A / AAC or Apple Lossless file on macOS). Preparation runs outside the window thread using the existing cancellable preparation process.
 2. Wait for **File ready**. Until then, Play and mode controls are disabled and the status explains what is happening.
-3. Click **Play**, **Pause**, or **Stop**. Position and duration update automatically. Select **Velvet**, **Legato**, **Melt**, or **Original / Bypass** to compare the existing prepared buffers and transitions.
-4. While stopped, choose an eligible listening output and click **Use Listening Output**. This output is shared with LIVE. On macOS, dropdown choices require verified physical stereo devices; the system default remains usable for ALIVE even when BlackHole is absent.
+3. Click **Play**. ISLA checks the listening device, reuses a verified selection or finds an unambiguous connected output, and checks that it supports this recording. If several outputs are available, choose your headphones or speakers in the ALIVE output menu and click **Play** again. ALIVE does not require BlackHole or LIVE routing.
+4. The listening device is synchronized in both panels. The LIVE setup button shows **Connected — ALIVE playing**, with device changes disabled while the file plays. **Pause** or **Stop** releases playback; Stop restores the setup controls. You can also select an output and click **Use Listening Output** while stopped. On other platforms ALIVE retains the existing backend/OS-default path where CoreAudio discovery is unavailable.
+5. Select **Velvet**, **Legato**, **Melt**, or **Original / Bypass** to compare the existing prepared buffers and transitions. Position and duration update automatically.
+
+**Vinyl-style slowdown (Control Center):** Once an ALIVE song is prepared, select **Vinyl-style slowdown** below Play/Pause/Stop. The indicator on the right changes to **50%**; click it again for **100%**. Playback becomes half as fast and one octave lower, like slowing a record. You can still choose Original, Velvet, Legato or Melt. Switching speed briefly reopens the same listening output at its normal sample rate and keeps the audible source position. Listening volume remains independent. Saved mixes, original audio, terminal playback and LIVE keep their original speed. Return to 100% before entering experimental Remastered. The footer also shows 50% and slows its effect motion.
 
 **Save Mix (Control Center):** Choose **Save Mix…** below the ALIVE mode controls to export the *currently selected, fully prepared* Original, Velvet, Legato, Melt, or validated Remastered mode as a **new lossless 32-bit float WAV**. This also works for normal full-length ALIVE modes (the 30-second limit applies only to Remastered ALIVE preparation). Saving runs in the background; **Cancel Save** abandons the unfinished output, and existing files are never overwritten. The exported audio is the prepared processing buffer **without adjustable listening-volume attenuation**. **Saved WAVs may play louder in other apps—start with device volume low.** ISLA does not mix multiple tracks or export LIVE system audio through this command.
 
@@ -277,13 +280,15 @@ The optional `gui` extra installs `PySide6-Essentials>=6.8,<7` (Qt Widgets) and 
 
 Stop LIVE before opening a file. Stop file playback before changing devices or applying LIVE setup. **ALIVE's Remastered research panel** is separate from the three prepared production buffers; it offers 0–100% processing depth for eligible short excerpts and is not a gain or slowdown control.
 
+The bottom **effect/status display** highlights Original, Velvet, Legato or Melt from the same snapshot as Diagnostics. It shows selected versus worker-confirmed changes as **Switching**, animates only a confirmed effect during playback, and holds still while ready, paused, stopping, recovering or safely stopped. The shapes identify effects; they are not an audio waveform measurement.
+
 ### LIVE — guided Mac system audio
 
 Install standalone **BlackHole 2ch** separately using the [LIVE instructions below](#live-listen-to-your-mac). Then:
 
-1. **Capture Source:** choose **BlackHole 2ch**.
-2. **Physical Listening Device:** choose your verified stereo speakers/headphones, such as MacBook Pro Speakers or External Headphones when present. Select **44,100** or **48,000 Hz**, then click **Apply LIVE Devices / Select LIVE Source**. Virtual, Aggregate, Multi-Output, ambiguous and mono sinks are excluded.
-3. **macOS Sound Routing:** inspect the detected current system output. Click **Open Sound Settings**, then manually select **BlackHole 2ch** in macOS Sound → Output. Return and click **Recheck Audio Routing**. If the button cannot open the pane, use Apple menu → System Settings → Sound → Output.
+1. Click **Find Connected Devices**. ISLA keeps an existing verified choice, or selects the only connected external output (otherwise the sole physical output). If several outputs are possible, choose your headphones/speakers in **Step 1**, then click **Use These Devices**. The suggested audio rate matches the device when supported; an explicit rate remains your choice. Finding devices never starts audio.
+2. For manual setup, keep **BlackHole 2ch** as the Mac audio connection, choose your physical listening output, then click **Use These Devices**. Virtual, Aggregate, Multi-Output, ambiguous and mono listening outputs remain excluded.
+3. In **Step 2**, click **Open Mac Sound Settings** and choose **BlackHole 2ch** in macOS Sound → Output. Return and click **Check My Setup**. The guidance explains what remains to be done. ISLA does not change macOS routing itself.
 4. Click **Start LIVE** to begin in **Original / Bypass**. Use the **LIVE sound effect** dropdown to choose Velvet, Legato, Melt or Original; **Reset to Original** restores Bypass. Effect changes do not stop or restart the stream. The interface shows pending and confirmed mode selections and exposes any safety-stop reason. Use the separate **LIVE Listening Volume** control to attenuate physical listening output (0–100%, automatic updates and Mute/Unmute; new GUI default 50%); it never adjusts BlackHole capture, macOS master volume or other applications. **Stop LIVE** releases the stream before deferred device discovery. See [device and session behavior](docs/remastered/LIVE_AND_DISCOVERY.md) and the [detailed Control Center checklist](docs/control-center/ACCEPTANCE.md).
 5. **Optional v4.0 Remastered LIVE:** Choose **v4.0 Remastered LIVE** in the engine selector, set **0–100% permitted depth in 5% increments**, then click **Apply LIVE Engine / Depth** (or release the slider). Choose Velvet, Legato or Melt in the effect dropdown. This is governed **processing depth, not listening volume**: 0% is Original and 100% is the research baseline. The original profiles are still available under **Original LIVE profiles**. The existing LIVE stream and routing protections stay in effect. Read the [research limitations](docs/remastered/LIVE_AND_DISCOVERY.md#verification-and-scientific-scope).
 
@@ -302,10 +307,10 @@ System audio enters BlackHole, ISLA processes it, then ISLA plays it through you
 | Window message or condition | Next action |
 |---|---|
 | **Open an audio file to begin** | Open a local audio file and wait for preparation; playback/mode buttons will then become available. |
-| **LIVE is not ready**, current output is External Headphones | Open Sound Settings, select **BlackHole 2ch**, return and Recheck. Keep the desired physical listening output inside ISLA. |
+| **LIVE is not ready**, current output is External Headphones | Open Mac Sound Settings, select **BlackHole 2ch**, return and Recheck. Keep the desired physical listening output inside ISLA. |
 | BlackHole missing, ambiguous, or no eligible output | Check Audio MIDI Setup, reconnect the device and click **Refresh Devices**. Apply a fresh selection. |
 | Device identity changed, stale PortAudio devices, or unplugged headphones | Stop audio, Refresh, select devices again and Recheck. If opened native IDs still disagree, close ISLA and relaunch to refresh PortAudio. |
-| Start LIVE disabled after switching back to ALIVE | Stop playback and click **Apply LIVE Devices / Select LIVE Source** again. |
+| Start LIVE disabled after switching back to ALIVE | Stop playback and click **Use These Devices** again. |
 | Preparation fails | Read the adjacent error, choose a valid smaller mono/stereo audio file and retry. Close cancels preparation. |
 | Audio command takes over ten seconds | The window remains responsive and explains the delay. Close requests cleanup after the operation returns. Commands stay locked to prevent a competing engine. |
 | Cleanup reports a still-stopping audio worker | The window retains session ownership. Retry Close after it stops; it will not return a busy controller to the terminal. A permanently blocked native driver may require process termination; do not start another audio session. |
@@ -411,7 +416,7 @@ ISLA deliberately **does not change the macOS default sound output automatically
 
 ### Bluetooth stereo speakers / headphones (experimental)
 
-Bluetooth speakers and headphones can be selected as ISLA's **physical stereo output**, if Core Audio and PortAudio both identify a unique, connected stereo device that accepts 44.1 or 48 kHz. Current Step 2 can label eligible paired outputs **(Bluetooth)**, and refreshed discovery after Stop helps when the device list changes. Wireless output is **not guaranteed**: Bluetooth adds device buffering, latency and possible clock drift/dropouts, so this is a listening convenience, **not** a low-latency or video-sync claim.
+Bluetooth speakers and headphones can be selected as ISLA's **physical stereo output**, if Core Audio and PortAudio both identify a unique, connected stereo device that accepts 44.1 or 48 kHz. Step 1 can label eligible paired outputs **(Bluetooth)**, and refreshed discovery after Stop helps when the device list changes. Wireless output is **not guaranteed**: Bluetooth adds device buffering, latency and possible clock drift/dropouts, so this is a listening convenience, **not** a low-latency or video-sync claim.
 
 1. Pair and connect your Bluetooth speaker/headphones in **System Settings → Bluetooth**. Verify ordinary Mac playback first at a comfortable volume. If the device presents separate hands-free/mono and stereo profiles, choose the stereo output and do not use its microphone as ISLA's input.
 2. With ISLA stopped, inspect its current `devices` list. Use `setup audio` to choose standalone **BlackHole 2ch** for input and the **exact listed Bluetooth stereo device** for output. Alternatively, use `source system`, `input "BlackHole 2ch"`, and `output "<exact listed Bluetooth device name>"` inside `isla>`. The name is discovered on your Mac; these commands do not pair hardware.
@@ -636,7 +641,7 @@ Example command-center excerpt (device names and operational values come from yo
 +----------------------------------------------------------------------+
 | LIVE AUDIO                                                           |
 |                                                                      |
-| monitor start            Start LIVE when stopped (default 48000 Hz). |
+| monitor start            Start LIVE when stopped (match the selected output rate). |
 | monitor stop             Stop LIVE and release audio devices.        |
 | bypass                   Original input within the existing monitor. |
 ```
@@ -680,7 +685,7 @@ Inside a numbered picker, help/topics remain available without consuming a devic
 | `load "<path>"` | Load and prepare local audio | Switch to `source file` first |
 | `play` / `pause` | Start/resume or pause recording | Control the browser instead |
 | `stop` | Stop and reset to beginning | Stops the live monitor |
-| `monitor start [44100\|48000]` | Not applicable | Start capture and playback (default 48000); omit brackets when typing |
+| `monitor start [44100\|48000]` | Not applicable | Start capture and playback (selected output rate by default; 48000 fallback); omit brackets when typing |
 | `monitor stop` | Stops LIVE monitor if present | Stop LIVE monitoring |
 | `mode velvet` / `mode legato` / `mode melt` | Select prepared production mode | Select profile within the chosen LIVE engine |
 | `engine remastered 0..100` / `engine production` | LIVE-engine command; use the Control Center Remastered panel for ALIVE research | Opt into governed research depth (5% steps) or return to original LIVE profiles |

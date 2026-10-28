@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "output": "WH-CH720N",
+  "physical_output_muted": true,
+  "file_rate": 44100,
+  "initial_output": null,
+  "mac_output_before": "BlackHole 2ch",
+  "mac_output_after": "BlackHole 2ch",
+  "setup_button": "Connected \u2014 ALIVE playing",
+  "setup_enabled": false,
+  "alive_state": "File playing",
+  "live_active": false,
+  "stop_restores_setup": true
+}

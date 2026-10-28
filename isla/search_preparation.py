@@ -9,11 +9,11 @@ import signal
 from isla.file_search import choose_match,find_audio
 
 
-def _search(query, connection):
+def _search(query, connection, finder):
     try:
         if os.name == 'posix':
             os.setsid()
-        matches,info = find_audio(query)
+        matches,info = finder(query)
         path = choose_match(query,matches,info)
         connection.send(('found',str(path)))
     except Exception as exc:
@@ -23,7 +23,7 @@ def _search(query, connection):
 
 
 class SearchPreparation:
-    def __init__(self, query, factory):
+    def __init__(self, query, factory, *, finder=find_audio):
         self.path = Path(query)
         self.factory = factory
         self.delegate = None
@@ -31,7 +31,7 @@ class SearchPreparation:
         self.state = f'Searching this computer for {query!r}…'
         context = mp.get_context('spawn')
         self.connection,child = context.Pipe(duplex=False)
-        self.process = context.Process(target=_search,args=(query,child),daemon=True)
+        self.process = context.Process(target=_search,args=(query,child,finder),daemon=True)
         try:
             self.process.start()
         except BaseException:

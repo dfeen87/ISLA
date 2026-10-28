@@ -7,7 +7,7 @@ import unicodedata
 
 LIVE = (
     ('source system', 'Select system audio; use your Mac app to play music.'),
-    ('monitor start', 'Start LIVE when stopped (default 48000 Hz).'),
+    ('monitor start', 'Start LIVE when stopped (match the selected output rate).'),
     ('monitor stop', 'Stop LIVE and release audio devices.'),
     ('bypass', 'Original input within the existing monitor.'),
     ('mode velvet', 'Select Velvet processing.'),

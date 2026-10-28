@@ -10,15 +10,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 import shlex
+import sys
 import threading
 
 from isla.playback import AudioError
 from isla.alive_listening_gain import AttenuatedALIVEBackend
+from isla.vinyl_speed import VinylSpeedBackend
 from isla.mix_export import MixExport
 from isla.monitor_gain import ListeningGainDSP, MonitorVolume
 from isla.streaming import StreamingDSP
 from isla.live_engine import LiveEngineFactory, current_engine
 from isla.device_refresh import eligible_devices, refresh_portaudio
+from isla.buffered_capture import preferred_device_rate
 
 
 class UIState(str, Enum):
@@ -45,6 +48,7 @@ class DeviceChoice:
     name: str
     native_id: int
     transport: str = ''
+    default_rate: int = 48000
 
 
 @dataclass(frozen=True)
@@ -111,6 +115,11 @@ class ControlState:
     alive_applied_volume: float | None = None
     save_candidate: str = ''
     live_processing_health: str = ''
+    live_recovering: bool = False
+    file_requested_effect: str = ''
+    file_applied_effect: str = ''
+    file_transition_pending: bool = False
+    vinyl_slowdown: bool = False
 
 
 class ControlService:
@@ -126,7 +135,8 @@ class ControlService:
         # GUI-only output adapter: the frozen BufferPlayer and the borrowed
         # terminal backend must remain intact and be restored on handoff.
         self._original_file_backend = controller.player.backend
-        self._alive_gui_backend = AttenuatedALIVEBackend(self._original_file_backend)
+        self._vinyl_backend = VinylSpeedBackend(self._original_file_backend)
+        self._alive_gui_backend = AttenuatedALIVEBackend(self._vinyl_backend)
         from isla.remastered_session import RemasteredSession
         if not hasattr(controller, '_remastered'):
             controller._remastered = RemasteredSession(controller)
@@ -211,7 +221,8 @@ class ControlService:
             self.system_output = next((d['name'] for d in native if d['id'] == default), "Unknown device")
             captures, outputs = eligible_devices(native,c.player.backend.devices())
             def choices(devices, direction):
-                return tuple(DeviceChoice(d['index'], d['name'], d['native_id'],d.get('transport',''))
+                return tuple(DeviceChoice(d['index'], d['name'], d['native_id'],d.get('transport',''),
+                                          preferred_device_rate(d))
                     for d in devices)
             self.captures = choices(captures, 'input')
             self.outputs = choices(outputs, 'output')
@@ -220,6 +231,8 @@ class ControlService:
             if self._initial_devices:
                 self.selected_capture = next((d for d in self.captures if d.name == c.capture), None)
                 self.selected_output = next((d for d in self.outputs if d.name == c.output), None)
+                if c.live.config is None and self.selected_output is not None:
+                    self.rate = self.selected_output.default_rate
                 if c.live.running and c.live.config:
                     identity = c.live.config.identity
                     if (self.selected_capture is None or self.selected_output is None or
@@ -277,6 +290,81 @@ class ControlService:
         self.device_status = f'Applied LIVE devices: {capture.name} → {output.name} at {rate:,} Hz.'
         self.error = ""
         self.check_routing()
+
+    def auto_setup_devices(self):
+        """Find one unambiguous listening path; never change macOS routing."""
+        self._enter()
+        self._idle()
+        self.refresh_devices()
+        if len(self.captures) != 1:
+            raise AudioError('BlackHole 2ch is not available. Connect or install BlackHole 2ch, then try Find Connected Devices again. ALIVE file playback does not need BlackHole.')
+        if not self.outputs:
+            raise AudioError('No listening device found. Connect your headphones or speakers, then click Find Connected Devices again.')
+        output = self._suggest_output(self.outputs, self.selected_output)
+        if output is None:
+            raise AudioError('Several listening devices are connected. Choose your headphones or speakers in Step 1, then click Use These Devices.')
+        self.select_devices(self.captures[0], output, output.default_rate)
+        return f'Found and selected {output.name} at {self.rate:,} Hz. ' + (
+            'Your setup is ready. Click Start LIVE when you want to listen.' if self.ready else
+            'Next, open Mac Sound Settings and choose BlackHole 2ch as the Mac output, then Check My Setup.')
+
+    @staticmethod
+    def _suggest_output(outputs, preferred=None):
+        if preferred in outputs:
+            return preferred
+        external = [device for device in outputs if device.transport != 'bltn']
+        if len(external) == 1:
+            return external[0]
+        return outputs[0] if len(outputs) == 1 else None
+
+    def _prepare_file_output(self, requested=None):
+        """Resolve and validate ALIVE's output before opening its first stream.
+
+        Capture and the Mac's system-audio route are independent of local-file
+        playback. All enumeration and device checks stay on the owning worker.
+        """
+        self._idle()
+        self.refresh_devices()
+        if not self.outputs and sys.platform != 'darwin' and self.controller._setup_routing is None:
+            # Portable ALIVE has no CoreAudio inventory. Its backend retains
+            # the existing OS-default output and verifies rate/channels at open.
+            return
+        c, p = self.controller, self.controller.player
+        sd = getattr(self._original_file_backend, 'sd', None)
+        def verify(device):
+            if sd is None:
+                return
+            try:
+                sd.check_output_settings(device=device.index, samplerate=p.sr,
+                    channels=p.buffers['original'].shape[1], dtype='float32')
+            except Exception as exc:
+                raise AudioError(f'{device.name} cannot play this recording at {p.sr:,} Hz. Choose another listening output, then click Play. Details: {exc}') from exc
+        if requested is not None:
+            output = next((device for device in self.outputs if
+                (device.native_id, device.name) == (requested.native_id, requested.name)), None)
+            if output is None:
+                raise AudioError('Your chosen listening device is no longer connected. Choose an available output below, then click Play.')
+            verify(output)
+        else:
+            compatible, rejected = [], []
+            for device in self.outputs:
+                try:
+                    verify(device)
+                    compatible.append(device)
+                except AudioError as exc:
+                    rejected.append(exc)
+            if self.outputs and not compatible:
+                raise rejected[0]
+            output = self._suggest_output(compatible, self.selected_output)
+        if output is None:
+            if not self.outputs:
+                raise AudioError('No listening device found. Connect your headphones or speakers, then click Play again.')
+            raise AudioError('Several listening devices are connected. Choose your headphones or speakers below, then click Play.')
+        # Reuse the normal selector; hardware opens only after all checks pass.
+        c.execute('output ' + shlex.quote(str(output.index)))
+        self.selected_output = output
+        self.check_routing()  # Advisory LIVE status; its result never gates ALIVE.
+        self.device_status = f'Connected: {output.name}. ALIVE is ready to play.'
 
     def check_routing(self):
         self._enter()
@@ -343,6 +431,7 @@ class ControlService:
         self.preview.reset()
         c.execute('source file')
         result = c.execute('load ' + shlex.quote(str(path)))
+        self._vinyl_backend.slowdown = False
         self._file_touched = False
         self.error = ""
         return result
@@ -357,7 +446,7 @@ class ControlService:
         self.selected_output = output
         self.check_routing()
 
-    def file_command(self, command):
+    def file_command(self, command, output=None):
         self._enter()
         if self.controller.live.running or self.controller.live.stream is not None:
             raise AudioError("Stop LIVE before using ALIVE playback.")
@@ -384,6 +473,10 @@ class ControlService:
         if target is not None or command in ('play', 'pause', 'stop'):
             self._deferred_file_mode = None
         if command == 'play':
+            p.refresh()
+            self.controller._ready()
+            if p.stream is None:
+                self._prepare_file_output(output)
             # Install the GUI-only output wrapper before stream creation on
             # every Play/resume. It scales final PCM without modifying the
             # byte-frozen BufferPlayer or any source/research buffers.
@@ -395,6 +488,8 @@ class ControlService:
 
     def enter_remastered(self):
         self._enter()
+        if self._vinyl_backend.slowdown:
+            raise AudioError('Turn off Vinyl-style slowdown before entering Remastered research.')
         result = self.preview.enter()
         self._deferred_file_mode = None
         return result
@@ -410,6 +505,54 @@ class ControlService:
             raise AudioError('Stop and resume ALIVE from this window to enable listening volume.')
         self._alive_gui_backend.set_percent(percent)
         return f'ALIVE listening volume: {percent}%.'
+
+    def set_vinyl_slowdown(self, enabled):
+        """Commit 50% vinyl playback from the worker, preserving the source cursor.
+
+        The output stream is stopped before changing its playback adapter.
+        Both pitch and tempo fall together; no source PCM or research data changes.
+        """
+        self._enter()
+        if type(enabled) is not bool:
+            raise AudioError('Vinyl-style slowdown expects an on/off selection.')
+        c, p = self.controller, self.controller.player
+        if c.source != 'file' or not p.buffers or (c.job is not None and not c.job.done):
+            raise AudioError('Load and prepare an ALIVE song before changing speed.')
+        if c.live.running or c.live.stream is not None:
+            raise AudioError('Stop LIVE before changing ALIVE speed.')
+        if self.preview.workspace or self.preview.job is not None:
+            raise AudioError('Return from Remastered research before changing speed.')
+        if self.mix_export.pending:
+            raise AudioError('Finish or cancel Save Mix before changing speed.')
+        # A finished callback may precede the next periodic UI poll.
+        p.refresh()
+        if self._deferred_file_mode is not None or (p.stream is not None and
+                (getattr(p, '_current', None) is not p._selected or
+                 p._fade_pos < len(p._fade))):
+            raise AudioError('Wait for the current mode transition to finish.')
+        old = self._vinyl_backend.slowdown
+        if old == enabled:
+            return 'Vinyl-style slowdown: 50%.' if enabled else 'Normal ALIVE speed: 100%.'
+        playing = p.state == 'playing' and p.stream is not None
+        if playing and p.backend is not self._alive_gui_backend:
+            raise AudioError('Resume ALIVE from the Control Center before changing speed.')
+        if playing:
+            p.pause()  # Captures audible sample cursor and releases old stream.
+            # EOF may arrive between refresh() above and pause()'s own refresh.
+            playing = p.state == 'paused'
+        self._vinyl_backend.slowdown = enabled
+        if playing:
+            try:
+                p.play()  # Same sample cursor and mode; native rate unchanged.
+            except Exception:
+                self._vinyl_backend.slowdown = old
+                try:
+                    p.play()  # Best-effort recovery with the previous setting.
+                except Exception:
+                    pass
+                raise
+        return ('Vinyl-style slowdown active: 50% speed and lower pitch.' if enabled
+                else 'Vinyl-style slowdown off: normal 100% speed and pitch.')
 
     def prepare_remastered(self, mode, intensity):
         self._enter()
@@ -563,7 +706,17 @@ class ControlService:
              (getattr(p, '_current', None) is not p._selected or p._fade_pos < len(p._fade)) else
              p.mode + ' — prepared buffer, unity export' if p.buffers else 'Unavailable — no recording'),
             live_processing_health=getattr(engine, 'processing_telemetry',
-                'No LIVE processor observations yet; start LIVE to measure worker workload.'))
+                'No LIVE processor observations yet; start LIVE to measure worker workload.'),
+            live_recovering=live._recovering,
+            file_requested_effect=(self._deferred_file_mode.replace('mode ', '')
+                                   if self._deferred_file_mode else p.mode),
+            file_applied_effect=(next((name for name, buffer in p.buffers.items()
+                                if buffer is getattr(p, '_current', None)), '')
+                                if p.stream is not None else ''),
+            file_transition_pending=bool(p.stream is not None and
+                (getattr(p, '_current', None) is not p._selected or
+                 p._fade_pos < len(p._fade) or self._deferred_file_mode)),
+            vinyl_slowdown=self._vinyl_backend.slowdown)
 
     def shutdown(self):
         self._enter()

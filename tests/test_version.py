@@ -9,19 +9,19 @@ from drivers.cli import main as cli_main
 
 
 def test_package_version():
-    assert phased_music_notes.__version__ == isla.__version__ == "4.1.2"
+    assert phased_music_notes.__version__ == isla.__version__ == "4.2.0"
 
 
 def test_http_server_version():
-    assert app.version == isla.__version__ == "4.1.2"
+    assert app.version == isla.__version__ == "4.2.0"
 
 
 def test_build_metadata_matches_public_version():
     root = Path(__file__).resolve().parents[1]
     pyproject = (root / "pyproject.toml").read_text(encoding="utf-8")
     cmake = (root / "CMakeLists.txt").read_text(encoding="utf-8")
-    assert 'version = "4.1.2"' in pyproject
-    assert "project(ISLA VERSION 4.1.2)" in cmake
+    assert 'version = "4.2.0"' in pyproject
+    assert "project(ISLA VERSION 4.2.0)" in cmake
 
 
 def test_citation_version_matches_public_source():

@@ -29,6 +29,13 @@ def test_open_and_play_connects_output_syncs_panels_and_locks_setup(app,monkeypa
         assert w.output.currentData()==w.file_output.currentData()==w.state.selected_output
         assert w.state.source=='file' and c.live.config is None and not live.streams
         assert 'Connected: Sony connected headphones'==w.device_status.text()
+        # Every paint-time update must be correct, including intermediate text.
+        updates = []
+        set_text = w.device_status.setText
+        monkeypatch.setattr(w.device_status, 'setText', lambda text: (updates.append(text), set_text(text))[-1])
+        for _ in range(5):
+            w.apply_state()
+        assert updates == ['Connected: Sony connected headphones'] * 5
         assert w.apply_devices.text()=='Connected — ALIVE playing'
         assert not any(control.isEnabled() for control in (
             w.apply_devices,w.auto_setup,w.output,w.file_output,w.rate,w.start_live))

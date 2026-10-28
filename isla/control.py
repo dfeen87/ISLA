@@ -12,6 +12,7 @@ from enum import Enum
 import shlex
 import sys
 import threading
+import time
 
 from isla.playback import AudioError
 from isla.alive_listening_gain import AttenuatedALIVEBackend
@@ -22,6 +23,7 @@ from isla.streaming import StreamingDSP
 from isla.live_engine import LiveEngineFactory, current_engine
 from isla.device_refresh import eligible_devices, refresh_portaudio
 from isla.buffered_capture import preferred_device_rate
+from isla.output_volume import CoreAudioOutputVolume, OutputVolume
 
 
 class UIState(str, Enum):
@@ -120,11 +122,15 @@ class ControlState:
     file_applied_effect: str = ''
     file_transition_pending: bool = False
     vinyl_slowdown: bool = False
+    output_volume_percent: int | None = None
+    output_volume_available: bool = False
+    output_volume_muted: bool = False
+    output_volume_message: str = ''
 
 
 class ControlService:
     """Exclusive, serialized UI lease; the terminal is suspended during use."""
-    def __init__(self, controller, *, owns_controller=False):
+    def __init__(self, controller, *, owns_controller=False, output_volume=None):
         if controller.closed:
             raise AudioError("This session is closed; launch isla window from the shell.")
         if getattr(controller, "_window_owner", None) is not None:
@@ -156,6 +162,10 @@ class ControlService:
         self._was_live_active = controller.live.running or controller.live.stream is not None
         self._native_signature = None
         self.device_status = 'Device discovery pending.'
+        self._output_volume = output_volume or CoreAudioOutputVolume()
+        self._output_volume_state = OutputVolume()
+        self._output_volume_checked = 0.
+        self._output_volume_choice = None
         self._file_touched = controller.player.state != 'stopped'
         # A second GUI mode click during an unfinished 5 ms crossfade must
         # not force BufferPlayer to restart from the raw prior-mode buffer.
@@ -263,6 +273,28 @@ class ControlService:
             self.device_status = 'Device refresh needs attention: ' + str(exc)
         finally:
             self.devices_need_refresh = False
+            self._refresh_output_volume(force=True)
+
+    def _refresh_output_volume(self, force=False):
+        now = time.monotonic()
+        if (force or self.selected_output != self._output_volume_choice
+                or now - self._output_volume_checked >= 1):
+            self._output_volume_choice = self.selected_output
+            self._output_volume_checked = now
+            self._output_volume_state = self._output_volume.read(
+                self.controller._setup_routing, self.selected_output)
+
+    def set_output_volume(self, choice, percent):
+        self._enter()
+        if (choice is None or self.selected_output is None or
+                (choice.native_id, choice.name) !=
+                (self.selected_output.native_id, self.selected_output.name)):
+            raise AudioError('The listening device changed; adjust the current device volume again.')
+        try:
+            self._output_volume.set_percent(self.controller._setup_routing, choice, percent)
+        finally:
+            self._refresh_output_volume(force=True)
+        return f'{choice.name} device volume: {self._output_volume_state.percent}%.'
 
     def _fresh_selection(self, capture, output):
         # Re-enumerate through the existing verified setup filter, then compare
@@ -287,6 +319,7 @@ class ControlService:
         c.execute("input " + shlex.quote(capture.name))
         c.execute("output " + shlex.quote(output.name))
         self.selected_capture, self.selected_output, self.rate = capture, output, rate
+        self._refresh_output_volume(force=True)
         self.device_status = f'Applied LIVE devices: {capture.name} → {output.name} at {rate:,} Hz.'
         self.error = ""
         self.check_routing()
@@ -367,8 +400,9 @@ class ControlService:
             # device's LIVE rate. Keep an explicit rate for an unchanged device.
             self.rate = output.default_rate
         self.selected_output = output
+        self._refresh_output_volume(force=True)
         self.check_routing()  # Advisory LIVE status; its result never gates ALIVE.
-        self.device_status = f'Connected: {output.name}. ALIVE is ready to play.'
+        self.device_status = f'Connected: {output.name}'
 
     def check_routing(self):
         self._enter()
@@ -459,6 +493,7 @@ class ControlService:
         if self.selected_output != output:
             self.rate = output.default_rate
         self.selected_output = output
+        self._refresh_output_volume(force=True)
         self.check_routing()
 
     def file_command(self, command, output=None):
@@ -643,6 +678,7 @@ class ControlService:
         if self._was_live_active and not active:
             self.devices_need_refresh = True
         self._was_live_active = active
+        self._refresh_output_volume()
         return self.snapshot()
 
     def snapshot(self):
@@ -732,7 +768,11 @@ class ControlService:
             file_transition_pending=bool(p.stream is not None and
                 (getattr(p, '_current', None) is not p._selected or
                  p._fade_pos < len(p._fade) or self._deferred_file_mode)),
-            vinyl_slowdown=self._vinyl_backend.slowdown)
+            vinyl_slowdown=self._vinyl_backend.slowdown,
+            output_volume_percent=self._output_volume_state.percent,
+            output_volume_available=self._output_volume_state.available,
+            output_volume_muted=self._output_volume_state.muted,
+            output_volume_message=self._output_volume_state.message)
 
     def shutdown(self):
         self._enter()

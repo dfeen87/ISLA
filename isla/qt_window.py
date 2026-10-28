@@ -224,12 +224,23 @@ class CommandWorker:
             targets, self._volume_targets = self._volume_targets, {}
         for action, percent in targets.items():
             try:
+                if action == 'device_volume':
+                    choice, value, request_id = percent
+                    self.service.set_output_volume(choice, value)
+                    continue
                 method = (self.service.set_alive_volume if action == 'alive_volume'
                           else self.service.set_monitor_volume)
                 method(percent)
             except Exception as exc:
                 self.service.error = str(exc)
                 self.events.put(('error', (action, str(exc))))
+            finally:
+                if action == 'device_volume':
+                    self.events.put(('device_volume_done', percent[2]))
+
+    def request_device_volume(self, choice, percent, request_id):
+        with self._volume_lock:
+            self._volume_targets['device_volume'] = (choice, percent, request_id)
 
     def _publish(self):
         self._sequence += 1
@@ -597,6 +608,9 @@ class ControlWindow(QMainWindow):
         self._stop_requested = False
         self._volume_drafts = {}
         self._volume_initialized = False
+        self._device_volume_serial = 0
+        self._device_volume_pending = None
+        self._device_volume_choice = None
         self.volume_timer = QTimer(self)
         self.volume_timer.setSingleShot(True)
         self.volume_timer.setInterval(80)
@@ -965,7 +979,7 @@ class ControlWindow(QMainWindow):
         box.addWidget(label('Step 2 — Send Mac sound to ISLA'))
         self.routing = label('Routing has not been checked.')
         box.addWidget(self.routing)
-        box.addWidget(label('Mac audio → BlackHole 2ch → ISLA processing → selected physical speakers/headphones. ISLA never changes macOS audio settings.'))
+        box.addWidget(label('Mac audio → BlackHole 2ch → ISLA processing → selected physical speakers/headphones. ISLA keeps macOS audio routing unchanged.'))
         row = QVBoxLayout()
         self.settings = QPushButton('Open Mac Sound Settings')
         self.settings.clicked.connect(lambda: self.submit('settings'))
@@ -1041,6 +1055,19 @@ class ControlWindow(QMainWindow):
         monitor.addWidget(self.live_status)
         monitor.addWidget(self.live_error)
         monitor.addWidget(self._volume_control('volume', 'LIVE Listening Volume', 50))
+        device_group = QGroupBox('Speaker / Headphone Volume')
+        device_box = QVBoxLayout(device_group)
+        self.device_volume_value = label('Select a listening device')
+        self.device_volume = QSlider(Qt.Orientation.Horizontal)
+        self.device_volume.setRange(0, 100)
+        self.device_volume.setEnabled(False)
+        self.device_volume.setAccessibleName('Selected speaker or headphone hardware volume, 0 to 100 percent')
+        self.device_volume.valueChanged.connect(self._device_volume_edited)
+        self.device_volume_status = label()
+        device_box.addWidget(self.device_volume_value)
+        device_box.addWidget(self.device_volume)
+        device_box.addWidget(self.device_volume_status)
+        monitor.addWidget(device_group)
         monitor.addWidget(label(RESTORE_OUTPUT))
         # This panel spans two desktop grid rows. Consume spare height here,
         # not between labels/buttons, so Step 4 and its modes remain close.
@@ -1146,8 +1173,20 @@ class ControlWindow(QMainWindow):
             self._volume_drafts.clear()
             return
         for kind, value in self._volume_drafts.items():
-            self.worker.request_volume(kind, value)
+            if kind == 'device_volume':
+                self.worker.request_device_volume(*value)
+            else:
+                self.worker.request_volume(kind, value)
         self._volume_drafts.clear()
+
+    def _device_volume_edited(self, percent):
+        if self.state is None or not self.state.output_volume_available:
+            return
+        self._device_volume_serial += 1
+        self._device_volume_pending = self._device_volume_serial
+        self.device_volume_value.setText(f'{percent}% · Applying')
+        self._volume_edited('device_volume', (self.state.selected_output, percent,
+                                             self._device_volume_serial))
 
     def _toggle_mute(self):
         current = self.monitor_volume.value()
@@ -1265,6 +1304,9 @@ class ControlWindow(QMainWindow):
                     self.rate.setCurrentIndex(self.rate.findData(self.state.rate))
                     self._rate_user_selected = False
                 self.activity.setText('Audio session ready.')
+            elif kind == 'device_volume_done':
+                if value == self._device_volume_pending:
+                    self._device_volume_pending = None
             elif kind == 'message':
                 self.activity.setText(value)
             elif kind == 'error':
@@ -1479,7 +1521,6 @@ class ControlWindow(QMainWindow):
                 self._rate_initialized = True
             self._committed_rate = s.rate
         self.filename.setText(s.file_name or 'No file selected')
-        self.device_status.setText(s.device_status)
         if not getattr(self,'_live_processing_initialized',False):
             self.live_engine.setCurrentIndex(self.live_engine.findData(s.live_engine))
             self.live_intensity.setValue(s.live_intensity//5)
@@ -1533,8 +1574,7 @@ class ControlWindow(QMainWindow):
         self.apply_devices.setToolTip(
             f'Connected: {connected_output}. Stop ALIVE, then Start LIVE to use the same listening device.'
             if file_playing else 'Confirm the capture connection and listening output for LIVE.')
-        if file_playing:
-            self.device_status.setText(f'Connected: {connected_output}')
+        self.device_status.setText(f'Connected: {connected_output}' if file_playing else s.device_status)
         self.start_live.setEnabled(bool(available and s.can_start and not dirty_devices))
         self.stop_live.setEnabled(bool(not self.closing and self.busy in (None, 'live_mode')
                                        and (s.live_active or s.live_state.value == 'Fatal audio failure')))
@@ -1585,6 +1625,19 @@ class ControlWindow(QMainWindow):
             f'Requested {self.monitor_volume.value()}% · worker applied '
             + (f'{s.monitor_applied_volume}%' if s.monitor_applied_volume is not None else 'on LIVE start'))
         self.mute_volume.setText('Unmute' if self.monitor_volume.value() == 0 else 'Mute')
+        if self._device_volume_choice != s.selected_output:
+            self._device_volume_choice = s.selected_output
+            self._device_volume_pending = None
+            self._volume_drafts.pop('device_volume', None)
+        self.device_volume.setEnabled(bool(not self.closing and s.output_volume_available))
+        if self._device_volume_pending is None and not self.device_volume.isSliderDown():
+            self.device_volume.blockSignals(True)
+            self.device_volume.setValue(s.output_volume_percent or 0)
+            self.device_volume.blockSignals(False)
+            self.device_volume_value.setText(
+                f'{s.output_volume_percent}%' + (' · Muted' if s.output_volume_muted else '')
+                if s.output_volume_percent is not None else 'Use the device’s volume controls')
+        self.device_volume_status.setText(s.output_volume_message)
         # Choosing a LIVE mode keeps the existing DSP worker and stream.
         desired = self._pending_live_mode or s.live_mode
         if (not self.live_mode_choice.view().isVisible()

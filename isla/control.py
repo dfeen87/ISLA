@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 import shlex
+import sys
 import threading
 
 from isla.playback import AudioError
@@ -299,16 +300,71 @@ class ControlService:
             raise AudioError('BlackHole 2ch is not available. Connect or install BlackHole 2ch, then try Find Connected Devices again. ALIVE file playback does not need BlackHole.')
         if not self.outputs:
             raise AudioError('No listening device found. Connect your headphones or speakers, then click Find Connected Devices again.')
-        output = self.selected_output if self.selected_output in self.outputs else None
-        if output is None:
-            external = [device for device in self.outputs if device.transport != 'bltn']
-            output = external[0] if len(external) == 1 else self.outputs[0] if len(self.outputs) == 1 else None
+        output = self._suggest_output(self.outputs, self.selected_output)
         if output is None:
             raise AudioError('Several listening devices are connected. Choose your headphones or speakers in Step 1, then click Use These Devices.')
         self.select_devices(self.captures[0], output, output.default_rate)
         return f'Found and selected {output.name} at {self.rate:,} Hz. ' + (
             'Your setup is ready. Click Start LIVE when you want to listen.' if self.ready else
             'Next, open Mac Sound Settings and choose BlackHole 2ch as the Mac output, then Check My Setup.')
+
+    @staticmethod
+    def _suggest_output(outputs, preferred=None):
+        if preferred in outputs:
+            return preferred
+        external = [device for device in outputs if device.transport != 'bltn']
+        if len(external) == 1:
+            return external[0]
+        return outputs[0] if len(outputs) == 1 else None
+
+    def _prepare_file_output(self, requested=None):
+        """Resolve and validate ALIVE's output before opening its first stream.
+
+        Capture and the Mac's system-audio route are independent of local-file
+        playback. All enumeration and device checks stay on the owning worker.
+        """
+        self._idle()
+        self.refresh_devices()
+        if not self.outputs and sys.platform != 'darwin' and self.controller._setup_routing is None:
+            # Portable ALIVE has no CoreAudio inventory. Its backend retains
+            # the existing OS-default output and verifies rate/channels at open.
+            return
+        c, p = self.controller, self.controller.player
+        sd = getattr(self._original_file_backend, 'sd', None)
+        def verify(device):
+            if sd is None:
+                return
+            try:
+                sd.check_output_settings(device=device.index, samplerate=p.sr,
+                    channels=p.buffers['original'].shape[1], dtype='float32')
+            except Exception as exc:
+                raise AudioError(f'{device.name} cannot play this recording at {p.sr:,} Hz. Choose another listening output, then click Play. Details: {exc}') from exc
+        if requested is not None:
+            output = next((device for device in self.outputs if
+                (device.native_id, device.name) == (requested.native_id, requested.name)), None)
+            if output is None:
+                raise AudioError('Your chosen listening device is no longer connected. Choose an available output below, then click Play.')
+            verify(output)
+        else:
+            compatible, rejected = [], []
+            for device in self.outputs:
+                try:
+                    verify(device)
+                    compatible.append(device)
+                except AudioError as exc:
+                    rejected.append(exc)
+            if self.outputs and not compatible:
+                raise rejected[0]
+            output = self._suggest_output(compatible, self.selected_output)
+        if output is None:
+            if not self.outputs:
+                raise AudioError('No listening device found. Connect your headphones or speakers, then click Play again.')
+            raise AudioError('Several listening devices are connected. Choose your headphones or speakers below, then click Play.')
+        # Reuse the normal selector; hardware opens only after all checks pass.
+        c.execute('output ' + shlex.quote(str(output.index)))
+        self.selected_output = output
+        self.check_routing()  # Advisory LIVE status; its result never gates ALIVE.
+        self.device_status = f'Connected: {output.name}. ALIVE is ready to play.'
 
     def check_routing(self):
         self._enter()
@@ -390,7 +446,7 @@ class ControlService:
         self.selected_output = output
         self.check_routing()
 
-    def file_command(self, command):
+    def file_command(self, command, output=None):
         self._enter()
         if self.controller.live.running or self.controller.live.stream is not None:
             raise AudioError("Stop LIVE before using ALIVE playback.")
@@ -417,6 +473,10 @@ class ControlService:
         if target is not None or command in ('play', 'pause', 'stop'):
             self._deferred_file_mode = None
         if command == 'play':
+            p.refresh()
+            self.controller._ready()
+            if p.stream is None:
+                self._prepare_file_output(output)
             # Install the GUI-only output wrapper before stream creation on
             # every Play/resume. It scales final PCM without modifying the
             # byte-frozen BufferPlayer or any source/research buffers.

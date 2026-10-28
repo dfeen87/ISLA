@@ -792,7 +792,10 @@ class ControlWindow(QMainWindow):
         row = QHBoxLayout()
         self.play, self.pause, self.stop_file = (QPushButton(text) for text in ('Play', 'Pause', 'Stop'))
         for button, cmd in [(self.play, 'play'), (self.pause, 'pause'), (self.stop_file, 'stop')]:
-            button.clicked.connect(lambda checked=False, command=cmd: self.submit('file', command))
+            if cmd == 'play':
+                button.clicked.connect(self._play_file)
+            else:
+                button.clicked.connect(lambda checked=False, command=cmd: self.submit('file', command))
             row.addWidget(button)
         box.addLayout(row)
         vinyl_row = QHBoxLayout()
@@ -830,7 +833,7 @@ class ControlWindow(QMainWindow):
         self.apply_output = QPushButton('Use Listening Output')
         self.apply_output.clicked.connect(lambda: self.submit('file_output', self.file_output.currentData()))
         box.addWidget(self.apply_output)
-        box.addWidget(label('ALIVE can use the system default output without BlackHole. Physical output choices are offered when verified by macOS. Stop audio before changing devices.'))
+        box.addWidget(label('Play checks your headphones or speakers automatically. If several are connected, choose one here first. ALIVE does not need BlackHole. Stop playback to change devices.'))
         box.addStretch()
         return panel
 
@@ -1163,6 +1166,12 @@ class ControlWindow(QMainWindow):
         path, _ = QFileDialog.getOpenFileName(self, 'Open audio file', '', AUDIO_FILE_FILTER)
         if path:
             self.submit('load', path)
+
+    def _play_file(self):
+        output = self.file_output.currentData()
+        if self.state is not None and output == self.state.selected_output:
+            output = None  # Recheck an existing choice and find a compatible fallback.
+        return self.submit('file', 'play', output)
 
     def _prepare_research(self):
         if not self.apply_research.isEnabled():
@@ -1511,6 +1520,14 @@ class ControlWindow(QMainWindow):
         self.stop_file.setEnabled(bool(available and s.can_play))
         self.apply_output.setEnabled(bool(available and s.can_configure and self.file_output.currentData()))
         self.apply_devices.setEnabled(bool(available and s.can_configure and self.capture.currentData() and self.output.currentData()))
+        file_playing = s.file_state == UIState.PLAYING and s.stream_active and not s.live_active
+        connected_output = s.selected_output.name if s.selected_output else s.alive_output
+        self.apply_devices.setText('Connected — ALIVE playing' if file_playing else 'Use These Devices')
+        self.apply_devices.setToolTip(
+            f'Connected: {connected_output}. Stop ALIVE before changing devices or setting up LIVE.'
+            if file_playing else 'Confirm the capture connection and listening output for LIVE.')
+        if file_playing:
+            self.device_status.setText(f'Connected: {connected_output}')
         dirty_devices = (self.capture.currentData() != s.selected_capture or
                          self.output.currentData() != s.selected_output or self.rate.currentData() != s.rate)
         self.start_live.setEnabled(bool(available and s.can_start and not dirty_devices))
@@ -1587,6 +1604,9 @@ class ControlWindow(QMainWindow):
         self.routing.setText(f"{'LIVE routing ready' if s.routing_ready else 'LIVE is not ready'}\nCurrent macOS output: {s.system_output}\nRequired macOS output: BlackHole 2ch\nISLA Capture: {s.capture}\nISLA Physical Playback: {s.output}")
         if s.live_active:
             setup_hint = 'Listening through ' + s.output + '. Click Stop LIVE before changing devices.'
+        elif file_playing:
+            setup_hint = ('Connected: ' + connected_output + '. ALIVE is playing your file. '
+                          'Click Stop in ALIVE to change devices or set up LIVE.')
         elif not s.captures:
             setup_hint = ('Your Mac needs the BlackHole 2ch audio connection for LIVE. '
                           'Connect or install it, then click Find Connected Devices. '
